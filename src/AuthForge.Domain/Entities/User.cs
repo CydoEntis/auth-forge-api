@@ -18,7 +18,7 @@ public sealed class User : AggregateRoot<UserId>
         Email email,
         HashedPassword password,
         string firstName,
-        string lastName)
+        string lastName) : base(id)
     {
         TenantId = tenantId;
         Email = email;
@@ -49,7 +49,8 @@ public sealed class User : AggregateRoot<UserId>
     public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens.AsReadOnly();
     public string FullName => $"{FirstName} {LastName}";
 
-    public static User Create(TenantId tenantId, Email email, HashedPassword password, string firstName, string lastName)
+    public static User Create(TenantId tenantId, Email email, HashedPassword password, string firstName,
+        string lastName)
     {
         if (string.IsNullOrWhiteSpace(firstName))
             throw new ArgumentException("First name cannot be empty.", nameof(firstName));
@@ -145,27 +146,27 @@ public sealed class User : AggregateRoot<UserId>
 
     public void Decativate()
     {
-        if(!IsActive)
+        if (!IsActive)
             throw new InvalidOperationException("User is already deactivated.");
-        
+
         IsActive = false;
 
         RevokeAllRefreshTokens();
     }
-    
+
     public void Activate()
     {
-        if(IsActive)
+        if (IsActive)
             throw new InvalidOperationException("User is already active.");
-        
+
         IsActive = true;
     }
 
     public void AddRefreshToken(RefreshToken refreshToken)
     {
-        if(refreshToken is null)
+        if (refreshToken is null)
             throw new ArgumentNullException(nameof(refreshToken));
-        
+
         _refreshTokens.Add(refreshToken);
     }
 
@@ -179,7 +180,7 @@ public sealed class User : AggregateRoot<UserId>
             RaiseDomainEvent(new RefreshTokenRevokedDomainEvent(Id, token));
         }
     }
-    
+
     public void RevokeAllRefreshTokens()
     {
         foreach (var token in _refreshTokens.Where(rt => rt.IsActive))
@@ -187,7 +188,7 @@ public sealed class User : AggregateRoot<UserId>
             token.Revoke();
         }
     }
-    
+
     public void UpdateProfile(string firstName, string lastName)
     {
         if (string.IsNullOrWhiteSpace(firstName))
@@ -199,4 +200,4 @@ public sealed class User : AggregateRoot<UserId>
         FirstName = firstName;
         LastName = lastName;
     }
- }
+}

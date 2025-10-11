@@ -29,7 +29,7 @@ public class Tenant : AggregateRoot<TenantId>
     public DateTime? DeactivatedAtUtc { get; private set; }
     public IReadOnlyCollection<User> Users => _users.AsReadOnly();
 
-    public static Tenant Crate(string name, string slug, TenantSettings? settings = null)
+    public static Tenant Create(string name, string slug, TenantSettings? settings = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Tenant name cannot be empty.", nameof(name));
@@ -47,7 +47,7 @@ public class Tenant : AggregateRoot<TenantId>
         return tenant;
     }
 
-    public void Decative()
+    public void Deactivate()
     {
         if (!IsActive)
             throw new InvalidOperationException("Tenant is already deactivated.");
