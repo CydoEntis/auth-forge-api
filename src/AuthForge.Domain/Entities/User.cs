@@ -47,9 +47,9 @@ public sealed class User : AggregateRoot<UserId>
     public DateTime? EmailVerificationTokenExpiresAt { get; private set; }
 
     public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens.AsReadOnly();
-    public string FUllName => $"{FirstName} {LastName}";
+    public string FullName => $"{FirstName} {LastName}";
 
-    public static User Crate(TenantId tenantId, Email email, HashedPassword password, string firstName, string lastName)
+    public static User Create(TenantId tenantId, Email email, HashedPassword password, string firstName, string lastName)
     {
         if (string.IsNullOrWhiteSpace(firstName))
             throw new ArgumentException("First name cannot be empty.", nameof(firstName));
