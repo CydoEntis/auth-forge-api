@@ -1,4 +1,5 @@
 ﻿using AuthForge.Application.Common.Interfaces;
+using AuthForge.Application.Common.Services;
 using AuthForge.Domain.Common;
 using AuthForge.Domain.Entities;
 using AuthForge.Domain.Errors;
@@ -10,28 +11,33 @@ namespace AuthForge.Application.Auth.Commands.Register;
 public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand, Result<RegisterUserResponse>>
 {
     private readonly IUserRepository _userRepository;
-    private readonly ITenantRepository _tenantRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ITenantValidationService _tenantValidationService;
+    private readonly IEmailParser _emailParser;
 
     public RegisterUserCommandHandler(
         IUserRepository userRepository,
-        ITenantRepository tenantRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ITenantValidationService tenantValidationService,
+        IEmailParser emailParser)
     {
         _userRepository = userRepository;
-        _tenantRepository = tenantRepository;
         _unitOfWork = unitOfWork;
+        _tenantValidationService = tenantValidationService;
+        _emailParser = emailParser;
     }
 
     public async ValueTask<Result<RegisterUserResponse>> Handle(
         RegisterUserCommand command,
         CancellationToken cancellationToken)
     {
-        var tenantResult = await ValidateTenantAsync(command.TenantId, cancellationToken);
+        var tenantResult = await _tenantValidationService.ValidateTenantAsync(
+            command.TenantId,
+            cancellationToken);
         if (tenantResult.IsFailure)
             return Result<RegisterUserResponse>.Failure(tenantResult.Error);
 
-        var emailResult = CreateEmail(command.Email);
+        var emailResult = _emailParser.ParseForRegistration(command.Email);
         if (emailResult.IsFailure)
             return Result<RegisterUserResponse>.Failure(emailResult.Error);
 
@@ -56,46 +62,6 @@ public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCom
         await SaveUserAsync(user, cancellationToken);
 
         return CreateSuccessResponse(user);
-    }
-
-    private async Task<Result<Tenant>> ValidateTenantAsync(
-        string tenantIdString,
-        CancellationToken cancellationToken)
-    {
-        if (!Guid.TryParse(tenantIdString, out var tenantGuid))
-        {
-            return Result<Tenant>.Failure(
-                new Error("Tenant.InvalidId", "Tenant ID must be a valid GUID"));
-        }
-
-        var tenantId = TenantId.Create(tenantGuid);
-
-        var tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
-        if (tenant is null)
-        {
-            return Result<Tenant>.Failure(DomainErrors.Tenant.NotFound);
-        }
-
-        if (!tenant.IsActive)
-        {
-            return Result<Tenant>.Failure(DomainErrors.Tenant.Inactive);
-        }
-
-        return Result<Tenant>.Success(tenant);
-    }
-
-    private static Result<Email> CreateEmail(string emailString)
-    {
-        try
-        {
-            var email = Email.Create(emailString);
-            return Result<Email>.Success(email);
-        }
-        catch (ArgumentException ex)
-        {
-            return Result<Email>.Failure(
-                new Error("User.InvalidEmail", ex.Message));
-        }
     }
 
     private async Task<Result> EnsureEmailIsUniqueAsync(
@@ -123,10 +89,10 @@ public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCom
             var hashedPassword = HashedPassword.Create(password);
             return Result<HashedPassword>.Success(hashedPassword);
         }
-        catch (ArgumentException ex)
+        catch (ArgumentException)
         {
             return Result<HashedPassword>.Failure(
-                new Error("User.InvalidPassword", ex.Message));
+                DomainErrors.Validation.InvalidPassword());
         }
     }
 
@@ -158,7 +124,6 @@ public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCom
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-
     private static Result<RegisterUserResponse> CreateSuccessResponse(User user)
     {
         var response = new RegisterUserResponse
@@ -172,7 +137,6 @@ public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCom
 
         return Result<RegisterUserResponse>.Success(response);
     }
-
 
     private static string GenerateVerificationToken()
     {

@@ -6,5 +6,5 @@ public sealed record TokenPair(
     DateTime AccessTokenExpiresAt,
     DateTime RefreshTokenExpiresAt)
 {
-    public int ExpiresinSeconds => (int)(AccessTokenExpiresAt - DateTime.UtcNow).TotalSeconds;
+    public int ExpiresInSeconds => (int)(AccessTokenExpiresAt - DateTime.UtcNow).TotalSeconds;
 }
