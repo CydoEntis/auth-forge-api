@@ -4,8 +4,12 @@ namespace AuthForge.Domain.ValueObjects;
 
 public sealed record HashedPassword
 {
-    public string Hash { get; }
-    public string Salt { get; }
+    public string Hash { get; init; } = string.Empty;
+    public string Salt { get; init; } = string.Empty;
+
+    private HashedPassword()
+    {
+    }
 
     private HashedPassword(string hash, string salt)
     {
