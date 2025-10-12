@@ -22,4 +22,8 @@
         <ProjectReference Include="..\AuthForge.Application\AuthForge.Application.csproj" />
         <ProjectReference Include="..\AuthForge.Infrastructure\AuthForge.Infrastructure.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Common\Filters\" />
+    </ItemGroup>
 </Project>

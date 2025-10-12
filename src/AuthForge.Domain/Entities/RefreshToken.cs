@@ -1,12 +1,13 @@
-﻿using System.Security.Cryptography;
-using AuthForge.Domain.Common;
+﻿using AuthForge.Domain.Common;
 using AuthForge.Domain.ValueObjects;
 
 namespace AuthForge.Domain.Entities;
 
 public sealed class RefreshToken : Entity<Guid>
 {
-    private RefreshToken() { }
+    private RefreshToken()
+    {
+    }
 
     private RefreshToken(
         Guid id,
@@ -33,24 +34,29 @@ public sealed class RefreshToken : Entity<Guid>
     public string? ReplacedByToken { get; private set; }
     public string? IpAddress { get; private set; }
     public string? UserAgent { get; private set; }
+
     public bool IsExpired => DateTime.UtcNow >= ExpiresAtUtc;
     public bool IsRevoked => RevokedAtUtc.HasValue;
     public bool IsActive => !IsRevoked && !IsExpired;
 
     public static RefreshToken Create(
         UserId userId,
-        int expirationDays,
+        string token,
+        DateTime expiresAtUtc,
         string? ipAddress = null,
         string? userAgent = null)
     {
-        string token = GenerateSecureToken();
-        DateTime expiresAt = DateTime.UtcNow.AddDays(expirationDays);
+        if (string.IsNullOrWhiteSpace(token))
+            throw new ArgumentException("Token cannot be empty", nameof(token));
+
+        if (expiresAtUtc <= DateTime.UtcNow)
+            throw new ArgumentException("Expiration date must be in the future", nameof(expiresAtUtc));
 
         return new RefreshToken(
             Guid.NewGuid(),
             userId,
             token,
-            expiresAt,
+            expiresAtUtc,
             ipAddress,
             userAgent);
     }
@@ -70,12 +76,5 @@ public sealed class RefreshToken : Entity<Guid>
             throw new InvalidOperationException("Token has already been used");
 
         UsedAtUtc = DateTime.UtcNow;
-    }
-
-    private static string GenerateSecureToken()
-    {
-        byte[] randomBytes = RandomNumberGenerator.GetBytes(64);
-        
-        return Convert.ToBase64String(randomBytes);
     }
 }
