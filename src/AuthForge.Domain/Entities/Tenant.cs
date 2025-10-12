@@ -26,6 +26,7 @@ public class Tenant : AggregateRoot<TenantId>
     public TenantSettings Settings { get; private set; } = default!;
     public bool IsActive { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
+    public DateTime? UpdatedAtUtc { get; private set; }
     public DateTime? DeactivatedAtUtc { get; private set; }
     public IReadOnlyCollection<User> Users => _users.AsReadOnly();
 
@@ -58,20 +59,10 @@ public class Tenant : AggregateRoot<TenantId>
         RaiseDomainEvent(new TenantEvents.TenantDeactivatedDomainEvent(Id));
     }
 
-    public void Activate()
-    {
-        if (IsActive)
-            throw new InvalidOperationException("Tenant is already activate.");
-
-        IsActive = true;
-        DeactivatedAtUtc = null;
-
-        RaiseDomainEvent(new TenantEvents.TenantActivatedDomainEvent(Id));
-    }
-
     public void UpdateSettings(TenantSettings settings)
     {
         Settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        UpdatedAtUtc = DateTime.UtcNow;
     }
 
     public void UpdateName(string name)
@@ -80,10 +71,28 @@ public class Tenant : AggregateRoot<TenantId>
             throw new ArgumentException("Tenant name cannot be empty.", nameof(name));
 
         Name = name;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    public void Activate()
+    {
+        if (IsActive)
+            throw new InvalidOperationException("Tenant is already activate.");
+
+        IsActive = true;
+        DeactivatedAtUtc = null;
+        UpdatedAtUtc = DateTime.UtcNow;
+
+        RaiseDomainEvent(new TenantEvents.TenantActivatedDomainEvent(Id));
     }
 
     private static bool IsValidSlug(string slug)
     {
         return slug.All(c => char.IsLower(c) || char.IsDigit(c) || c == '-');
+    }
+
+    public void UpdateTimestamp()
+    {
+        UpdatedAtUtc = DateTime.UtcNow;
     }
 }

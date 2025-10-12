@@ -41,7 +41,8 @@ public sealed class User : AggregateRoot<UserId>
     public int FailedLoginAttempts { get; private set; }
     public DateTime? LockedOutUntil { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
-    public DateTime? LastloginAtUtc { get; private set; }
+    public DateTime? UpdatedAtUtc { get; private set; }
+    public DateTime? LastLoginAtUtc { get; private set; }
 
     public string? EmailVerificationToken { get; private set; }
     public DateTime? EmailVerificationTokenExpiresAt { get; private set; }
@@ -110,7 +111,8 @@ public sealed class User : AggregateRoot<UserId>
     {
         FailedLoginAttempts = 0;
         LockedOutUntil = null;
-        LastloginAtUtc = DateTime.UtcNow;
+        LastLoginAtUtc = DateTime.UtcNow;
+        UpdatedAtUtc = DateTime.UtcNow;
 
         RaiseDomainEvent(new UserLoggedInDomainEvent(Id, TenantId, Email));
     }
@@ -140,7 +142,7 @@ public sealed class User : AggregateRoot<UserId>
     public void UpdatePassword(HashedPassword newPasswordHash)
     {
         PasswordHash = newPasswordHash ?? throw new ArgumentException(nameof(newPasswordHash));
-
+        UpdatedAtUtc = DateTime.UtcNow;
         RaiseDomainEvent(new UserPasswordChangedDomainEvent(Id));
     }
 
@@ -193,11 +195,16 @@ public sealed class User : AggregateRoot<UserId>
     {
         if (string.IsNullOrWhiteSpace(firstName))
             throw new ArgumentException("First name cannot be empty", nameof(firstName));
-
         if (string.IsNullOrWhiteSpace(lastName))
             throw new ArgumentException("Last name cannot be empty", nameof(lastName));
 
         FirstName = firstName;
         LastName = lastName;
+        UpdatedAtUtc = DateTime.UtcNow; 
+    }
+
+    public void UpdateTimestamp()
+    {
+        UpdatedAtUtc = DateTime.UtcNow;
     }
 }
