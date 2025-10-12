@@ -1,7 +1,7 @@
 ﻿using AuthForge.Domain.Common;
 using Mediator;
 
-namespace AuthForge.Application.Auth.Commands.RefreshToken;
+namespace AuthForge.Application.Auth.Commands.Refresh;
 
 public sealed class RefreshTokenCommand : ICommand<Result<RefreshTokenResponse>>
 {

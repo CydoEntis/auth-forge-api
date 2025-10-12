@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace AuthForge.Application.Auth.Commands.RefreshToken;
+namespace AuthForge.Application.Auth.Commands.Refresh;
 
 public sealed class RefreshTokenCommandValidator : AbstractValidator<RefreshTokenCommand>
 {

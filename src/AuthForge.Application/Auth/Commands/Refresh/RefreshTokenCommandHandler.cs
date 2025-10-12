@@ -4,7 +4,7 @@ using AuthForge.Domain.Entities;
 using AuthForge.Domain.Errors;
 using Mediator;
 
-namespace AuthForge.Application.Auth.Commands.RefreshToken;
+namespace AuthForge.Application.Auth.Commands.Refresh;
 
 public sealed class RefreshTokenCommandHandler
     : ICommandHandler<RefreshTokenCommand, Result<RefreshTokenResponse>>
