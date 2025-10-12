@@ -172,6 +172,14 @@ public sealed class User : AggregateRoot<UserId>
         _refreshTokens.Add(refreshToken);
     }
 
+    public void RemoveOldRefreshTokens(int retentionDays)
+    {
+        var cutoffDate = DateTime.UtcNow.AddDays(-retentionDays);
+    
+        _refreshTokens.RemoveAll(t => 
+            !t.IsActive && t.CreatedAtUtc < cutoffDate);
+    }
+    
     public void RevokeRefreshToken(string token)
     {
         var refreshToken = _refreshTokens.FirstOrDefault(rt => rt.Token == token);

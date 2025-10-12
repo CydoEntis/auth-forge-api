@@ -20,6 +20,10 @@ public static class DomainErrors
             "User.LockedOut",
             "User account is locked due to too many failed login attempts");
 
+        public static Error LockedOutUntil(DateTime lockedOutUntil) => new(
+            "User.LockedOut",
+            $"Account is locked until {lockedOutUntil:yyyy-MM-dd HH:mm:ss} UTC");
+
         public static readonly Error EmailNotVerified = new(
             "User.EmailNotVerified",
             "Email address must be verified before logging in");
@@ -118,6 +122,14 @@ public static class DomainErrors
         public static Error InvalidEmail() => new(
             "Validation.InvalidEmail",
             "Email address is not in a valid format");
+
+        public static Error InvalidGuid(string fieldName) => new(
+            "Validation.InvalidGuid",
+            $"{fieldName} must be a valid GUID");
+
+        public static Error InvalidPassword() => new(
+            "Validation.InvalidPassword",
+            "Password does not meet the required criteria");
 
         public static Error MinLength(string fieldName, int minLength) => new(
             "Validation.MinLength",
