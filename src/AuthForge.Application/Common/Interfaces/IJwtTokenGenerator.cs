@@ -5,9 +5,9 @@ namespace AuthForge.Application.Common.Interfaces;
 
 public interface IJwtTokenGenerator
 {
-    (string AccessToken, DateTime ExpiresAt) GenerateAccessToken(User user, Tenant tenant);
-    RefreshToken GenerateRefreshToken(User user, string? ipAddress = null, string? userAgent = null);
 
+    (string AccessToken, DateTime ExpiresAt) GenerateAccessToken(User user, Tenant tenant);
+    
     TokenPair GenerateTokenPair(
         User user,
         Tenant tenant,
