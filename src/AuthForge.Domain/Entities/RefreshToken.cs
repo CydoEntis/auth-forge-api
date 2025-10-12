@@ -6,7 +6,9 @@ namespace AuthForge.Domain.Entities;
 
 public sealed class RefreshToken : Entity<Guid>
 {
-    private RefreshToken() { }
+    private RefreshToken()
+    {
+    }
 
     private RefreshToken(
         Guid id,
@@ -33,6 +35,7 @@ public sealed class RefreshToken : Entity<Guid>
     public string? ReplacedByToken { get; private set; }
     public string? IpAddress { get; private set; }
     public string? UserAgent { get; private set; }
+
     public bool IsExpired => DateTime.UtcNow >= ExpiresAtUtc;
     public bool IsRevoked => RevokedAtUtc.HasValue;
     public bool IsActive => !IsRevoked && !IsExpired;
@@ -74,8 +77,9 @@ public sealed class RefreshToken : Entity<Guid>
 
     private static string GenerateSecureToken()
     {
-        byte[] randomBytes = RandomNumberGenerator.GetBytes(64);
-        
+        byte[] randomBytes = new byte[64];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomBytes);
         return Convert.ToBase64String(randomBytes);
     }
 }
