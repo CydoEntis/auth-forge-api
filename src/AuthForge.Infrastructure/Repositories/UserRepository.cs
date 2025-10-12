@@ -28,10 +28,15 @@ public class UserRepository : IUserRepository
             .FirstOrDefaultAsync(u => u.TenantId == tenantId && u.Email == email, cancellationToken);
     }
 
-    public async Task<bool> ExistsAsync(TenantId tenantId, Email email, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByRefreshTokenAsync(
+        string refreshToken,
+        CancellationToken cancellationToken = default)
     {
         return await _context.Users
-            .AnyAsync(u => u.TenantId == tenantId && u.Email == email, cancellationToken);
+            .Include(u => u.RefreshTokens)
+            .FirstOrDefaultAsync(
+                u => u.RefreshTokens.Any(rt => rt.Token == refreshToken),
+                cancellationToken);
     }
 
     public async Task<List<User>> GetByTenantAsync(TenantId tenantId, int pageNumber, int pageSize,
@@ -43,6 +48,12 @@ public class UserRepository : IUserRepository
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> ExistsAsync(TenantId tenantId, Email email, CancellationToken cancellationToken = default)
+    {
+        return await _context.Users
+            .AnyAsync(u => u.TenantId == tenantId && u.Email == email, cancellationToken);
     }
 
     public async Task AddAsync(User user, CancellationToken cancellationToken = default)
