@@ -53,10 +53,18 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(100)
             .IsRequired();
 
-        builder.Property(u => u.PasswordHash)
-            .HasColumnName("password_hash")
-            .HasMaxLength(255)
-            .IsRequired();
+        builder.OwnsOne(u => u.PasswordHash, password =>
+        {
+            password.Property(p => p.Hash)
+                .HasColumnName("password_hash")
+                .HasMaxLength(255)
+                .IsRequired();
+            
+            password.Property(p => p.Salt)
+                .HasColumnName("password_salt")
+                .HasMaxLength(255)
+                .IsRequired();
+        });
 
         builder.Property(u => u.IsEmailVerified)
             .HasColumnName("is_email_verified")

@@ -2,7 +2,12 @@
 
 public sealed record UserId
 {
-    public Guid Value { get; }
+    public Guid Value { get; init; }
+
+    private UserId()
+    {
+        Value = Guid.Empty;
+    }
 
     private UserId(Guid value)
     {
