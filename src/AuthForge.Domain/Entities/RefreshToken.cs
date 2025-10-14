@@ -4,7 +4,7 @@ using AuthForge.Domain.ValueObjects;
 
 namespace AuthForge.Domain.Entities;
 
-public sealed class RefreshToken : AggregateRoot<Guid> 
+public sealed class RefreshToken : AggregateRoot<Guid>
 {
     private RefreshToken()
     {
@@ -12,7 +12,7 @@ public sealed class RefreshToken : AggregateRoot<Guid>
 
     private RefreshToken(
         Guid id,
-        UserId userId,
+        EndUserId userId,
         string token,
         DateTime expiresAtUtc,
         string? ipAddress = null,
@@ -26,7 +26,7 @@ public sealed class RefreshToken : AggregateRoot<Guid>
         UserAgent = userAgent;
     }
 
-    public UserId UserId { get; private set; } = default!;
+    public EndUserId UserId { get; private set; } = default!;
     
     public string Token { get; private set; } = string.Empty;
     public DateTime ExpiresAtUtc { get; private set; }
@@ -42,7 +42,7 @@ public sealed class RefreshToken : AggregateRoot<Guid>
     public bool IsActive => !IsRevoked && !IsExpired;
 
     public static RefreshToken Create(
-        UserId userId,
+        EndUserId userId,
         string token,
         DateTime expiresAtUtc,
         string? ipAddress = null,

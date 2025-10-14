@@ -29,7 +29,4 @@ public sealed record UserPasswordChangedDomainEvent(
 
 public sealed record UserDeactivatedDomainEvent(
     UserId UserId) : IDomainEvent;
-
-public sealed record RefreshTokenRevokedDomainEvent(
-    UserId UserId,
-    string Token) : IDomainEvent;
+    
