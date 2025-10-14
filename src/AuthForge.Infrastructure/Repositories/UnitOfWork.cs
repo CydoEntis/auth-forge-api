@@ -1,5 +1,6 @@
 ﻿using AuthForge.Application.Common.Interfaces;
 using AuthForge.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace AuthForge.Infrastructure.Repositories;
 
@@ -14,6 +15,14 @@ public class UnitOfWork : IUnitOfWork
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            return await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            throw new InvalidOperationException(
+                "Concurrency error occurred. The entity may have been modified or deleted.", ex);
+        }
     }
 }

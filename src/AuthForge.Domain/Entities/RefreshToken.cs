@@ -1,9 +1,10 @@
 ﻿using AuthForge.Domain.Common;
+using AuthForge.Domain.Events;
 using AuthForge.Domain.ValueObjects;
 
 namespace AuthForge.Domain.Entities;
 
-public sealed class RefreshToken : Entity<Guid>
+public sealed class RefreshToken : AggregateRoot<Guid> 
 {
     private RefreshToken()
     {
@@ -26,6 +27,7 @@ public sealed class RefreshToken : Entity<Guid>
     }
 
     public UserId UserId { get; private set; } = default!;
+    
     public string Token { get; private set; } = string.Empty;
     public DateTime ExpiresAtUtc { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
@@ -68,6 +70,8 @@ public sealed class RefreshToken : Entity<Guid>
 
         RevokedAtUtc = DateTime.UtcNow;
         ReplacedByToken = replacedByToken;
+        
+        RaiseDomainEvent(new RefreshTokenRevokedDomainEvent(UserId, Token));
     }
 
     public void MarkAsUsed()

@@ -6,8 +6,6 @@ namespace AuthForge.Domain.Entities;
 
 public sealed class User : AggregateRoot<UserId>
 {
-    private readonly List<RefreshToken> _refreshTokens = new();
-
     private User()
     {
     }
@@ -47,7 +45,6 @@ public sealed class User : AggregateRoot<UserId>
     public string? EmailVerificationToken { get; private set; }
     public DateTime? EmailVerificationTokenExpiresAt { get; private set; }
 
-    public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens.AsReadOnly();
     public string FullName => $"{FirstName} {LastName}";
 
     public static User Create(TenantId tenantId, Email email, HashedPassword password, string firstName,
@@ -146,14 +143,15 @@ public sealed class User : AggregateRoot<UserId>
         RaiseDomainEvent(new UserPasswordChangedDomainEvent(Id));
     }
 
-    public void Decativate()
+    public void Deactivate()
     {
         if (!IsActive)
             throw new InvalidOperationException("User is already deactivated.");
 
         IsActive = false;
-
-        RevokeAllRefreshTokens();
+        
+        // Raise an event so RefreshToken aggregate can react
+        RaiseDomainEvent(new UserDeactivatedDomainEvent(Id));
     }
 
     public void Activate()
@@ -162,41 +160,6 @@ public sealed class User : AggregateRoot<UserId>
             throw new InvalidOperationException("User is already active.");
 
         IsActive = true;
-    }
-
-    public void AddRefreshToken(RefreshToken refreshToken)
-    {
-        if (refreshToken is null)
-            throw new ArgumentNullException(nameof(refreshToken));
-
-        _refreshTokens.Add(refreshToken);
-    }
-
-    public void RemoveOldRefreshTokens(int retentionDays)
-    {
-        var cutoffDate = DateTime.UtcNow.AddDays(-retentionDays);
-    
-        _refreshTokens.RemoveAll(t => 
-            !t.IsActive && t.CreatedAtUtc < cutoffDate);
-    }
-    
-    public void RevokeRefreshToken(string token)
-    {
-        var refreshToken = _refreshTokens.FirstOrDefault(rt => rt.Token == token);
-
-        if (refreshToken != null && !refreshToken.IsRevoked)
-        {
-            refreshToken.Revoke();
-            RaiseDomainEvent(new RefreshTokenRevokedDomainEvent(Id, token));
-        }
-    }
-
-    public void RevokeAllRefreshTokens()
-    {
-        foreach (var token in _refreshTokens.Where(rt => rt.IsActive))
-        {
-            token.Revoke();
-        }
     }
 
     public void UpdateProfile(string firstName, string lastName)

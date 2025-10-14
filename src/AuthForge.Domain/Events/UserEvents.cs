@@ -27,6 +27,9 @@ public sealed record UserLockedOutDomainEvent(
 public sealed record UserPasswordChangedDomainEvent(
     UserId UserId) : IDomainEvent;
 
+public sealed record UserDeactivatedDomainEvent(
+    UserId UserId) : IDomainEvent;
+
 public sealed record RefreshTokenRevokedDomainEvent(
     UserId UserId,
     string Token) : IDomainEvent;

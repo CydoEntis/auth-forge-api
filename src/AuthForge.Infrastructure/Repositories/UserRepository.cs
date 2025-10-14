@@ -17,43 +17,23 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetByIdAsync(UserId id, CancellationToken cancellationToken = default)
     {
+        var userId = id.Value;
         return await _context.Users
-            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
     }
 
     public async Task<User?> GetByEmailAsync(TenantId tenantId, Email email,
         CancellationToken cancellationToken = default)
     {
         return await _context.Users
-            .FirstOrDefaultAsync(u => u.TenantId == tenantId && u.Email == email, cancellationToken);
+            .FirstOrDefaultAsync(u => u.TenantId == tenantId.Value && u.Email == email.Value, cancellationToken);
     }
 
-    public async Task<User?> GetByRefreshTokenAsync(
-        string refreshToken,
-        CancellationToken cancellationToken = default)
-    {
-        return await _context.Users
-            .Include(u => u.RefreshTokens)
-            .FirstOrDefaultAsync(
-                u => u.RefreshTokens.Any(rt => rt.Token == refreshToken),
-                cancellationToken);
-    }
-
-    public async Task<List<User>> GetByTenantAsync(TenantId tenantId, int pageNumber, int pageSize,
-        CancellationToken cancellationToken = default)
-    {
-        return await _context.Users
-            .Where(u => u.TenantId == tenantId)
-            .OrderBy(u => u.CreatedAtUtc)
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync(cancellationToken);
-    }
 
     public async Task<bool> ExistsAsync(TenantId tenantId, Email email, CancellationToken cancellationToken = default)
     {
         return await _context.Users
-            .AnyAsync(u => u.TenantId == tenantId && u.Email == email, cancellationToken);
+            .AnyAsync(u => u.TenantId == tenantId.Value && u.Email == email.Value, cancellationToken);
     }
 
     public async Task AddAsync(User user, CancellationToken cancellationToken = default)
@@ -69,5 +49,16 @@ public class UserRepository : IUserRepository
     public void Delete(User user)
     {
         _context.Users.Remove(user);
+    }
+
+    public async Task<List<User>> GetByTenantAsync(TenantId tenantId, int pageNumber, int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Users
+            .Where(u => u.TenantId == tenantId.Value)
+            .OrderBy(u => u.CreatedAtUtc)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
     }
 }
