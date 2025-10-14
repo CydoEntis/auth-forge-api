@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace AuthForge.Infrastructure.Data.Migrations
+namespace AuthForge.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -42,13 +42,13 @@ namespace AuthForge.Infrastructure.Data.Migrations
                     last_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     is_email_verified = table.Column<bool>(type: "boolean", nullable: false),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
-                    FailedLoginAttempts = table.Column<int>(type: "integer", nullable: false),
-                    LockedOutUntil = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    failed_login_attempts = table.Column<int>(type: "integer", nullable: false),
+                    locked_out_until = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     created_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     last_login_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     email_verification_token = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
-                    EmailVerificationTokenExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    email_verification_token_expires_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -62,34 +62,41 @@ namespace AuthForge.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RefreshToken",
+                name: "refresh_tokens",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Token = table.Column<string>(type: "text", nullable: false),
-                    ExpiresAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    RevokedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    UsedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    ReplacedByToken = table.Column<string>(type: "text", nullable: true),
-                    IpAddress = table.Column<string>(type: "text", nullable: true),
-                    UserAgent = table.Column<string>(type: "text", nullable: true),
-                    UserId1 = table.Column<Guid>(type: "uuid", nullable: true)
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    token = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    expires_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    revoked_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    used_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    replaced_by_token = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    ip_address = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: true),
+                    user_agent = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RefreshToken", x => x.Id);
+                    table.PrimaryKey("PK_refresh_tokens", x => x.id);
                     table.ForeignKey(
-                        name: "FK_RefreshToken_users_UserId1",
-                        column: x => x.UserId1,
+                        name: "FK_refresh_tokens_users_user_id",
+                        column: x => x.user_id,
                         principalTable: "users",
-                        principalColumn: "id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_RefreshToken_UserId1",
-                table: "RefreshToken",
-                column: "UserId1");
+                name: "IX_refresh_tokens_token",
+                table: "refresh_tokens",
+                column: "token",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_refresh_tokens_user_id",
+                table: "refresh_tokens",
+                column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_tenants_slug",
@@ -108,7 +115,7 @@ namespace AuthForge.Infrastructure.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "RefreshToken");
+                name: "refresh_tokens");
 
             migrationBuilder.DropTable(
                 name: "users");

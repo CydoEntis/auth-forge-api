@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace AuthForge.Infrastructure.Data.Migrations
+namespace AuthForge.Infrastructure.Migrations
 {
     [DbContext(typeof(AuthForgeDbContext))]
     partial class AuthForgeDbContextModelSnapshot : ModelSnapshot
@@ -26,41 +26,58 @@ namespace AuthForge.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
 
                     b.Property<DateTime>("ExpiresAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at_utc");
 
                     b.Property<string>("IpAddress")
-                        .HasColumnType("text");
+                        .HasMaxLength(45)
+                        .HasColumnType("character varying(45)")
+                        .HasColumnName("ip_address");
 
                     b.Property<string>("ReplacedByToken")
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("replaced_by_token");
 
                     b.Property<DateTime?>("RevokedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("revoked_at_utc");
 
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("token");
 
                     b.Property<DateTime?>("UsedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("used_at_utc");
 
                     b.Property<string>("UserAgent")
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("user_agent");
 
-                    b.Property<Guid?>("UserId1")
-                        .HasColumnType("uuid");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("Token")
+                        .IsUnique();
 
-                    b.ToTable("RefreshToken");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("refresh_tokens", (string)null);
                 });
 
             modelBuilder.Entity("AuthForge.Domain.Entities.Tenant", b =>
@@ -127,10 +144,12 @@ namespace AuthForge.Infrastructure.Data.Migrations
                         .HasColumnName("email_verification_token");
 
                     b.Property<DateTime?>("EmailVerificationTokenExpiresAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("email_verification_token_expires_at");
 
                     b.Property<int>("FailedLoginAttempts")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("failed_login_attempts");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -157,7 +176,8 @@ namespace AuthForge.Infrastructure.Data.Migrations
                         .HasColumnName("last_name");
 
                     b.Property<DateTime?>("LockedOutUntil")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("locked_out_until");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
@@ -177,9 +197,13 @@ namespace AuthForge.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("AuthForge.Domain.Entities.RefreshToken", b =>
                 {
-                    b.HasOne("AuthForge.Domain.Entities.User", null)
+                    b.HasOne("AuthForge.Domain.Entities.User", "User")
                         .WithMany("RefreshTokens")
-                        .HasForeignKey("UserId1");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("AuthForge.Domain.Entities.Tenant", b =>
