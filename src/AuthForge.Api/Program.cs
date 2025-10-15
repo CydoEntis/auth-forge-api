@@ -1,4 +1,4 @@
-// using AuthForge.Api.Endpoints;
+using AuthForge.Api.Endpoints;
 using AuthForge.Application;
 using AuthForge.Infrastructure;
 
@@ -21,6 +21,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// app.MapEndpoints();
+app.MapEndpoints();
 
 app.Run();

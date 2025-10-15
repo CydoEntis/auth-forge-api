@@ -18,9 +18,8 @@ public class ApplicationRepository : IApplicationRepository
 
     public async Task<App?> GetByIdAsync(ApplicationId id, CancellationToken cancellationToken = default)
     {
-        var appId = id.Value;
         return await _context.Applications
-            .FirstOrDefaultAsync(a => a.Id.Value == appId, cancellationToken);
+            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
     }
 
     public async Task<App?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
@@ -32,9 +31,8 @@ public class ApplicationRepository : IApplicationRepository
     public async Task<List<App>> GetByUserIdAsync(AuthForgeUserId userId,
         CancellationToken cancellationToken = default)
     {
-        var userIdValue = userId.Value;
         return await _context.Applications
-            .Where(a => a.UserId.Value == userIdValue)
+            .Where(a => a.UserId == userId)
             .OrderBy(a => a.CreatedAtUtc)
             .ToListAsync(cancellationToken);
     }

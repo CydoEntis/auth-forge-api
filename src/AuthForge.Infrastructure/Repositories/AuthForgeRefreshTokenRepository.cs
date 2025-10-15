@@ -31,21 +31,19 @@ public class AuthForgeRefreshTokenRepository : IAuthForgeRefreshTokenRepository
     public async Task<List<AuthForgeRefreshToken>> GetActiveTokensForUserAsync(AuthForgeUserId userId,
         CancellationToken cancellationToken = default)
     {
-        var userIdValue = userId.Value;
         return await _context.AuthForgeRefreshTokens
-            .Where(rt =>
-                rt.UserId.Value == userIdValue && !rt.RevokedAtUtc.HasValue && rt.ExpiresAtUtc > DateTime.UtcNow)
+            .Where(rt => rt.UserId == userId && !rt.RevokedAtUtc.HasValue && rt.ExpiresAtUtc > DateTime.UtcNow)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<List<AuthForgeRefreshToken>> GetByUserIdAsync(AuthForgeUserId userId,
         CancellationToken cancellationToken = default)
     {
-        var userIdValue = userId.Value;
         return await _context.AuthForgeRefreshTokens
-            .Where(rt => rt.UserId.Value == userIdValue)
+            .Where(rt => rt.UserId == userId)
             .ToListAsync(cancellationToken);
     }
+
 
     public async Task AddAsync(AuthForgeRefreshToken refreshToken, CancellationToken cancellationToken = default)
     {

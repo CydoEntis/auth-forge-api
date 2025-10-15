@@ -30,19 +30,16 @@ public class EndUserRefreshTokenRepository : IEndUserRefreshTokenRepository
     public async Task<List<EndUserRefreshToken>> GetActiveTokensForUserAsync(EndUserId userId,
         CancellationToken cancellationToken = default)
     {
-        var userIdValue = userId.Value;
         return await _context.EndUserRefreshTokens
-            .Where(rt =>
-                rt.UserId.Value == userIdValue && !rt.RevokedAtUtc.HasValue && rt.ExpiresAtUtc > DateTime.UtcNow)
+            .Where(rt => rt.UserId == userId && !rt.RevokedAtUtc.HasValue && rt.ExpiresAtUtc > DateTime.UtcNow)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<List<EndUserRefreshToken>> GetByUserIdAsync(EndUserId userId,
         CancellationToken cancellationToken = default)
     {
-        var userIdValue = userId.Value;
         return await _context.EndUserRefreshTokens
-            .Where(rt => rt.UserId.Value == userIdValue)
+            .Where(rt => rt.UserId == userId)
             .ToListAsync(cancellationToken);
     }
 

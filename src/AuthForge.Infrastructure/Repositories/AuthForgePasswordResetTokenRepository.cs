@@ -25,9 +25,8 @@ public class AuthForgePasswordResetTokenRepository : IAuthForgePasswordResetToke
     public async Task<List<AuthForgePasswordResetToken>> GetActiveTokensForUserAsync(AuthForgeUserId userId,
         CancellationToken cancellationToken = default)
     {
-        var userIdValue = userId.Value;
         return await _context.AuthForgePasswordResetTokens
-            .Where(t => t.UserId.Value == userIdValue && !t.IsUsed && t.ExpiresAtUtc > DateTime.UtcNow)
+            .Where(t => t.UserId == userId && !t.IsUsed && t.ExpiresAtUtc > DateTime.UtcNow)
             .ToListAsync(cancellationToken);
     }
 

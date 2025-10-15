@@ -18,28 +18,22 @@ public class EndUserRepository : IEndUserRepository
 
     public async Task<EndUser?> GetByIdAsync(EndUserId id, CancellationToken cancellationToken = default)
     {
-        var userId = id.Value;
         return await _context.EndUsers
-            .FirstOrDefaultAsync(u => u.Id.Value == userId, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
-
 
     public async Task<EndUser?> GetByEmailAsync(ApplicationId applicationId, Email email,
         CancellationToken cancellationToken = default)
     {
-        var appId = applicationId.Value;
-        var emailValue = email.Value;
         return await _context.EndUsers
-            .FirstOrDefaultAsync(u => u.ApplicationId.Value == appId && u.Email.Value == emailValue, cancellationToken);
+            .FirstOrDefaultAsync(u => u.ApplicationId == applicationId && u.Email == email, cancellationToken);
     }
 
     public async Task<bool> ExistsAsync(ApplicationId applicationId, Email email,
         CancellationToken cancellationToken = default)
     {
-        var appId = applicationId.Value;
-        var emailValue = email.Value;
         return await _context.EndUsers
-            .AnyAsync(u => u.ApplicationId.Value == appId && u.Email.Value == emailValue, cancellationToken);
+            .AnyAsync(u => u.ApplicationId == applicationId && u.Email == email, cancellationToken);
     }
 
     public async Task AddAsync(EndUser user, CancellationToken cancellationToken = default)
@@ -57,18 +51,11 @@ public class EndUserRepository : IEndUserRepository
         _context.EndUsers.Remove(user);
     }
 
-    public Task<List<EndUser>> GetByApplicationAsync(System.ApplicationId applicationId, int pageNumber, int pageSize,
-        CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<List<EndUser>> GetByApplicationAsync(ApplicationId applicationId, int pageNumber, int pageSize,
         CancellationToken cancellationToken = default)
     {
-        var appId = applicationId.Value;
         return await _context.EndUsers
-            .Where(u => u.ApplicationId.Value == appId)
+            .Where(u => u.ApplicationId == applicationId)
             .OrderBy(u => u.CreatedAtUtc)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)

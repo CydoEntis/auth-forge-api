@@ -17,21 +17,20 @@ public class AuthForgeUserRepository : IAuthForgeUserRepository
 
     public async Task<AuthForgeUser?> GetByIdAsync(AuthForgeUserId id, CancellationToken cancellationToken = default)
     {
-        var userId = id.Value;
         return await _context.AuthForgeUsers
-            .FirstOrDefaultAsync(u => u.Id.Value == userId, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
     public async Task<AuthForgeUser?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default)
     {
         return await _context.AuthForgeUsers
-            .FirstOrDefaultAsync(u => u.Email == email.Value, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
     }
 
     public async Task<bool> ExistsAsync(Email email, CancellationToken cancellationToken = default)
     {
         return await _context.AuthForgeUsers
-            .AnyAsync(u => u.Email == email.Value, cancellationToken);
+            .AnyAsync(u => u.Email == email, cancellationToken);
     }
 
     public async Task AddAsync(AuthForgeUser user, CancellationToken cancellationToken = default)
