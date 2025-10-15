@@ -15,19 +15,19 @@ public class RefreshTokenRepository : IRefreshTokenRepository
         _context = context;
     }
 
-    public async Task<RefreshToken?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<EndUserRefreshToken?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.RefreshTokens
             .FirstOrDefaultAsync(rt => rt.Id == id, cancellationToken);
     }
 
-    public async Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken cancellationToken = default)
+    public async Task<EndUserRefreshToken?> GetByTokenAsync(string token, CancellationToken cancellationToken = default)
     {
         return await _context.RefreshTokens
             .FirstOrDefaultAsync(rt => rt.Token == token, cancellationToken);
     }
 
-    public async Task<List<RefreshToken>> GetActiveTokensForUserAsync(UserId userId,
+    public async Task<List<EndUserRefreshToken>> GetActiveTokensForUserAsync(UserId userId,
         CancellationToken cancellationToken = default)
     {
         var userIdValue = userId.Value;
@@ -37,7 +37,7 @@ public class RefreshTokenRepository : IRefreshTokenRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<RefreshToken>> GetByUserIdAsync(UserId userId, CancellationToken cancellationToken = default)
+    public async Task<List<EndUserRefreshToken>> GetByUserIdAsync(UserId userId, CancellationToken cancellationToken = default)
     {
         var userIdValue = userId.Value;
 
@@ -46,19 +46,19 @@ public class RefreshTokenRepository : IRefreshTokenRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task AddAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default)
+    public async Task AddAsync(EndUserRefreshToken endUserRefreshToken, CancellationToken cancellationToken = default)
     {
-        await _context.RefreshTokens.AddAsync(refreshToken, cancellationToken);
+        await _context.RefreshTokens.AddAsync(endUserRefreshToken, cancellationToken);
     }
 
-    public void Update(RefreshToken refreshToken)
+    public void Update(EndUserRefreshToken endUserRefreshToken)
     {
-        _context.RefreshTokens.Update(refreshToken);
+        _context.RefreshTokens.Update(endUserRefreshToken);
     }
 
-    public void Delete(RefreshToken refreshToken)
+    public void Delete(EndUserRefreshToken endUserRefreshToken)
     {
-        _context.RefreshTokens.Remove(refreshToken);
+        _context.RefreshTokens.Remove(endUserRefreshToken);
     }
 
     public async Task<bool> ExistsAsync(string token, CancellationToken cancellationToken = default)

@@ -13,7 +13,7 @@ public class AuthForgeDbContext : DbContext
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Tenant> Tenants => Set<Tenant>();
-    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<EndUserRefreshToken> RefreshTokens => Set<EndUserRefreshToken>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

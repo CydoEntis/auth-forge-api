@@ -4,15 +4,15 @@ using AuthForge.Domain.ValueObjects;
 
 namespace AuthForge.Domain.Entities;
 
-public sealed class RefreshToken : AggregateRoot<Guid>
+public sealed class AuthForgeRefreshToken : AggregateRoot<Guid>
 {
-    private RefreshToken()
+    private AuthForgeRefreshToken()
     {
     }
 
-    private RefreshToken(
+    private AuthForgeRefreshToken(
         Guid id,
-        EndUserId userId,
+        AuthForgeUserId userId,
         string token,
         DateTime expiresAtUtc,
         string? ipAddress = null,
@@ -26,8 +26,8 @@ public sealed class RefreshToken : AggregateRoot<Guid>
         UserAgent = userAgent;
     }
 
-    public EndUserId UserId { get; private set; } = default!;
-    
+    public AuthForgeUserId UserId { get; private set; } = default!;
+
     public string Token { get; private set; } = string.Empty;
     public DateTime ExpiresAtUtc { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
@@ -41,8 +41,8 @@ public sealed class RefreshToken : AggregateRoot<Guid>
     public bool IsRevoked => RevokedAtUtc.HasValue;
     public bool IsActive => !IsRevoked && !IsExpired;
 
-    public static RefreshToken Create(
-        EndUserId userId,
+    public static AuthForgeRefreshToken Create(
+        AuthForgeUserId userId,
         string token,
         DateTime expiresAtUtc,
         string? ipAddress = null,
@@ -54,7 +54,7 @@ public sealed class RefreshToken : AggregateRoot<Guid>
         if (expiresAtUtc <= DateTime.UtcNow)
             throw new ArgumentException("Expiration date must be in the future", nameof(expiresAtUtc));
 
-        return new RefreshToken(
+        return new AuthForgeRefreshToken(
             Guid.NewGuid(),
             userId,
             token,
@@ -70,8 +70,8 @@ public sealed class RefreshToken : AggregateRoot<Guid>
 
         RevokedAtUtc = DateTime.UtcNow;
         ReplacedByToken = replacedByToken;
-        
-        RaiseDomainEvent(new RefreshTokenRevokedDomainEvent(UserId, Token));
+
+        RaiseDomainEvent(new AuthForgeRefreshTokenRevokedDomainEvent(UserId, Token));
     }
 
     public void MarkAsUsed()

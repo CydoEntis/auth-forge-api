@@ -79,7 +79,7 @@ public sealed class RefreshTokenCommandHandler
         refreshToken.Revoke(tokenPair.RefreshToken);
         _refreshTokenRepository.Update(refreshToken);
 
-        var newRefreshToken = RefreshToken.Create(
+        var newRefreshToken = EndUserRefreshToken.Create(
             user.Id,
             tokenPair.RefreshToken,
             tokenPair.RefreshTokenExpiresAt,
@@ -99,13 +99,13 @@ public sealed class RefreshTokenCommandHandler
     }
 
     private static Result ValidateRefreshToken(
-        RefreshToken refreshToken,
+        EndUserRefreshToken endUserRefreshToken,
         User user)
     {
-        if (refreshToken.IsExpired)
+        if (endUserRefreshToken.IsExpired)
             return Result.Failure(DomainErrors.RefreshToken.Expired);
 
-        if (refreshToken.IsRevoked)
+        if (endUserRefreshToken.IsRevoked)
             return Result.Failure(DomainErrors.RefreshToken.Revoked);
 
         if (!user.IsActive)

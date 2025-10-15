@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AuthForge.Infrastructure.Data.Configurations;
 
-public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
+public class RefreshTokenConfiguration : IEntityTypeConfiguration<EndUserRefreshToken>
 {
-    public void Configure(EntityTypeBuilder<RefreshToken> builder)
+    public void Configure(EntityTypeBuilder<EndUserRefreshToken> builder)
     {
         builder.ToTable("refresh_tokens");
 

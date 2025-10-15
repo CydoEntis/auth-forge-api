@@ -129,7 +129,7 @@ public sealed class LoginCommandHandler : ICommandHandler<LoginCommand, Result<L
         string? userAgent,
         CancellationToken cancellationToken)
     {
-        var refreshToken = RefreshToken.Create(
+        var refreshToken = EndUserRefreshToken.Create(
             userId,
             tokenPair.RefreshToken,
             tokenPair.RefreshTokenExpiresAt,
