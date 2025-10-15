@@ -23,4 +23,8 @@
         <PackageReference Include="Riok.Mapperly" Version="4.2.1" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Migrations\" />
+    </ItemGroup>
 </Project>

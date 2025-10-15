@@ -1,4 +1,5 @@
-﻿using AuthForge.Api.Endpoints.Auth;
+﻿using AuthForge.Api.Endpoints.AuthForge;
+using AuthForge.Api.Endpoints.EndUsers;
 
 namespace AuthForge.Api.Endpoints;
 
@@ -6,8 +7,9 @@ public static class EndpointExtensions
 {
     public static IEndpointRouteBuilder MapEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapRegisterEndpoint();
-
+        app.MapAuthForgeEndpoints();
+        app.MapEndUserEndpoints();
+ 
         return app;
     }
 }

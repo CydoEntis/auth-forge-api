@@ -15,7 +15,7 @@ public sealed class EmailParser : IEmailParser
         }
         catch (ArgumentException)
         {
-            return Result<Email>.Failure(DomainErrors.Validation.InvalidEmail());
+            return Result<Email>.Failure(ValidationErrors.InvalidEmail());
         }
     }
 
@@ -28,7 +28,7 @@ public sealed class EmailParser : IEmailParser
         }
         catch (ArgumentException)
         {
-            return Result<Email>.Failure(DomainErrors.User.InvalidCredentials);
+            return Result<Email>.Failure(ValidationErrors.InvalidCredentials);
         }
     }
 }
