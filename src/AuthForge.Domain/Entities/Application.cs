@@ -18,6 +18,7 @@ public sealed class Application : AggregateRoot<ApplicationId>
         Name = name;
         Slug = slug;
         IsActive = true;
+        Settings = ApplicationSettings.Default();  
         CreatedAtUtc = DateTime.UtcNow;
     }
 

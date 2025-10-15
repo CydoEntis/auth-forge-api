@@ -9,7 +9,8 @@ public static class ApplicationErrors
     public static readonly Error Inactive = new(
         "Application.Inactive",
         "Application is inactive");
-
+    
+    
     public static readonly Error SlugAlreadyExists = new(
         "Application.SlugAlreadyExists",
         "An application with this slug already exists");

@@ -7,7 +7,7 @@ using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
 namespace AuthForge.Application.Applications.Commands.Delete;
 
-public sealed class DeleteApplicationCommandHandler 
+public sealed class DeleteApplicationCommandHandler
     : ICommandHandler<DeleteApplicationCommand, Result>
 {
     private readonly IApplicationRepository _applicationRepository;
@@ -41,7 +41,19 @@ public sealed class DeleteApplicationCommandHandler
         if (application.UserId != userId)
             return Result.Failure(ApplicationErrors.Unauthorized);
 
-        application.Deactivate();
+        if (!application.IsActive)
+            return Result.Success();
+
+        try
+        {
+            application.Deactivate();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result.Failure(new Error(
+                "Application.DeactivationFailed",
+                ex.Message));
+        }
 
         _applicationRepository.Update(application);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

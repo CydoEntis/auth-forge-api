@@ -17,20 +17,27 @@ public sealed class UpdateApplicationCommandValidator : AbstractValidator<Update
             .MaximumLength(100)
             .MinimumLength(3);
 
-        RuleFor(x => x.MaxFailedLoginAttempts)
-            .GreaterThan(0)
-            .LessThanOrEqualTo(10);
+        RuleFor(x => x.Settings)
+            .NotNull();
 
-        RuleFor(x => x.LockoutDurationMinutes)
+        RuleFor(x => x.Settings.MaxFailedLoginAttempts)
             .GreaterThan(0)
-            .LessThanOrEqualTo(1440); // Max 24 hours
+            .LessThanOrEqualTo(10)
+            .When(x => x.Settings != null);
 
-        RuleFor(x => x.AccessTokenExpirationMinutes)
+        RuleFor(x => x.Settings.LockoutDurationMinutes)
             .GreaterThan(0)
-            .LessThanOrEqualTo(1440); // Max 24 hours
+            .LessThanOrEqualTo(1440) // Max 24 hours
+            .When(x => x.Settings != null);
 
-        RuleFor(x => x.RefreshTokenExpirationDays)
+        RuleFor(x => x.Settings.AccessTokenExpirationMinutes)
             .GreaterThan(0)
-            .LessThanOrEqualTo(90); // Max 90 days
+            .LessThanOrEqualTo(1440) // Max 24 hours
+            .When(x => x.Settings != null);
+
+        RuleFor(x => x.Settings.RefreshTokenExpirationDays)
+            .GreaterThan(0)
+            .LessThanOrEqualTo(90) // Max 90 days
+            .When(x => x.Settings != null);
     }
 }
