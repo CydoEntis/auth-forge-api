@@ -2,6 +2,7 @@
 using AuthForge.Infrastructure.Authentication;
 using AuthForge.Infrastructure.Data;
 using AuthForge.Infrastructure.Repositories;
+using AuthForge.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +32,7 @@ public static class DependencyInjection
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
         services.AddSingleton<IAuthForgeJwtTokenGenerator, AuthForgeJwtTokenGenerator>();
         services.AddSingleton<IEndUserJwtTokenGenerator, EndUserJwtTokenGenerator>();
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
         return services;
     }
