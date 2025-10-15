@@ -7,23 +7,24 @@ using AuthForge.Domain.Entities;
 using AuthForge.Domain.ValueObjects;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using App = AuthForge.Domain.Entities.Application;
 
 namespace AuthForge.Infrastructure.Authentication;
 
-public sealed class EndUserTokenGenerator : IEndUserTokenGenerator
+public sealed class EndUserJwtTokenGenerator : IEndUserJwtTokenGenerator
 {
     private readonly JwtSettings _jwtSettings;
     private readonly JwtSecurityTokenHandler _tokenHandler;
 
-    public EndUserTokenGenerator(IOptions<JwtSettings> jwtSettings)
+    public EndUserJwtTokenGenerator(IOptions<JwtSettings> jwtSettings)
     {
         _jwtSettings = jwtSettings.Value;
         _tokenHandler = new JwtSecurityTokenHandler();
     }
 
-    public (string AccessToken, DateTime ExpiresAt) GenerateAccessToken(User user, Tenant tenant)
+    public (string AccessToken, DateTime ExpiresAt) GenerateAccessToken(EndUser user, App application)
     {
-        var expiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes);
+        var expiresAt = DateTime.UtcNow.AddMinutes(application.Settings.AccessTokenExpirationMinutes);
 
         var claims = new[]
         {
@@ -32,8 +33,8 @@ public sealed class EndUserTokenGenerator : IEndUserTokenGenerator
             new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName),
             new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim("tenant_id", tenant.Id.Value.ToString()),
-            new Claim("tenant_slug", tenant.Slug)
+            new Claim("app_id", application.Id.Value.ToString()),
+            new Claim("app_slug", application.Slug)
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
@@ -52,16 +53,16 @@ public sealed class EndUserTokenGenerator : IEndUserTokenGenerator
     }
 
     public TokenPair GenerateTokenPair(
-        User user,
-        Tenant tenant,
+        EndUser user,
+        App application,
         string? ipAddress = null,
         string? userAgent = null)
     {
-        var (accessToken, accessTokenExpiresAt) = GenerateAccessToken(user, tenant);
+        var (accessToken, accessTokenExpiresAt) = GenerateAccessToken(user, application);
 
         var refreshToken = GenerateSecureRefreshToken();
 
-        var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays);
+        var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(application.Settings.RefreshTokenExpirationDays);
 
         return new TokenPair(
             accessToken,
@@ -70,7 +71,7 @@ public sealed class EndUserTokenGenerator : IEndUserTokenGenerator
             refreshTokenExpiresAt);
     }
 
-    public UserId? ValidateToken(string token)
+    public EndUserId? ValidateToken(string token)
     {
         try
         {
@@ -102,7 +103,7 @@ public sealed class EndUserTokenGenerator : IEndUserTokenGenerator
                 return null;
             }
 
-            return UserId.Create(userId);
+            return EndUserId.Create(userId);
         }
         catch
         {

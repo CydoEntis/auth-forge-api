@@ -19,13 +19,18 @@ public static class DependencyInjection
                 configuration.GetConnectionString("DefaultConnection"),
                 npgsqlOptions => npgsqlOptions.MigrationsAssembly(typeof(AuthForgeDbContext).Assembly.FullName)));
 
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<ITenantRepository, TenantRepository>();
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IAuthForgeUserRepository, AuthForgeUserRepository>();
+        services.AddScoped<IApplicationRepository, ApplicationRepository>();
+        services.AddScoped<IEndUserRepository, EndUserRepository>();
+        services.AddScoped<IAuthForgeRefreshTokenRepository, AuthForgeRefreshTokenRepository>();
+        services.AddScoped<IEndUserRefreshTokenRepository, EndUserRefreshTokenRepository>();
+        services.AddScoped<IAuthForgePasswordResetTokenRepository, AuthForgePasswordResetTokenRepository>();
+        services.AddScoped<IEndUserPasswordResetTokenRepository, EndUserPasswordResetTokenRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
-        services.AddSingleton<IEndUserTokenGenerator, EndUserTokenGenerator>();
+        services.AddSingleton<IAuthForgeJwtTokenGenerator, AuthForgeJwtTokenGenerator>();
+        services.AddSingleton<IEndUserJwtTokenGenerator, EndUserJwtTokenGenerator>();
 
         return services;
     }
