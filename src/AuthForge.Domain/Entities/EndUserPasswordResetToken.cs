@@ -4,14 +4,15 @@ using AuthForge.Domain.ValueObjects;
 
 namespace AuthForge.Domain.Entities;
 
-
-public sealed class PasswordResetToken : Entity<Guid>
+public sealed class EndUserPasswordResetToken : Entity<Guid>
 {
-    private PasswordResetToken() { }
+    private EndUserPasswordResetToken()
+    {
+    }
 
-    private PasswordResetToken(
+    private EndUserPasswordResetToken(
         Guid id,
-        UserId userId,
+        EndUserId userId,
         string token,
         DateTime expiresAtUtc) : base(id)
     {
@@ -22,7 +23,7 @@ public sealed class PasswordResetToken : Entity<Guid>
         IsUsed = false;
     }
 
-    public UserId UserId { get; private set; } = default!;
+    public EndUserId UserId { get; private set; } = default!;
     public string Token { get; private set; } = string.Empty;
     public DateTime ExpiresAtUtc { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
@@ -31,8 +32,8 @@ public sealed class PasswordResetToken : Entity<Guid>
     public bool IsExpired => DateTime.UtcNow >= ExpiresAtUtc;
     public bool IsValid => !IsUsed && !IsExpired;
 
-    public static PasswordResetToken Create(
-        UserId userId,
+    public static EndUserPasswordResetToken Create(
+        EndUserId userId,
         int expirationHours = 1)
     {
         if (expirationHours <= 0)
@@ -41,7 +42,7 @@ public sealed class PasswordResetToken : Entity<Guid>
         string token = GenerateSecureToken();
         DateTime expiresAt = DateTime.UtcNow.AddHours(expirationHours);
 
-        return new PasswordResetToken(
+        return new EndUserPasswordResetToken(
             Guid.NewGuid(),
             userId,
             token,
@@ -59,11 +60,10 @@ public sealed class PasswordResetToken : Entity<Guid>
         IsUsed = true;
         UsedAtUtc = DateTime.UtcNow;
     }
-    
+
     private static string GenerateSecureToken()
     {
         byte[] randomBytes = RandomNumberGenerator.GetBytes(32);
-        
         return Convert.ToBase64String(randomBytes);
     }
 }
