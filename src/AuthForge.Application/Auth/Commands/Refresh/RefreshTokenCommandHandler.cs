@@ -13,20 +13,20 @@ public sealed class RefreshTokenCommandHandler
     private readonly IUserRepository _userRepository;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly ITenantRepository _tenantRepository;
-    private readonly IJwtTokenGenerator _jwtTokenGenerator;
+    private readonly IEndUserTokenGenerator _endUserTokenGenerator;
     private readonly IUnitOfWork _unitOfWork;
 
     public RefreshTokenCommandHandler(
         IUserRepository userRepository,
         IRefreshTokenRepository refreshTokenRepository,
         ITenantRepository tenantRepository,
-        IJwtTokenGenerator jwtTokenGenerator,
+        IEndUserTokenGenerator endUserTokenGenerator,
         IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
         _refreshTokenRepository = refreshTokenRepository;
         _tenantRepository = tenantRepository;
-        _jwtTokenGenerator = jwtTokenGenerator;
+        _endUserTokenGenerator = endUserTokenGenerator;
         _unitOfWork = unitOfWork;
     }
 
@@ -69,7 +69,7 @@ public sealed class RefreshTokenCommandHandler
             return Result<RefreshTokenResponse>.Failure(
                 DomainErrors.Tenant.NotFound);
 
-        var tokenPair = _jwtTokenGenerator.GenerateTokenPair(
+        var tokenPair = _endUserTokenGenerator.GenerateTokenPair(
             user,
             tenant,
             command.IpAddress,

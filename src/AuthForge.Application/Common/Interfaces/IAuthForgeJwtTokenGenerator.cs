@@ -3,16 +3,14 @@ using AuthForge.Domain.ValueObjects;
 
 namespace AuthForge.Application.Common.Interfaces;
 
-public interface IJwtTokenGenerator
+public interface IAuthForgeJwtTokenGenerator
 {
+    (string AccessToken, DateTime ExpiresAt) GenerateAccessToken(AuthForgeUser user);
 
-    (string AccessToken, DateTime ExpiresAt) GenerateAccessToken(User user, Tenant tenant);
-    
     TokenPair GenerateTokenPair(
-        User user,
-        Tenant tenant,
+        AuthForgeUser user,
         string? ipAddress = null,
         string? userAgent = null);
 
-    UserId? ValidateToken(string token);
+    AuthForgeUserId? ValidateToken(string token);
 }

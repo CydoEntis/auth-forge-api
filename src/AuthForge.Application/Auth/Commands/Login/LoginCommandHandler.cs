@@ -11,7 +11,7 @@ namespace AuthForge.Application.Auth.Commands.Login;
 public sealed class LoginCommandHandler : ICommandHandler<LoginCommand, Result<LoginResponse>>
 {
     private readonly IUserRepository _userRepository;
-    private readonly IJwtTokenGenerator _jwtTokenGenerator;
+    private readonly IEndUserTokenGenerator _endUserTokenGenerator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITenantValidationService _tenantValidationService;
     private readonly IEmailParser _emailParser;
@@ -19,14 +19,14 @@ public sealed class LoginCommandHandler : ICommandHandler<LoginCommand, Result<L
 
     public LoginCommandHandler(
         IUserRepository userRepository,
-        IJwtTokenGenerator jwtTokenGenerator,
+        IEndUserTokenGenerator endUserTokenGenerator,
         IUnitOfWork unitOfWork,
         ITenantValidationService tenantValidationService,
         IEmailParser emailParser,
         IRefreshTokenRepository refreshTokenRepository)
     {
         _userRepository = userRepository;
-        _jwtTokenGenerator = jwtTokenGenerator;
+        _endUserTokenGenerator = endUserTokenGenerator;
         _unitOfWork = unitOfWork;
         _tenantValidationService = tenantValidationService;
         _emailParser = emailParser;
@@ -62,7 +62,7 @@ public sealed class LoginCommandHandler : ICommandHandler<LoginCommand, Result<L
         if (passwordResult.IsFailure)
             return Result<LoginResponse>.Failure(passwordResult.Error);
 
-        var tokenPair = _jwtTokenGenerator.GenerateTokenPair(
+        var tokenPair = _endUserTokenGenerator.GenerateTokenPair(
             userResult.Value,
             tenantResult.Value,
             command.IpAddress,

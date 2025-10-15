@@ -10,12 +10,12 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace AuthForge.Infrastructure.Authentication;
 
-public sealed class JwtTokenGenerator : IJwtTokenGenerator
+public sealed class EndUserTokenGenerator : IEndUserTokenGenerator
 {
     private readonly JwtSettings _jwtSettings;
     private readonly JwtSecurityTokenHandler _tokenHandler;
 
-    public JwtTokenGenerator(IOptions<JwtSettings> jwtSettings)
+    public EndUserTokenGenerator(IOptions<JwtSettings> jwtSettings)
     {
         _jwtSettings = jwtSettings.Value;
         _tokenHandler = new JwtSecurityTokenHandler();
