@@ -1,32 +1,60 @@
 ﻿namespace AuthForge.Domain.ValueObjects;
 
-public sealed record ApplicationSettings(
-    int MaxFailedLoginAttempts,
-    int LockoutDurationMinutes,
-    int AccessTokenExpirationMinutes,
-    int RefreshTokenExpirationDays)
+public sealed record ApplicationSettings
 {
-    public static ApplicationSettings Default() => new(
-        MaxFailedLoginAttempts: 5,
-        LockoutDurationMinutes: 15,
-        AccessTokenExpirationMinutes: 15,
-        RefreshTokenExpirationDays: 7
-    );
+    public int MaxFailedLoginAttempts { get; init; }
+    public int LockoutDurationMinutes { get; init; }
+    public int AccessTokenExpirationMinutes { get; init; }
+    public int RefreshTokenExpirationDays { get; init; }
 
-    public ApplicationSettings Validate()
+    private ApplicationSettings(
+        int maxFailedLoginAttempts,
+        int lockoutDurationMinutes,
+        int accessTokenExpirationMinutes,
+        int refreshTokenExpirationDays)
     {
-        if (MaxFailedLoginAttempts <= 0)
-            throw new ArgumentException("Max failed login attempts must be greater than 0.");
+        MaxFailedLoginAttempts = maxFailedLoginAttempts;
+        LockoutDurationMinutes = lockoutDurationMinutes;
+        AccessTokenExpirationMinutes = accessTokenExpirationMinutes;
+        RefreshTokenExpirationDays = refreshTokenExpirationDays;
+    }
 
-        if (LockoutDurationMinutes <= 0)
-            throw new ArgumentException("Lockout duration must be greater than 0.");
+    public static ApplicationSettings Default() => new(
+        maxFailedLoginAttempts: 5,
+        lockoutDurationMinutes: 15,
+        accessTokenExpirationMinutes: 15,
+        refreshTokenExpirationDays: 7);
 
-        if (AccessTokenExpirationMinutes <= 0)
-            throw new ArgumentException("Access token expiration must be greater than 0.");
+    public static ApplicationSettings Create(
+        int maxFailedLoginAttempts,
+        int lockoutDurationMinutes,
+        int accessTokenExpirationMinutes,
+        int refreshTokenExpirationDays)
+    {
+        if (maxFailedLoginAttempts <= 0 || maxFailedLoginAttempts > 10)
+            throw new ArgumentException(
+                "Max failed login attempts must be between 1 and 10.",
+                nameof(maxFailedLoginAttempts));
 
-        if (RefreshTokenExpirationDays <= 0)
-            throw new ArgumentException("Refresh token expiration must be greater than 0.");
+        if (lockoutDurationMinutes <= 0 || lockoutDurationMinutes > 1440)
+            throw new ArgumentException(
+                "Lockout duration must be between 1 and 1440 minutes.",
+                nameof(lockoutDurationMinutes));
 
-        return this;
+        if (accessTokenExpirationMinutes <= 0 || accessTokenExpirationMinutes > 1440)
+            throw new ArgumentException(
+                "Access token expiration must be between 1 and 1440 minutes.",
+                nameof(accessTokenExpirationMinutes));
+
+        if (refreshTokenExpirationDays <= 0 || refreshTokenExpirationDays > 90)
+            throw new ArgumentException(
+                "Refresh token expiration must be between 1 and 90 days.",
+                nameof(refreshTokenExpirationDays));
+
+        return new ApplicationSettings(
+            maxFailedLoginAttempts,
+            lockoutDurationMinutes,
+            accessTokenExpirationMinutes,
+            refreshTokenExpirationDays);
     }
 }

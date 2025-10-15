@@ -18,6 +18,7 @@ public sealed class Application : AggregateRoot<ApplicationId>
         Name = name;
         Slug = slug;
         IsActive = true;
+        Settings = ApplicationSettings.Default();  
         CreatedAtUtc = DateTime.UtcNow;
     }
 
@@ -62,7 +63,7 @@ public sealed class Application : AggregateRoot<ApplicationId>
 
     public void UpdateSettings(ApplicationSettings settings)
     {
-        Settings = settings.Validate();
+        Settings = settings;
         UpdatedAtUtc = DateTime.UtcNow;
     }
 
