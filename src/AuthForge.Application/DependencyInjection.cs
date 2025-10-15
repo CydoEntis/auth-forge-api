@@ -13,7 +13,6 @@ public static class DependencyInjection
 
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-        services.AddScoped<ITenantValidationService, TenantValidationService>();
         services.AddScoped<IEmailParser, EmailParser>();
 
         return services;
