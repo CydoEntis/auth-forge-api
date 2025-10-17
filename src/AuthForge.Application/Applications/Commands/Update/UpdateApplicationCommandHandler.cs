@@ -41,6 +41,9 @@ public sealed class UpdateApplicationCommandHandler
         if (application.UserId != userId)
             return Result<UpdateApplicationResponse>.Failure(ApplicationErrors.Unauthorized);
 
+        if (!application.IsActive)
+            return Result<UpdateApplicationResponse>.Failure(ApplicationErrors.Inactive);
+
         try
         {
             application.UpdateName(command.Name);

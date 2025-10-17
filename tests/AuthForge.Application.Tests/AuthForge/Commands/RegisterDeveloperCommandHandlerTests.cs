@@ -1,6 +1,7 @@
 ﻿using AuthForge.Application.AuthForge.Commands.Register;
 using AuthForge.Application.Common.Interfaces;
 using AuthForge.Application.Common.Services;
+using AuthForge.Domain.Common;
 using AuthForge.Domain.Entities;
 using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;
@@ -41,6 +42,10 @@ public class RegisterDeveloperCommandHandlerTests
             "John",
             "Doe");
 
+        _emailParserMock
+            .Setup(x => x.ParseForAuthentication(It.IsAny<string>()))
+            .Returns(Result<Email>.Success(Email.Create("test@example.com")));
+
         _userRepositoryMock
             .Setup(x => x.ExistsAsync(It.IsAny<Email>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
@@ -73,6 +78,10 @@ public class RegisterDeveloperCommandHandlerTests
             "John",
             "Doe");
 
+        _emailParserMock
+            .Setup(x => x.ParseForAuthentication(It.IsAny<string>()))
+            .Returns(Result<Email>.Success(Email.Create("existing@example.com")));
+
         _userRepositoryMock
             .Setup(x => x.ExistsAsync(It.IsAny<Email>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
@@ -99,6 +108,10 @@ public class RegisterDeveloperCommandHandlerTests
             "John",
             "Doe");
 
+        _emailParserMock
+            .Setup(x => x.ParseForAuthentication(It.IsAny<string>()))
+            .Returns(Result<Email>.Failure(ValidationErrors.InvalidEmail()));
+
         var result = await _handler.Handle(command, CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
@@ -112,6 +125,10 @@ public class RegisterDeveloperCommandHandlerTests
             "PlainPassword123!",
             "John",
             "Doe");
+
+        _emailParserMock
+            .Setup(x => x.ParseForAuthentication(It.IsAny<string>()))
+            .Returns(Result<Email>.Success(Email.Create("test@example.com")));
 
         _userRepositoryMock
             .Setup(x => x.ExistsAsync(It.IsAny<Email>(), It.IsAny<CancellationToken>()))

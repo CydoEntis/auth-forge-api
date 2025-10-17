@@ -65,10 +65,12 @@ public sealed class CreateApplicationCommandHandler
 
     private static string GenerateSlug(string name)
     {
-        return name
-            .ToLowerInvariant()
-            .Trim()
-            .Replace(" ", "-")
-            .Replace("_", "-");
+        return System.Text.RegularExpressions.Regex.Replace(
+            name
+                .ToLowerInvariant()
+                .Trim()
+                .Replace("_", "-"),
+            @"\s+",
+            "-");
     }
 }
