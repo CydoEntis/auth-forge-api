@@ -1,4 +1,4 @@
-﻿namespace AuthForge.Infrastructure.Settings;
+﻿namespace AuthForge.Application.Common.Settings;
 
 public class GoogleOAuthSettings
 {

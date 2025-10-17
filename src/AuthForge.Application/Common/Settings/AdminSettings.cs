@@ -1,6 +1,6 @@
 ﻿using AuthForge.Domain.ValueObjects;
 
-namespace AuthForge.Infrastructure.Settings;
+namespace AuthForge.Application.Common.Settings;
 
 public class AdminSettings
 {

@@ -10,6 +10,7 @@ public static class ApplicationServiceExtensions
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddSingleton<IEndUserJwtTokenGenerator, EndUserJwtTokenGenerator>();
+        services.AddSingleton<IAdminJwtTokenGenerator, AdminJwtTokenGenerator>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         
         return services;
