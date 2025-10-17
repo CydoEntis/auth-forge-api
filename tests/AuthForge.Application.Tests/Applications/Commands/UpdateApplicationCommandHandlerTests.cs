@@ -28,12 +28,10 @@ public class UpdateApplicationCommandHandlerTests
     [Fact]
     public async Task Handle_WithValidRequest_ShouldUpdateApplication()
     {
-        var userId = AuthForgeUserId.Create(Guid.NewGuid());
-        var application = Domain.Entities.Application.Create(userId, "Original Name", "original-slug");
+        var application = Domain.Entities.Application.Create("Original Name", "original-slug");
         var settings = new AppSettings(3, 30, 60, 14);
         var command = new UpdateApplicationCommand(
             application.Id.Value.ToString(),
-            userId.Value.ToString(),
             "Updated Name",
             settings);
 
@@ -66,23 +64,6 @@ public class UpdateApplicationCommandHandlerTests
         var settings = new AppSettings(3, 30, 60, 14);
         var command = new UpdateApplicationCommand(
             "not-a-guid",
-            Guid.NewGuid().ToString(),
-            "Updated Name",
-            settings);
-
-        var result = await _handler.Handle(command, CancellationToken.None);
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Contain("Validation.InvalidGuid");
-    }
-
-    [Fact]
-    public async Task Handle_WithInvalidUserId_ShouldReturnValidationError()
-    {
-        var settings = new AppSettings(3, 30, 60, 14);
-        var command = new UpdateApplicationCommand(
-            Guid.NewGuid().ToString(),
-            "not-a-guid",
             "Updated Name",
             settings);
 
@@ -98,7 +79,6 @@ public class UpdateApplicationCommandHandlerTests
         var settings = new AppSettings(3, 30, 60, 14);
         var command = new UpdateApplicationCommand(
             Guid.NewGuid().ToString(),
-            Guid.NewGuid().ToString(),
             "Updated Name",
             settings);
 
@@ -113,38 +93,13 @@ public class UpdateApplicationCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WithUnauthorizedUser_ShouldReturnUnauthorizedError()
-    {
-        var ownerId = AuthForgeUserId.Create(Guid.NewGuid());
-        var otherUserId = AuthForgeUserId.Create(Guid.NewGuid());
-        var application = Domain.Entities.Application.Create(ownerId, "Original Name", "original-slug");
-        var settings = new AppSettings(3, 30, 60, 14);
-        var command = new UpdateApplicationCommand(
-            application.Id.Value.ToString(),
-            otherUserId.Value.ToString(),
-            "Updated Name",
-            settings);
-
-        _applicationRepositoryMock
-            .Setup(x => x.GetByIdAsync(It.IsAny<Domain.ValueObjects.ApplicationId>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(application);
-
-        var result = await _handler.Handle(command, CancellationToken.None);
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(ApplicationErrors.Unauthorized);
-    }
-
-    [Fact]
     public async Task Handle_WithInactiveApplication_ShouldReturnInactiveError()
     {
-        var userId = AuthForgeUserId.Create(Guid.NewGuid());
-        var application = Domain.Entities.Application.Create(userId, "Original Name", "original-slug");
+        var application = Domain.Entities.Application.Create("Original Name", "original-slug");
         application.Deactivate();
         var settings = new AppSettings(3, 30, 60, 14);
         var command = new UpdateApplicationCommand(
             application.Id.Value.ToString(),
-            userId.Value.ToString(),
             "Updated Name",
             settings);
 

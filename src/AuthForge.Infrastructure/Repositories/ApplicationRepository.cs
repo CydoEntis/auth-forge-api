@@ -32,7 +32,7 @@ public class ApplicationRepository : IApplicationRepository
         CancellationToken cancellationToken = default)
     {
         return await _context.Applications
-            .Where(a => a.UserId == userId && a.IsActive)
+            .Where(a => a.IsActive)
             .OrderBy(a => a.CreatedAtUtc)
             .ToListAsync(cancellationToken);
     }

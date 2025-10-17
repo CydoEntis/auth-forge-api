@@ -6,9 +6,9 @@ namespace AuthForge.Domain.Events;
 
 public sealed record ApplicationCreatedDomainEvent(
     ApplicationId ApplicationId,
-    AuthForgeUserId UserId,
     string Name,
-    string Slug) : IDomainEvent;
+    string Slug
+) : IDomainEvent;
 
 public sealed record ApplicationDeactivatedDomainEvent(
     ApplicationId ApplicationId) : IDomainEvent;

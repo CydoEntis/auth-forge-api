@@ -28,7 +28,7 @@ public static class DeleteApplicationEndpoint
         [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
-        var command = new DeleteApplicationCommand(id, userId);
+        var command = new DeleteApplicationCommand(id);
         var result = await mediator.Send(command, cancellationToken);
 
         if (result.IsFailure)

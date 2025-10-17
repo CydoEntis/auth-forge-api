@@ -28,18 +28,13 @@ public sealed class DeleteApplicationCommandHandler
         if (!Guid.TryParse(command.ApplicationId, out var appGuid))
             return Result.Failure(ValidationErrors.InvalidGuid("ApplicationId"));
 
-        if (!Guid.TryParse(command.UserId, out var userGuid))
-            return Result.Failure(ValidationErrors.InvalidGuid("UserId"));
 
         var applicationId = ApplicationId.Create(appGuid);
-        var userId = AuthForgeUserId.Create(userGuid);
 
         var application = await _applicationRepository.GetByIdAsync(applicationId, cancellationToken);
         if (application is null)
             return Result.Failure(ApplicationErrors.NotFound);
 
-        if (application.UserId != userId)
-            return Result.Failure(ApplicationErrors.Unauthorized);
 
         if (!application.IsActive)
             return Result.Success();

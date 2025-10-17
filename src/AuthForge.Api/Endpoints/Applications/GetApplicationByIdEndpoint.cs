@@ -29,7 +29,7 @@ public static class GetApplicationByIdEndpoint
         [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
-        var query = new GetApplicationByIdQuery(id, userId);
+        var query = new GetApplicationByIdQuery(id);
         var result = await mediator.Send(query, cancellationToken);
 
         if (result.IsFailure)

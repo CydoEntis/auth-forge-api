@@ -39,7 +39,6 @@ public class RefreshEndUserTokenCommandHandlerTests
     {
         var applicationId = Domain.ValueObjects.ApplicationId.Create(Guid.NewGuid());
         var application = Domain.Entities.Application.Create(
-            AuthForgeUserId.Create(Guid.NewGuid()),
             "Test App",
             "test-app");
 
@@ -150,7 +149,6 @@ public class RefreshEndUserTokenCommandHandlerTests
         _applicationRepositoryMock
             .Setup(x => x.GetByIdAsync(It.IsAny<Domain.ValueObjects.ApplicationId>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Domain.Entities.Application.Create(
-                AuthForgeUserId.Create(Guid.NewGuid()),
                 "Test App",
                 "test-app"));
 
@@ -192,7 +190,6 @@ public class RefreshEndUserTokenCommandHandlerTests
         _applicationRepositoryMock
             .Setup(x => x.GetByIdAsync(It.IsAny<Domain.ValueObjects.ApplicationId>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Domain.Entities.Application.Create(
-                AuthForgeUserId.Create(Guid.NewGuid()),
                 "Test App",
                 "test-app"));
 
@@ -240,7 +237,6 @@ public class RefreshEndUserTokenCommandHandlerTests
         _applicationRepositoryMock
             .Setup(x => x.GetByIdAsync(It.IsAny<Domain.ValueObjects.ApplicationId>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Domain.Entities.Application.Create(
-                AuthForgeUserId.Create(Guid.NewGuid()),
                 "Test App",
                 "test-app"));
 
@@ -255,7 +251,6 @@ public class RefreshEndUserTokenCommandHandlerTests
     {
         var applicationId = Domain.ValueObjects.ApplicationId.Create(Guid.NewGuid());
         var application = Domain.Entities.Application.Create(
-            AuthForgeUserId.Create(Guid.NewGuid()),
             "Test App",
             "test-app");
         application.Deactivate();

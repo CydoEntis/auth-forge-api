@@ -9,14 +9,12 @@ public class ApplicationTests
     [Fact]
     public void Create_WithValidData_ShouldCreateApplication()
     {
-        var userId = AuthForgeUserId.Create(Guid.NewGuid());
         var name = "My App";
         var slug = "my-app";
 
-        var application = Application.Create(userId, name, slug);
+        var application = Application.Create(name, slug);
 
         application.Should().NotBeNull();
-        application.UserId.Should().Be(userId);
         application.Name.Should().Be(name);
         application.Slug.Should().Be(slug);
         application.IsActive.Should().BeTrue();
@@ -27,9 +25,7 @@ public class ApplicationTests
     [Fact]
     public void Create_ShouldInitializeWithDefaultSettings()
     {
-        var userId = AuthForgeUserId.Create(Guid.NewGuid());
-
-        var application = Application.Create(userId, "Test App", "test-app");
+        var application = Application.Create("Test App", "test-app");
 
         application.Settings.MaxFailedLoginAttempts.Should().Be(5);
         application.Settings.LockoutDurationMinutes.Should().Be(15);
@@ -43,9 +39,7 @@ public class ApplicationTests
     [InlineData(null)]
     public void Create_WithInvalidName_ShouldThrowException(string invalidName)
     {
-        var userId = AuthForgeUserId.Create(Guid.NewGuid());
-
-        Action act = () => Application.Create(userId, invalidName, "valid-slug");
+        Action act = () => Application.Create(invalidName, "valid-slug");
 
         act.Should().Throw<ArgumentException>()
             .WithMessage("*name*");
@@ -57,9 +51,7 @@ public class ApplicationTests
     [InlineData(null)]
     public void Create_WithInvalidSlug_ShouldThrowException(string invalidSlug)
     {
-        var userId = AuthForgeUserId.Create(Guid.NewGuid());
-
-        Action act = () => Application.Create(userId, "Valid Name", invalidSlug);
+        Action act = () => Application.Create("Valid Name", invalidSlug);
 
         act.Should().Throw<ArgumentException>()
             .WithMessage("*slug*");
@@ -68,8 +60,7 @@ public class ApplicationTests
     [Fact]
     public void UpdateName_WithValidName_ShouldUpdateName()
     {
-        var userId = AuthForgeUserId.Create(Guid.NewGuid());
-        var application = Application.Create(userId, "Original Name", "original-slug");
+        var application = Application.Create("Original Name", "original-slug");
         var newName = "Updated Name";
 
         application.UpdateName(newName);
@@ -85,8 +76,7 @@ public class ApplicationTests
     [InlineData(null)]
     public void UpdateName_WithInvalidName_ShouldThrowException(string invalidName)
     {
-        var userId = AuthForgeUserId.Create(Guid.NewGuid());
-        var application = Application.Create(userId, "Original Name", "original-slug");
+        var application = Application.Create("Original Name", "original-slug");
 
         Action act = () => application.UpdateName(invalidName);
 
@@ -97,8 +87,7 @@ public class ApplicationTests
     [Fact]
     public void UpdateSettings_WithValidSettings_ShouldUpdateSettings()
     {
-        var userId = AuthForgeUserId.Create(Guid.NewGuid());
-        var application = Application.Create(userId, "Test App", "test-app");
+        var application = Application.Create("Test App", "test-app");
         var newSettings = ApplicationSettings.Create(3, 30, 60, 14);
 
         application.UpdateSettings(newSettings);
@@ -115,8 +104,7 @@ public class ApplicationTests
     [Fact]
     public void Deactivate_WhenActive_ShouldDeactivateApplication()
     {
-        var userId = AuthForgeUserId.Create(Guid.NewGuid());
-        var application = Application.Create(userId, "Test App", "test-app");
+        var application = Application.Create("Test App", "test-app");
 
         application.Deactivate();
 
@@ -128,11 +116,10 @@ public class ApplicationTests
     [Fact]
     public void Deactivate_WhenAlreadyInactive_ShouldThrowException()
     {
-        var userId = AuthForgeUserId.Create(Guid.NewGuid());
-        var application = Application.Create(userId, "Test App", "test-app");
-        application.Deactivate(); 
+        var application = Application.Create("Test App", "test-app");
+        application.Deactivate();
 
-        Action act = () => application.Deactivate(); 
+        Action act = () => application.Deactivate();
 
         act.Should().Throw<InvalidOperationException>()
             .WithMessage("*already deactivated*");
@@ -141,8 +128,7 @@ public class ApplicationTests
     [Fact]
     public void Activate_WhenInactive_ShouldActivateApplication()
     {
-        var userId = AuthForgeUserId.Create(Guid.NewGuid());
-        var application = Application.Create(userId, "Test App", "test-app");
+        var application = Application.Create("Test App", "test-app");
         application.Deactivate();
 
         application.Activate();
@@ -154,8 +140,7 @@ public class ApplicationTests
     [Fact]
     public void Activate_WhenAlreadyActive_ShouldThrowException()
     {
-        var userId = AuthForgeUserId.Create(Guid.NewGuid());
-        var application = Application.Create(userId, "Test App", "test-app");
+        var application = Application.Create("Test App", "test-app");
 
         Action act = () => application.Activate();
 

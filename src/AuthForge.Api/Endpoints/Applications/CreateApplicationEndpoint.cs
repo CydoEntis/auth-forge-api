@@ -27,7 +27,6 @@ public static class CreateApplicationEndpoint
         CancellationToken cancellationToken)
     {
         var command = new CreateApplicationCommand(
-            request.UserId,
             request.Name);
 
         var result = await mediator.Send(command, cancellationToken);

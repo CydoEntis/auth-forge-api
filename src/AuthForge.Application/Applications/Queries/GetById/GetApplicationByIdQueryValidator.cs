@@ -9,7 +9,5 @@ public sealed class GetApplicationByIdQueryValidator : AbstractValidator<GetAppl
         RuleFor(x => x.ApplicationId)
             .NotEmpty();
 
-        RuleFor(x => x.UserId)
-            .NotEmpty();
     }
 }

@@ -41,7 +41,6 @@ public class RegisterEndUserCommandHandlerTests
     {
         var applicationId = Domain.ValueObjects.ApplicationId.Create(Guid.NewGuid());
         var application = Domain.Entities.Application.Create(
-            AuthForgeUserId.Create(Guid.NewGuid()),
             "Test App",
             "test-app");
 
@@ -125,7 +124,6 @@ public class RegisterEndUserCommandHandlerTests
     {
         var applicationId = Domain.ValueObjects.ApplicationId.Create(Guid.NewGuid());
         var application = Domain.Entities.Application.Create(
-            AuthForgeUserId.Create(Guid.NewGuid()),
             "Test App",
             "test-app");
         application.Deactivate();
@@ -152,7 +150,6 @@ public class RegisterEndUserCommandHandlerTests
     {
         var applicationId = Domain.ValueObjects.ApplicationId.Create(Guid.NewGuid());
         var application = Domain.Entities.Application.Create(
-            AuthForgeUserId.Create(Guid.NewGuid()),
             "Test App",
             "test-app");
 
@@ -190,7 +187,6 @@ public class RegisterEndUserCommandHandlerTests
     {
         var applicationId = Domain.ValueObjects.ApplicationId.Create(Guid.NewGuid());
         var application = Domain.Entities.Application.Create(
-            AuthForgeUserId.Create(Guid.NewGuid()),
             "Test App",
             "test-app");
 
@@ -219,7 +215,6 @@ public class RegisterEndUserCommandHandlerTests
     {
         var applicationId = Domain.ValueObjects.ApplicationId.Create(Guid.NewGuid());
         var application = Domain.Entities.Application.Create(
-            AuthForgeUserId.Create(Guid.NewGuid()),
             "Test App",
             "test-app");
 

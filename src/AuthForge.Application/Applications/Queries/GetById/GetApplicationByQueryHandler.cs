@@ -25,18 +25,11 @@ public sealed class GetApplicationByIdQueryHandler
         if (!Guid.TryParse(query.ApplicationId, out var appGuid))
             return Result<ApplicationDetail>.Failure(ValidationErrors.InvalidGuid("ApplicationId"));
 
-        if (!Guid.TryParse(query.UserId, out var userGuid))
-            return Result<ApplicationDetail>.Failure(ValidationErrors.InvalidGuid("UserId"));
-
         var applicationId = ApplicationId.Create(appGuid);
-        var userId = AuthForgeUserId.Create(userGuid);
 
         var application = await _applicationRepository.GetByIdAsync(applicationId, cancellationToken);
         if (application is null)
             return Result<ApplicationDetail>.Failure(ApplicationErrors.NotFound);
-
-        if (application.UserId != userId)
-            return Result<ApplicationDetail>.Failure(ApplicationErrors.Unauthorized);
 
         var applicationSettings = new AppSettings(
             application.Settings.MaxFailedLoginAttempts,

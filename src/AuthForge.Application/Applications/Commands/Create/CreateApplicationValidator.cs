@@ -6,9 +6,6 @@ public sealed class CreateApplicationCommandValidator : AbstractValidator<Create
 {
     public CreateApplicationCommandValidator()
     {
-        RuleFor(x => x.UserId)
-            .NotEmpty();
-
         RuleFor(x => x.Name)
             .NotEmpty()
             .MaximumLength(100)

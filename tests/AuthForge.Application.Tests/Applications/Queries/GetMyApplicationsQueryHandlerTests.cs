@@ -24,8 +24,8 @@ public class GetMyApplicationsQueryHandlerTests
     public async Task Handle_WithValidRequest_ShouldReturnPagedApplications()
     {
         var userId = AuthForgeUserId.Create(Guid.NewGuid());
-        var app1 = Domain.Entities.Application.Create(userId, "App 1", "app-1");
-        var app2 = Domain.Entities.Application.Create(userId, "App 2", "app-2");
+        var app1 = Domain.Entities.Application.Create("App 1", "app-1");
+        var app2 = Domain.Entities.Application.Create("App 2", "app-2");
         var applications = new List<Domain.Entities.Application> { app1, app2 };
 
         var query = new GetMyApplicationsQuery
@@ -74,7 +74,7 @@ public class GetMyApplicationsQueryHandlerTests
         var applications = new List<Domain.Entities.Application>();
         for (int i = 0; i < 25; i++)
         {
-            applications.Add(Domain.Entities.Application.Create(userId, $"App {i}", $"app-{i}"));
+            applications.Add(Domain.Entities.Application.Create($"App {i}", $"app-{i}"));
         }
 
         var query = new GetMyApplicationsQuery
@@ -105,9 +105,9 @@ public class GetMyApplicationsQueryHandlerTests
     public async Task Handle_WithSearchTerm_ShouldFilterResults()
     {
         var userId = AuthForgeUserId.Create(Guid.NewGuid());
-        var app1 = Domain.Entities.Application.Create(userId, "E-commerce App", "e-commerce-app");
-        var app2 = Domain.Entities.Application.Create(userId, "Blog Platform", "blog-platform");
-        var app3 = Domain.Entities.Application.Create(userId, "Commerce API", "commerce-api");
+        var app1 = Domain.Entities.Application.Create("E-commerce App", "e-commerce-app");
+        var app2 = Domain.Entities.Application.Create("Blog Platform", "blog-platform");
+        var app3 = Domain.Entities.Application.Create("Commerce API", "commerce-api");
         var applications = new List<Domain.Entities.Application> { app1, app2, app3 };
 
         var query = new GetMyApplicationsQuery
@@ -137,9 +137,9 @@ public class GetMyApplicationsQueryHandlerTests
     public async Task Handle_WithSortByName_ShouldSortCorrectly()
     {
         var userId = AuthForgeUserId.Create(Guid.NewGuid());
-        var app1 = Domain.Entities.Application.Create(userId, "Zebra App", "zebra-app");
-        var app2 = Domain.Entities.Application.Create(userId, "Alpha App", "alpha-app");
-        var app3 = Domain.Entities.Application.Create(userId, "Beta App", "beta-app");
+        var app1 = Domain.Entities.Application.Create("Zebra App", "zebra-app");
+        var app2 = Domain.Entities.Application.Create("Alpha App", "alpha-app");
+        var app3 = Domain.Entities.Application.Create("Beta App", "beta-app");
         var applications = new List<Domain.Entities.Application> { app1, app2, app3 };
 
         var query = new GetMyApplicationsQuery

@@ -5,5 +5,4 @@ using Mediator;
 namespace AuthForge.Application.Applications.Queries.GetById;
 
 public sealed record GetApplicationByIdQuery(
-    string ApplicationId,
-    string UserId) : IQuery<Result<ApplicationDetail>>;
+    string ApplicationId) : IQuery<Result<ApplicationDetail>>;

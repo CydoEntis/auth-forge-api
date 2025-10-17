@@ -28,18 +28,11 @@ public sealed class UpdateApplicationCommandHandler
         if (!Guid.TryParse(command.ApplicationId, out var appGuid))
             return Result<UpdateApplicationResponse>.Failure(ValidationErrors.InvalidGuid("ApplicationId"));
 
-        if (!Guid.TryParse(command.UserId, out var userGuid))
-            return Result<UpdateApplicationResponse>.Failure(ValidationErrors.InvalidGuid("UserId"));
-
         var applicationId = ApplicationId.Create(appGuid);
-        var userId = AuthForgeUserId.Create(userGuid);
 
         var application = await _applicationRepository.GetByIdAsync(applicationId, cancellationToken);
         if (application is null)
             return Result<UpdateApplicationResponse>.Failure(ApplicationErrors.NotFound);
-
-        if (application.UserId != userId)
-            return Result<UpdateApplicationResponse>.Failure(ApplicationErrors.Unauthorized);
 
         if (!application.IsActive)
             return Result<UpdateApplicationResponse>.Failure(ApplicationErrors.Inactive);

@@ -32,7 +32,6 @@ public static class UpdateApplicationEndpoint
     {
         var command = new UpdateApplicationCommand(
             id,
-            request.UserId,
             request.Name,
             request.Settings);
 

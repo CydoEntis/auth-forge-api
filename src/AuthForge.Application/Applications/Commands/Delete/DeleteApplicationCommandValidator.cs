@@ -8,8 +8,5 @@ public sealed class DeleteApplicationCommandValidator : AbstractValidator<Delete
     {
         RuleFor(x => x.ApplicationId)
             .NotEmpty();
-
-        RuleFor(x => x.UserId)
-            .NotEmpty();
     }
 }
