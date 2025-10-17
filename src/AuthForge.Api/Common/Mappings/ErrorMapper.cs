@@ -18,18 +18,6 @@ public static class ErrorMapper
         if (error.Code == ApplicationErrors.InvalidSettings.Code)
             return StatusCodes.Status400BadRequest;
 
-        // AuthForgeUser errors
-        if (error.Code == AuthForgeUserErrors.NotFound.Code)
-            return StatusCodes.Status404NotFound;
-        if (error.Code == AuthForgeUserErrors.InvalidCredentials.Code)
-            return StatusCodes.Status401Unauthorized;
-        if (error.Code == AuthForgeUserErrors.DuplicateEmail.Code)
-            return StatusCodes.Status409Conflict;
-        if (error.Code == AuthForgeUserErrors.Inactive.Code)
-            return StatusCodes.Status403Forbidden;
-        if (error.Code == AuthForgeUserErrors.EmailNotVerified.Code)
-            return StatusCodes.Status403Forbidden;
-
         // EndUser errors
         if (error.Code == EndUserErrors.NotFound.Code)
             return StatusCodes.Status404NotFound;
@@ -41,16 +29,6 @@ public static class ErrorMapper
             return StatusCodes.Status403Forbidden;
         if (error.Code == EndUserErrors.LockedOut.Code)
             return StatusCodes.Status403Forbidden;
-
-        // AuthForge Token errors
-        if (error.Code == AuthForgeRefreshTokenErrors.Expired.Code)
-            return StatusCodes.Status401Unauthorized;
-        if (error.Code == AuthForgeRefreshTokenErrors.Revoked.Code)
-            return StatusCodes.Status401Unauthorized;
-        if (error.Code == AuthForgeRefreshTokenErrors.Invalid.Code)
-            return StatusCodes.Status401Unauthorized;
-        if (error.Code == AuthForgeRefreshTokenErrors.NotFound.Code)
-            return StatusCodes.Status404NotFound;
 
         // EndUser Token errors
         if (error.Code == EndUserRefreshTokenErrors.Expired.Code)

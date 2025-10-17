@@ -9,7 +9,6 @@ public static class ApplicationServiceExtensions
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        services.AddSingleton<IAuthForgeJwtTokenGenerator, AuthForgeJwtTokenGenerator>(); // Only added temp, will remove later.
         services.AddSingleton<IEndUserJwtTokenGenerator, EndUserJwtTokenGenerator>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         
