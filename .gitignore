@@ -101,10 +101,14 @@ TestResult.xml
 nunit-*.xml
 
 # Sensitive app settings
+appsettings.json
 appsettings.Development.json
-appsettings.*.json
-!appsettings.json
+appsettings.Production.json
 appsettings.Local.json
+appsettings.*.json
+
+# Allow example file to be committed
+!appsettings.Example.json
 
 # User secrets
 secrets.json
