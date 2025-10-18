@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using AuthForge.Application.Common.Interfaces;
+using AuthForge.Application.Common.Settings; 
 using AuthForge.Domain.Entities;
 using AuthForge.Domain.ValueObjects;
 using Microsoft.Extensions.Options;
@@ -13,12 +14,12 @@ namespace AuthForge.Infrastructure.Authentication;
 
 public sealed class EndUserJwtTokenGenerator : IEndUserJwtTokenGenerator
 {
-    private readonly JwtSettings _jwtSettings;
+    private readonly AuthForgeSettings _settings;
     private readonly JwtSecurityTokenHandler _tokenHandler;
 
-    public EndUserJwtTokenGenerator(IOptions<JwtSettings> jwtSettings)
+    public EndUserJwtTokenGenerator(IOptions<AuthForgeSettings> settings)
     {
-        _jwtSettings = jwtSettings.Value;
+        _settings = settings.Value;
         _tokenHandler = new JwtSecurityTokenHandler();
     }
 
@@ -37,12 +38,12 @@ public sealed class EndUserJwtTokenGenerator : IEndUserJwtTokenGenerator
             new Claim("app_slug", application.Slug)
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Jwt.Secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: _jwtSettings.Issuer,
-            audience: _jwtSettings.Audience,
+            issuer: _settings.Jwt.Issuer,
+            audience: _settings.Jwt.Audience,
             claims: claims,
             expires: expiresAt,
             signingCredentials: credentials);
@@ -75,16 +76,16 @@ public sealed class EndUserJwtTokenGenerator : IEndUserJwtTokenGenerator
     {
         try
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Jwt.Secret));
 
             var validationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = key,
                 ValidateIssuer = true,
-                ValidIssuer = _jwtSettings.Issuer,
+                ValidIssuer = _settings.Jwt.Issuer,
                 ValidateAudience = true,
-                ValidAudience = _jwtSettings.Audience,
+                ValidAudience = _settings.Jwt.Audience,
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
             };

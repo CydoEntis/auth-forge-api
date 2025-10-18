@@ -1,7 +1,11 @@
-﻿using AuthForge.Application.Common.Interfaces;
+﻿using AuthForge.Application.Common.Extensions;
+using AuthForge.Application.Common.Interfaces;
+using AuthForge.Application.Common.Models;
+using AuthForge.Application.EndUsers.Enums;
 using AuthForge.Domain.Entities;
 using AuthForge.Domain.ValueObjects;
 using AuthForge.Infrastructure.Data;
+using AuthForge.Infrastructure.Repositories.QueryBuilders;
 using Microsoft.EntityFrameworkCore;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
@@ -60,5 +64,29 @@ public class EndUserRepository : IEndUserRepository
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<(List<EndUser> Items, int TotalCount)> GetPagedAsync(
+        ApplicationId applicationId,
+        string? searchTerm,
+        bool? isActive,
+        EndUserSortBy sortBy,
+        SortOrder sortOrder,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.EndUsers
+            .Where(u => u.ApplicationId == applicationId)
+            .ApplyFilters(searchTerm, isActive);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .ApplySorting(sortBy, sortOrder)
+            .Paginate(pageNumber, pageSize)
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
     }
 }

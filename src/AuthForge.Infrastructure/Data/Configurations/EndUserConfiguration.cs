@@ -17,16 +17,12 @@ public class EndUserConfiguration : IEntityTypeConfiguration<EndUser>
 
         builder.Property(u => u.Id)
             .HasColumnName("id")
-            .HasConversion(
-                id => id.Value,
-                value => EndUserId.Create(value))
+            .HasConversion(id => id.Value, value => EndUserId.Create(value))
             .IsRequired();
 
         builder.Property(u => u.ApplicationId)
             .HasColumnName("application_id")
-            .HasConversion(
-                id => id.Value,
-                value => ApplicationId.Create(value))
+            .HasConversion(id => id.Value, value => ApplicationId.Create(value))
             .IsRequired();
 
         builder.HasOne<App>()
@@ -34,16 +30,15 @@ public class EndUserConfiguration : IEntityTypeConfiguration<EndUser>
             .HasForeignKey(u => u.ApplicationId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Property(u => u.Email)
-            .HasColumnName("email")
-            .HasMaxLength(255)
-            .HasConversion(
-                email => email.Value,
-                value => Email.Create(value))
-            .IsRequired();
+        builder.OwnsOne(u => u.Email, email =>
+        {
+            email.Property(e => e.Value)
+                .HasColumnName("email")
+                .HasMaxLength(255)
+                .IsRequired();
 
-        builder.HasIndex(u => new { u.ApplicationId, u.Email })
-            .IsUnique();
+            email.HasIndex(e => e.Value).IsUnique();
+        });
 
         builder.Property(u => u.FirstName)
             .HasColumnName("first_name")
