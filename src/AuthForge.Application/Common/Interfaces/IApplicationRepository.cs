@@ -23,4 +23,8 @@ public interface IApplicationRepository
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default);
+    
+    Task<App?> GetByPublicKeyAsync(
+        string publicKey,
+        CancellationToken cancellationToken = default);
 }

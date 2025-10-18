@@ -75,4 +75,12 @@ public class ApplicationRepository : IApplicationRepository
 
         return (items, totalCount);
     }
+
+    public async Task<App?> GetByPublicKeyAsync(
+        string publicKey,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Applications
+            .FirstOrDefaultAsync(a => a.PublicKey == publicKey, cancellationToken);
+    }
 }

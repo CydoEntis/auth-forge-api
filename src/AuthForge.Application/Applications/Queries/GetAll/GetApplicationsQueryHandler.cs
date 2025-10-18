@@ -35,6 +35,7 @@ public sealed class GetApplicationsQueryHandler
             app.Id.Value.ToString(),
             app.Name,
             app.Slug,
+            app.PublicKey,
             app.IsActive,
             0,
             app.CreatedAtUtc

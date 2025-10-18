@@ -41,6 +41,8 @@ public sealed class CreateApplicationCommandHandler
             application.Id.Value.ToString(),
             application.Name,
             application.Slug,
+            application.PublicKey,
+            application.SecretKey, 
             application.IsActive,
             application.CreatedAtUtc);
 

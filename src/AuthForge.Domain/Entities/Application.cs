@@ -15,10 +15,12 @@ public sealed class Application : AggregateRoot<ApplicationId>
     {
     }
 
-    private Application(ApplicationId id, string name, string slug) : base(id)
+    private Application(ApplicationId id, string name, string slug, string publicKey, string secretKey) : base(id)
     {
         Name = name;
         Slug = slug;
+        PublicKey = publicKey;
+        SecretKey = secretKey;
         IsActive = true;
         Settings = ApplicationSettings.Default();
         CreatedAtUtc = DateTime.UtcNow;
@@ -26,6 +28,8 @@ public sealed class Application : AggregateRoot<ApplicationId>
 
     public string Name { get; private set; } = default!;
     public string Slug { get; private set; } = default!;
+    public string PublicKey { get; private set; } = string.Empty;
+    public string SecretKey { get; private set; } = string.Empty;
     public bool IsActive { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
     public DateTime? UpdatedAtUtc { get; private set; }
@@ -40,10 +44,16 @@ public sealed class Application : AggregateRoot<ApplicationId>
         if (string.IsNullOrWhiteSpace(slug))
             throw new ArgumentException("Application slug cannot be empty", nameof(slug));
 
+        var publicKey = GeneratePublicKey();
+        var secretKey = GenerateSecretKey();
+
+
         var application = new Application(
             ApplicationId.CreateUnique(),
             name,
-            slug
+            slug,
+            publicKey,
+            secretKey
         );
 
         application.RaiseDomainEvent(new ApplicationCreatedDomainEvent(
@@ -87,5 +97,24 @@ public sealed class Application : AggregateRoot<ApplicationId>
 
         IsActive = true;
         DeactivatedAtUtc = null;
+    }
+
+    public void RegenerateKeys()
+    {
+        PublicKey = GeneratePublicKey();
+        SecretKey = GenerateSecretKey();
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    private static string GeneratePublicKey()
+    {
+        var random = Guid.NewGuid().ToString("N");
+        return $"pk_live_{random}";
+    }
+
+    private static string GenerateSecretKey()
+    {
+        var random = Guid.NewGuid().ToString("N");
+        return $"sk_live_{random}";
     }
 }

@@ -41,6 +41,7 @@ public sealed class GetApplicationByIdQueryHandler
             application.Id.Value.ToString(),
             application.Name,
             application.Slug,
+            application.PublicKey,
             application.IsActive,
             applicationSettings,
             application.CreatedAtUtc,

@@ -24,22 +24,55 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<App>
 
         builder.Property(a => a.Name)
             .HasColumnName("name")
-            .HasMaxLength(100)
+            .HasMaxLength(200)
             .IsRequired();
 
         builder.Property(a => a.Slug)
             .HasColumnName("slug")
-            .HasMaxLength(100)
+            .HasMaxLength(200)
             .IsRequired();
 
         builder.HasIndex(a => a.Slug)
+            .IsUnique();
+
+        builder.Property(a => a.PublicKey)
+            .HasColumnName("public_key")
+            .HasMaxLength(100)
+            .IsRequired();
+
+        builder.Property(a => a.SecretKey)
+            .HasColumnName("secret_key")
+            .HasMaxLength(100)
+            .IsRequired();
+
+        builder.HasIndex(a => a.PublicKey)
+            .IsUnique();
+
+        builder.HasIndex(a => a.SecretKey)
             .IsUnique();
 
         builder.Property(a => a.IsActive)
             .HasColumnName("is_active")
             .IsRequired();
 
-        builder.OwnsOne(a => a.Settings, settings => { settings.ToJson("settings"); });
+        builder.OwnsOne(a => a.Settings, settings =>
+        {
+            settings.Property(s => s.MaxFailedLoginAttempts)
+                .HasColumnName("max_failed_login_attempts")
+                .IsRequired();
+
+            settings.Property(s => s.LockoutDurationMinutes)
+                .HasColumnName("lockout_duration_minutes")
+                .IsRequired();
+
+            settings.Property(s => s.AccessTokenExpirationMinutes)
+                .HasColumnName("access_token_expiration_minutes")
+                .IsRequired();
+
+            settings.Property(s => s.RefreshTokenExpirationDays)
+                .HasColumnName("refresh_token_expiration_days")
+                .IsRequired();
+        });
 
         builder.Property(a => a.CreatedAtUtc)
             .HasColumnName("created_at_utc")
