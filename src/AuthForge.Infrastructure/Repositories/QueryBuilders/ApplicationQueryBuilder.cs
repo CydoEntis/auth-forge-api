@@ -32,7 +32,7 @@ public static class ApplicationQueryBuilder
             ApplicationSortBy.Name => query.OrderByDirection(a => a.Name, sortOrder),
             ApplicationSortBy.Slug => query.OrderByDirection(a => a.Slug, sortOrder),
             ApplicationSortBy.UpdatedAt => query.OrderByDirection(a => a.UpdatedAtUtc, sortOrder),
-            ApplicationSortBy.CreatedAt or _ => query.OrderByDirection(a => a.CreatedAtUtc, sortOrder)
+            _ => query.OrderByDirection(a => a.CreatedAtUtc, sortOrder)
         };
     }
 }

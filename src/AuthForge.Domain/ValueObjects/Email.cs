@@ -28,6 +28,7 @@ public sealed record Email
     public static Email Create(string value) => new(value);
 
     public static implicit operator string(Email email) => email.Value;
+    public static implicit operator Email(string value) => Create(value);
 
     public override string ToString() => Value;
 }

@@ -7,6 +7,8 @@ public static class EndUserEndpointsRegistration
         app.MapRegisterEndUserEndpoint();
         app.MapLoginEndUserEndpoint();
         app.MapRefreshEndUserTokenEndpoint();
+        app.MapGetEndUsersEndpoint();
+        
         return app;
     }
 }
