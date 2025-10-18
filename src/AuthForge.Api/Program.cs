@@ -1,4 +1,5 @@
 using AuthForge.Api.Endpoints;
+using AuthForge.Api.Middleware;
 using AuthForge.Application;
 using AuthForge.Infrastructure;
 
@@ -19,7 +20,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthentication();  
-app.UseAuthorization();   
+app.UseMiddleware<ApplicationIdentificationMiddleware>();
+app.UseAuthorization();
+
 
 app.MapEndpoints();
 

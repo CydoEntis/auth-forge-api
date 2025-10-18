@@ -1,5 +1,6 @@
 ﻿using AuthForge.Api.Common.Responses;
 using AuthForge.Application.EndUsers.Commands.Login;
+using AuthForge.Domain.Errors;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,12 +23,21 @@ public static class LoginEndUserEndpoint
 
     private static async Task<IResult> HandleLogin(
         [FromBody] LoginEndUserRequest request,
-        [FromServices] IMediator mediator,
         HttpContext httpContext,
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
+        var application = httpContext.Items["Application"] as Domain.Entities.Application;
+
+        if (application is null)
+        {
+            var errorResponse = ApiResponse<LoginEndUserResponse>.FailureResponse(EndUserErrors.InvalidApiKey);
+            return Results.Json(errorResponse, statusCode: StatusCodes.Status401Unauthorized);
+        }
+        
+        
         var command = new LoginEndUserCommand(
-            request.ApplicationId,
+            application.Id.Value.ToString(),
             request.Email,
             request.Password,
             httpContext.Connection.RemoteIpAddress?.ToString(),

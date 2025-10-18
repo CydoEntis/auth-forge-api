@@ -1,4 +1,6 @@
-﻿namespace AuthForge.Api.Common.Responses;
+﻿using AuthForge.Domain.Errors;
+
+namespace AuthForge.Api.Common.Responses;
 
 public class ApiResponse<T>
 {
@@ -27,6 +29,20 @@ public class ApiResponse<T>
             {
                 Code = code,
                 Message = message
+            }
+        };
+    }
+
+    public static ApiResponse<T> FailureResponse(Error error)
+    {
+        return new ApiResponse<T>
+        {
+            Success = false,
+            Data = default,
+            Error = new ApiError
+            {
+                Code = error.Code,
+                Message = error.Message
             }
         };
     }

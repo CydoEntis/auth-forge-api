@@ -37,4 +37,8 @@ public static class EndUserErrors
     public static readonly Error EmailAlreadyVerified = new(
         "EndUser.EmailAlreadyVerified",
         "Email address is already verified");
+    
+    public static readonly Error InvalidApiKey = new(
+        "Auth.InvalidApiKey",
+        "Valid API key is required");
 }

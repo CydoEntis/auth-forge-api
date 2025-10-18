@@ -1,5 +1,6 @@
 ﻿using AuthForge.Api.Common.Responses;
 using AuthForge.Application.EndUsers.Commands.Register;
+using AuthForge.Domain.Errors;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +16,7 @@ public static class RegisterEndUserEndpoint
             .WithDescription("Register a new end user for an application")
             .Produces<ApiResponse<RegisterEndUserResponse>>(StatusCodes.Status201Created)
             .Produces<ApiResponse<RegisterEndUserResponse>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<RegisterEndUserResponse>>(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
 
         return app;
@@ -22,11 +24,21 @@ public static class RegisterEndUserEndpoint
 
     private static async Task<IResult> HandleRegister(
         [FromBody] RegisterEndUserRequest request,
+        HttpContext httpContext,
         [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
+        var application = httpContext.Items["Application"] as Domain.Entities.Application;
+
+        if (application is null)
+        {
+            var errorResponse = ApiResponse<RegisterEndUserResponse>.FailureResponse(EndUserErrors.InvalidApiKey);
+            return Results.Json(errorResponse, statusCode: StatusCodes.Status401Unauthorized);
+        }
+        
+        
         var command = new RegisterEndUserCommand(
-            request.ApplicationId,
+            application.Id.Value.ToString(),
             request.Email,
             request.Password,
             request.FirstName,

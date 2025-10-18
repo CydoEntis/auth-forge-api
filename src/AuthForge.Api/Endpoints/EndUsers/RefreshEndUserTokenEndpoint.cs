@@ -1,5 +1,6 @@
 ﻿using AuthForge.Api.Common.Responses;
 using AuthForge.Application.EndUsers.Commands.Refresh;
+using AuthForge.Domain.Errors;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,10 +23,18 @@ public static class RefreshEndUserTokenEndpoint
 
     private static async Task<IResult> HandleRefresh(
         [FromBody] RefreshEndUserTokenRequest request,
-        [FromServices] IMediator mediator,
         HttpContext httpContext,
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
+        var application = httpContext.Items["Application"] as Domain.Entities.Application;
+
+        if (application is null)
+        {
+            var errorResponse = ApiResponse<RefreshEndUserTokenResponse>.FailureResponse(EndUserErrors.InvalidApiKey);
+            return Results.Json(errorResponse, statusCode: StatusCodes.Status401Unauthorized);
+        }
+
         var command = new RefreshEndUserTokenCommand(
             request.RefreshToken,
             httpContext.Connection.RemoteIpAddress?.ToString(),
