@@ -28,15 +28,6 @@ public class ApplicationRepository : IApplicationRepository
             .FirstOrDefaultAsync(a => a.Slug == slug, cancellationToken);
     }
 
-    public async Task<List<App>> GetByUserIdAsync(AuthForgeUserId userId,
-        CancellationToken cancellationToken = default)
-    {
-        return await _context.Applications
-            .Where(a => a.UserId == userId)
-            .OrderBy(a => a.CreatedAtUtc)
-            .ToListAsync(cancellationToken);
-    }
-
     public async Task<bool> SlugExistsAsync(string slug, CancellationToken cancellationToken = default)
     {
         return await _context.Applications

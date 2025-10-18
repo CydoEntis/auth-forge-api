@@ -22,18 +22,6 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<App>
                 value => ApplicationId.Create(value))
             .IsRequired();
 
-        builder.Property(a => a.UserId)
-            .HasColumnName("user_id")
-            .HasConversion(
-                id => id.Value,
-                value => AuthForgeUserId.Create(value))
-            .IsRequired();
-
-        builder.HasOne<AuthForgeUser>()
-            .WithMany()
-            .HasForeignKey(a => a.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.Property(a => a.Name)
             .HasColumnName("name")
             .HasMaxLength(100)

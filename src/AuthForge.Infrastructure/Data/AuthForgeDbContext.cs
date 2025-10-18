@@ -11,12 +11,10 @@ public class AuthForgeDbContext : DbContext
     {
     }
 
-    public DbSet<AuthForgeUser> AuthForgeUsers => Set<AuthForgeUser>();
     public DbSet<App> Applications => Set<App>();
+    public DbSet<AdminRefreshToken> AdminRefreshTokens => Set<AdminRefreshToken>();
     public DbSet<EndUser> EndUsers => Set<EndUser>();
-    public DbSet<AuthForgeRefreshToken> AuthForgeRefreshTokens => Set<AuthForgeRefreshToken>();
     public DbSet<EndUserRefreshToken> EndUserRefreshTokens => Set<EndUserRefreshToken>();
-    public DbSet<AuthForgePasswordResetToken> AuthForgePasswordResetTokens => Set<AuthForgePasswordResetToken>();
     public DbSet<EndUserPasswordResetToken> EndUserPasswordResetTokens => Set<EndUserPasswordResetToken>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)

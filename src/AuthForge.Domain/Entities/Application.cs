@@ -5,23 +5,25 @@ using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
 namespace AuthForge.Domain.Entities;
 
-// An App that a developer would create
+/**
+ * Represents an application created by the admin for end-user authentication.
+ * In self-hosted mode, there is only one admin who manages all applications.
+ */
 public sealed class Application : AggregateRoot<ApplicationId>
 {
     private Application()
     {
     }
 
-    private Application(ApplicationId id, AuthForgeUserId userId, string name, string slug) : base(id)
+    private Application(ApplicationId id, string name, string slug) : base(id)
     {
-        UserId = userId;
         Name = name;
         Slug = slug;
         IsActive = true;
+        Settings = ApplicationSettings.Default();
         CreatedAtUtc = DateTime.UtcNow;
     }
 
-    public AuthForgeUserId UserId { get; private set; } = default!;
     public string Name { get; private set; } = default!;
     public string Slug { get; private set; } = default!;
     public bool IsActive { get; private set; }
@@ -30,7 +32,7 @@ public sealed class Application : AggregateRoot<ApplicationId>
     public DateTime? DeactivatedAtUtc { get; private set; }
     public ApplicationSettings Settings { get; private set; } = default!;
 
-    public static Application Create(AuthForgeUserId userId, string name, string slug)
+    public static Application Create(string name, string slug)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Application name cannot be empty", nameof(name));
@@ -40,13 +42,14 @@ public sealed class Application : AggregateRoot<ApplicationId>
 
         var application = new Application(
             ApplicationId.CreateUnique(),
-            userId,
             name,
             slug
         );
 
-        application.RaiseDomainEvent(new ApplicationCreatedDomainEvent(application.Id, application.UserId,
-            application.Name, application.Slug));
+        application.RaiseDomainEvent(new ApplicationCreatedDomainEvent(
+            application.Id,
+            application.Name,
+            application.Slug));
 
         return application;
     }
@@ -62,7 +65,7 @@ public sealed class Application : AggregateRoot<ApplicationId>
 
     public void UpdateSettings(ApplicationSettings settings)
     {
-        Settings = settings.Validate();
+        Settings = settings ?? throw new ArgumentNullException(nameof(settings));
         UpdatedAtUtc = DateTime.UtcNow;
     }
 
