@@ -1,6 +1,10 @@
-﻿using AuthForge.Application.Common.Interfaces;
+﻿using AuthForge.Application.Applications.Enums;
+using AuthForge.Application.Common.Extensions;
+using AuthForge.Application.Common.Interfaces;
+using AuthForge.Application.Common.Models;
 using AuthForge.Domain.ValueObjects;
 using AuthForge.Infrastructure.Data;
+using AuthForge.Infrastructure.Repositories.QueryBuilders;
 using Microsoft.EntityFrameworkCore;
 using App = AuthForge.Domain.Entities.Application;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
@@ -47,5 +51,28 @@ public class ApplicationRepository : IApplicationRepository
     public void Delete(App application)
     {
         _context.Applications.Remove(application);
+    }
+
+    public async Task<(List<App> Items, int TotalCount)> GetPagedAsync(
+        string? searchTerm,
+        bool? isActive,
+        ApplicationSortBy sortBy,
+        SortOrder sortOrder,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Applications
+            .AsQueryable()
+            .ApplyFilters(searchTerm, isActive);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .ApplySorting(sortBy, sortOrder)
+            .Paginate(pageNumber, pageSize)
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
     }
 }

@@ -8,6 +8,7 @@ public static class ApplicationsEndpointsRegistration
         app.MapGetApplicationByIdEndpoint();
         app.MapUpdateApplicationEndpoint();
         app.MapDeleteApplicationEndpoint();
+        app.MapGetApplicationsEndpoint();
 
         return app;
     }
