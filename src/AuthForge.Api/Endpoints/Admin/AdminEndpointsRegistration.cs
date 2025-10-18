@@ -6,7 +6,7 @@ public static class AdminEndpointsRegistration
     {
         app.MapLoginAdminEndpoint();
         app.MapRefreshAdminTokenEndpoint();
-        
+        app.MapLogoutAdminEndpoint();
         return app;
     }
 }

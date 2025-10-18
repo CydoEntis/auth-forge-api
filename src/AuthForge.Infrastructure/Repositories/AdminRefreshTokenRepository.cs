@@ -37,7 +37,7 @@ public class AdminRefreshTokenRepository : IAdminRefreshTokenRepository
     public async Task RevokeAllAsync(CancellationToken cancellationToken = default)
     {
         var tokens = await _context.AdminRefreshTokens
-            .Where(t => !t.IsRevoked)
+            .Where(t => t.RevokedAtUtc == null)
             .ToListAsync(cancellationToken);
 
         foreach (var token in tokens)
