@@ -37,7 +37,7 @@ public sealed class RefreshAdminTokenCommandHandler
 
         if (refreshToken is null || !refreshToken.IsActive)
         {
-            return Result<RefreshAdminTokenResponse>.Failure(AdminErrors.InvalidCredentials);
+            return Result<RefreshAdminTokenResponse>.Failure(AdminErrors.InvalidRefreshToken);
         }
 
         refreshToken.MarkAsUsed();
