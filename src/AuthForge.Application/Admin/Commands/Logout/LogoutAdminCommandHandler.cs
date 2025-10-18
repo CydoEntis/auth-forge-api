@@ -4,7 +4,8 @@ using Mediator;
 
 namespace AuthForge.Application.Admin.Commands.Logout;
 
-public sealed class LogoutAdminCommandHandler : ICommandHandler<LogoutAdminCommand, Result>
+public sealed class LogoutAdminCommandHandler 
+    : ICommandHandler<LogoutAdminCommand, Result<LogoutAdminResponse>>
 {
     private readonly IAdminRefreshTokenRepository _refreshTokenRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -17,13 +18,14 @@ public sealed class LogoutAdminCommandHandler : ICommandHandler<LogoutAdminComma
         _unitOfWork = unitOfWork;
     }
 
-    public async ValueTask<Result> Handle(
+    public async ValueTask<Result<LogoutAdminResponse>> Handle(
         LogoutAdminCommand command,
         CancellationToken cancellationToken)
     {
         await _refreshTokenRepository.RevokeAllAsync(cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Success();
+        var response = new LogoutAdminResponse("Successfully logged out from all devices");
+        return Result<LogoutAdminResponse>.Success(response);
     }
 }
