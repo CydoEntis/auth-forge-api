@@ -12,6 +12,7 @@ public class AuthForgeDbContext : DbContext
     }
 
     public DbSet<App> Applications => Set<App>();
+    public DbSet<AdminRefreshToken> AdminRefreshTokens => Set<AdminRefreshToken>();
     public DbSet<EndUser> EndUsers => Set<EndUser>();
     public DbSet<EndUserRefreshToken> EndUserRefreshTokens => Set<EndUserRefreshToken>();
     public DbSet<EndUserPasswordResetToken> EndUserPasswordResetTokens => Set<EndUserPasswordResetToken>();

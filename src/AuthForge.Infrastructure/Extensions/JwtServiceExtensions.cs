@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -48,7 +49,14 @@ public static class JwtServiceExtensions
                 };
             });
 
-        services.AddAuthorization();
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("Admin", policy =>
+                policy.RequireAssertion(context =>
+                    context.User.HasClaim(c =>
+                        (c.Type == "role" || c.Type == ClaimTypes.Role) &&
+                        c.Value == "Admin")));
+        });
 
         Console.WriteLine("JWT Authentication configured successfully");
 

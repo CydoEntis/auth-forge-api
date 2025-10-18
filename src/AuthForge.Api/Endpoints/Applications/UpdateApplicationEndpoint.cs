@@ -12,6 +12,7 @@ public static class UpdateApplicationEndpoint
     public static IEndpointRouteBuilder MapUpdateApplicationEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPut("/api/applications/{id}", Handle)
+            .RequireAuthorization("Admin") 
             .WithName("UpdateApplication")
             .WithTags("Applications")
             .WithDescription("Update application name and settings")
@@ -53,6 +54,5 @@ public static class UpdateApplicationEndpoint
 }
 
 public record UpdateApplicationRequest(
-    string UserId,
     string Name,
     AppSettings Settings);

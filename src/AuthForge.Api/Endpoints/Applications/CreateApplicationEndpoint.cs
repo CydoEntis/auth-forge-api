@@ -11,6 +11,7 @@ public static class CreateApplicationEndpoint
     public static IEndpointRouteBuilder MapCreateApplicationEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/applications", Handle)
+            .RequireAuthorization("Admin") 
             .WithName("CreateApplication")
             .WithTags("Applications")
             .WithDescription("Create a new application")
@@ -47,5 +48,4 @@ public static class CreateApplicationEndpoint
 }
 
 public record CreateApplicationRequest(
-    string UserId,
     string Name);

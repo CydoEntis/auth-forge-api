@@ -1,4 +1,4 @@
-﻿namespace AuthForge.Application.Admin.Commands;
+﻿namespace AuthForge.Application.Admin.Commands.Login;
 
 public sealed record LoginAdminResponse(
     string AccessToken,

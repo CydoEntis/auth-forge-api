@@ -12,6 +12,7 @@ public static class GetApplicationByIdEndpoint
     public static IEndpointRouteBuilder MapGetApplicationByIdEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapGet("/api/applications/{id}", Handle)
+            .RequireAuthorization("Admin") 
             .WithName("GetApplicationById")
             .WithTags("Applications")
             .WithDescription("Get application by ID")
@@ -25,7 +26,6 @@ public static class GetApplicationByIdEndpoint
 
     private static async Task<IResult> Handle(
         [FromRoute] string id,
-        [FromQuery] string userId,
         [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {

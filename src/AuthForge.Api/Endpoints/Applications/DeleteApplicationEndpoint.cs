@@ -11,6 +11,7 @@ public static class DeleteApplicationEndpoint
     public static IEndpointRouteBuilder MapDeleteApplicationEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapDelete("/api/applications/{id}", Handle)
+            .RequireAuthorization("Admin") 
             .WithName("DeleteApplication")
             .WithTags("Applications")
             .WithDescription("Delete (deactivate) an application")
@@ -24,7 +25,6 @@ public static class DeleteApplicationEndpoint
 
     private static async Task<IResult> Handle(
         [FromRoute] string id,
-        [FromQuery] string userId,
         [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
