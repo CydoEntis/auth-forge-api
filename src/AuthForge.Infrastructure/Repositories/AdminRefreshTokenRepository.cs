@@ -33,4 +33,16 @@ public class AdminRefreshTokenRepository : IAdminRefreshTokenRepository
     {
         _context.AdminRefreshTokens.Update(refreshToken);
     }
+
+    public async Task RevokeAllAsync(CancellationToken cancellationToken = default)
+    {
+        var tokens = await _context.AdminRefreshTokens
+            .Where(t => !t.IsRevoked)
+            .ToListAsync(cancellationToken);
+
+        foreach (var token in tokens)
+        {
+            token.Revoke();
+        }
+    }
 }
