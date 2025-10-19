@@ -30,3 +30,9 @@ public sealed record EndUserPasswordChangedDomainEvent(
 
 public sealed record EndUserDeactivatedDomainEvent(
     EndUserId UserId) : IDomainEvent;
+    
+public sealed record EndUserRefreshTokenRevokedDomainEvent(
+    EndUserId UserId,
+    string Token) : IDomainEvent;
+
+public sealed record EndUserPasswordResetDomainEvent(EndUserId UserId) : IDomainEvent;

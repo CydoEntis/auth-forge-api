@@ -46,6 +46,9 @@ public sealed class EndUser : AggregateRoot<EndUserId>
     public string? EmailVerificationToken { get; private set; }
     public DateTime? EmailVerificationTokenExpiresAt { get; private set; }
 
+    public string? PasswordResetToken { get; private set; }
+    public DateTime? PasswordResetTokenExpiresAt { get; private set; }
+
     public string FullName => $"{FirstName} {LastName}";
 
     public static EndUser Create(
@@ -111,6 +114,39 @@ public sealed class EndUser : AggregateRoot<EndUserId>
         return EmailVerificationToken == token &&
                EmailVerificationTokenExpiresAt.HasValue &&
                EmailVerificationTokenExpiresAt.Value > DateTime.UtcNow;
+    }
+
+    public void SetPasswordResetToken(string token, DateTime expiresAt)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            throw new ArgumentException("Token cannot be empty.", nameof(token));
+
+        if (expiresAt <= DateTime.UtcNow)
+            throw new ArgumentException("Token expiration must be in the future.", nameof(expiresAt));
+
+        PasswordResetToken = token;
+        PasswordResetTokenExpiresAt = expiresAt;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    public bool IsPasswordResetTokenValid(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            return false;
+
+        return PasswordResetToken == token &&
+               PasswordResetTokenExpiresAt.HasValue &&
+               PasswordResetTokenExpiresAt.Value > DateTime.UtcNow;
+    }
+
+    public void ResetPassword(HashedPassword newPasswordHash)
+    {
+        PasswordHash = newPasswordHash ?? throw new ArgumentNullException(nameof(newPasswordHash));
+        PasswordResetToken = null;
+        PasswordResetTokenExpiresAt = null;
+        UpdatedAtUtc = DateTime.UtcNow;
+
+        RaiseDomainEvent(new EndUserPasswordResetDomainEvent(Id));
     }
 
     public void RecordSuccessfulLogin()

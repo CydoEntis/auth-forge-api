@@ -41,4 +41,8 @@ public static class EndUserErrors
     public static readonly Error InvalidApiKey = new(
         "Auth.InvalidApiKey",
         "Valid API key is required");
+    
+    public static readonly Error InvalidResetToken = new(
+        "EndUser.InvalidResetToken",
+        "Invalid or expired password reset token");
 }
