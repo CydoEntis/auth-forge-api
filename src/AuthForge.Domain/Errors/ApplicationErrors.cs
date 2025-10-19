@@ -9,8 +9,8 @@ public static class ApplicationErrors
     public static readonly Error Inactive = new(
         "Application.Inactive",
         "Application is inactive");
-    
-    
+
+
     public static readonly Error SlugAlreadyExists = new(
         "Application.SlugAlreadyExists",
         "An application with this slug already exists");
@@ -22,6 +22,10 @@ public static class ApplicationErrors
     public static readonly Error InvalidSettings = new(
         "Application.InvalidSettings",
         "Application settings are invalid");
+
+    public static readonly Error InvalidId = new(
+        "Application.InvalidId",
+        "Invalid application ID format. Must be a valid GUID.");
 
     public static Error InvalidSettingsDetail(string message) => new(
         "Application.InvalidSettings",

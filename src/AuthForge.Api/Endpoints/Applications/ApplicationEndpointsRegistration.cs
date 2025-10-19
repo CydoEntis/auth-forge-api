@@ -10,6 +10,8 @@ public static class ApplicationsEndpointsRegistration
         app.MapDeleteApplicationEndpoint();
         app.MapGetApplicationsEndpoint();
         app.MapAddAllowedOriginEndpoint();
+        app.MapGetApplicationKeysEndpoint();
+        app.MapRegenerateApplicationKeysEndpoint();
 
         return app;
     }
