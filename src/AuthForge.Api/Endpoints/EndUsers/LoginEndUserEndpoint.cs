@@ -1,4 +1,5 @@
-﻿using AuthForge.Api.Common.Responses;
+﻿using AuthForge.Api.Common.Mappings;
+using AuthForge.Api.Common.Responses;
 using AuthForge.Application.EndUsers.Commands.Login;
 using AuthForge.Domain.Errors;
 using Mediator;
@@ -34,8 +35,8 @@ public static class LoginEndUserEndpoint
             var errorResponse = ApiResponse<LoginEndUserResponse>.FailureResponse(EndUserErrors.InvalidApiKey);
             return Results.Json(errorResponse, statusCode: StatusCodes.Status401Unauthorized);
         }
-        
-        
+
+
         var command = new LoginEndUserCommand(
             application.Id.Value.ToString(),
             request.Email,
@@ -51,7 +52,8 @@ public static class LoginEndUserEndpoint
                 result.Error.Code,
                 result.Error.Message);
 
-            return Results.Json(errorResponse, statusCode: StatusCodes.Status401Unauthorized);
+            var statusCode = ErrorMapper.ToStatusCode(result.Error);
+            return Results.Json(errorResponse, statusCode: statusCode);
         }
 
         var successResponse = ApiResponse<LoginEndUserResponse>.SuccessResponse(result.Value);

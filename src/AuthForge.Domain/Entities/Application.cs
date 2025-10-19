@@ -36,6 +36,9 @@ public sealed class Application : AggregateRoot<ApplicationId>
     public DateTime? DeactivatedAtUtc { get; private set; }
     public ApplicationSettings Settings { get; private set; } = default!;
 
+    private readonly List<string> _allowedOrigins = new();
+    public IReadOnlyList<string> AllowedOrigins => _allowedOrigins.AsReadOnly();
+
     public static Application Create(string name, string slug)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -103,6 +106,35 @@ public sealed class Application : AggregateRoot<ApplicationId>
     {
         PublicKey = GeneratePublicKey();
         SecretKey = GenerateSecretKey();
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+    
+    public void AddAllowedOrigin(string origin)
+    {
+        if (string.IsNullOrWhiteSpace(origin))
+            throw new ArgumentException("Origin cannot be empty", nameof(origin));
+
+        if (!Uri.TryCreate(origin, UriKind.Absolute, out _))
+            throw new ArgumentException("Invalid origin URL", nameof(origin));
+
+        if (!_allowedOrigins.Contains(origin))
+        {
+            _allowedOrigins.Add(origin);
+            UpdatedAtUtc = DateTime.UtcNow;
+        }
+    }
+
+    public void RemoveAllowedOrigin(string origin)
+    {
+        if (_allowedOrigins.Remove(origin))
+        {
+            UpdatedAtUtc = DateTime.UtcNow;
+        }
+    }
+
+    public void ClearAllowedOrigins()
+    {
+        _allowedOrigins.Clear();
         UpdatedAtUtc = DateTime.UtcNow;
     }
 

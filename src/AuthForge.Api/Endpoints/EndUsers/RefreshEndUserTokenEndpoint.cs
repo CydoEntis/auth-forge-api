@@ -1,4 +1,5 @@
-﻿using AuthForge.Api.Common.Responses;
+﻿using AuthForge.Api.Common.Mappings;
+using AuthForge.Api.Common.Responses;
 using AuthForge.Application.EndUsers.Commands.Refresh;
 using AuthForge.Domain.Errors;
 using Mediator;
@@ -48,7 +49,8 @@ public static class RefreshEndUserTokenEndpoint
                 result.Error.Code,
                 result.Error.Message);
 
-            return Results.Json(errorResponse, statusCode: StatusCodes.Status401Unauthorized);
+            var statusCode = ErrorMapper.ToStatusCode(result.Error);
+            return Results.Json(errorResponse, statusCode: statusCode);
         }
 
         var successResponse = ApiResponse<RefreshEndUserTokenResponse>.SuccessResponse(result.Value);

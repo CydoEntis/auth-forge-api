@@ -1,4 +1,5 @@
-﻿using AuthForge.Api.Common.Responses;
+﻿using AuthForge.Api.Common.Mappings;
+using AuthForge.Api.Common.Responses;
 using AuthForge.Application.EndUsers.Commands.Register;
 using AuthForge.Domain.Errors;
 using Mediator;
@@ -52,7 +53,8 @@ public static class RegisterEndUserEndpoint
                 result.Error.Code,
                 result.Error.Message);
 
-            return Results.BadRequest(errorResponse);
+            var statusCode = ErrorMapper.ToStatusCode(result.Error);
+            return Results.Json(errorResponse, statusCode: statusCode);
         }
 
         var successResponse = ApiResponse<RegisterEndUserResponse>.SuccessResponse(result.Value);

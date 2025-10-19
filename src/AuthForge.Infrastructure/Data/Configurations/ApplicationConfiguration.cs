@@ -2,6 +2,8 @@
 using AuthForge.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Text.Json;
 using App = AuthForge.Domain.Entities.Application;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
@@ -51,6 +53,16 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<App>
         builder.HasIndex(a => a.SecretKey)
             .IsUnique();
 
+        var allowedOriginsConverter = new ValueConverter<List<string>, string>(
+            v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+            v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>());
+
+        builder.Property("_allowedOrigins")
+            .HasColumnName("allowed_origins")
+            .HasColumnType("TEXT")
+            .HasConversion(allowedOriginsConverter)
+            .IsRequired();
+        
         builder.Property(a => a.IsActive)
             .HasColumnName("is_active")
             .IsRequired();

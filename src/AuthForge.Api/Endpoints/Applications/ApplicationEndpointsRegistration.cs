@@ -9,6 +9,7 @@ public static class ApplicationsEndpointsRegistration
         app.MapUpdateApplicationEndpoint();
         app.MapDeleteApplicationEndpoint();
         app.MapGetApplicationsEndpoint();
+        app.MapAddAllowedOriginEndpoint();
 
         return app;
     }
