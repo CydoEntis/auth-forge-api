@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthForge.Infrastructure.Migrations
 {
     [DbContext(typeof(AuthForgeDbContext))]
-    [Migration("20251018233016_AddAllowedOriginsToApplications")]
-    partial class AddAllowedOriginsToApplications
+    [Migration("20251019020359_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -195,8 +195,9 @@ namespace AuthForge.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationId", "Email")
-                        .IsUnique();
+                    b.HasIndex("ApplicationId");
+
+                    b.HasIndex("Email");
 
                     b.ToTable("end_users", (string)null);
                 });

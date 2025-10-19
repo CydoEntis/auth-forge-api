@@ -1,4 +1,4 @@
-﻿// src/AuthForge.Api/Endpoints/EndUsers/GetEndUsersEndpoint.cs
+﻿using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
 using AuthForge.Application.Common.Models;
 using AuthForge.Application.EndUsers.Models;
@@ -29,12 +29,21 @@ public static class GetEndUsersEndpoint
         [FromServices] IMediator mediator,
         CancellationToken cancellationToken = default)
     {
-        var query = new GetEndUsersQuery(applicationId, parameters);
+        var query = new GetEndUsersQuery(applicationId, parameters);  
+        
         var result = await mediator.Send(query, cancellationToken);
+        
+        if (result.IsFailure) 
+        {
+            var errorResponse = ApiResponse<PagedResponse<EndUserSummary>>.FailureResponse(
+                result.Error.Code,
+                result.Error.Message);
+            
+            var statusCode = ErrorMapper.ToStatusCode(result.Error);
+            return Results.Json(errorResponse, statusCode: statusCode);
+        }
 
-        var successResponse = ApiResponse<PagedResponse<EndUserSummary>>
-            .SuccessResponse(result.Value);
-
+        var successResponse = ApiResponse<PagedResponse<EndUserSummary>>.SuccessResponse(result.Value); 
         return Results.Ok(successResponse);
     }
 }

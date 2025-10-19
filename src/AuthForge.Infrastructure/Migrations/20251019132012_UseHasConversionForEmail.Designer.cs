@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthForge.Infrastructure.Migrations
 {
     [DbContext(typeof(AuthForgeDbContext))]
-    [Migration("20251017163514_AddAdminRefreshTokens")]
-    partial class AddAdminRefreshTokens
+    [Migration("20251019132012_UseHasConversionForEmail")]
+    partial class UseHasConversionForEmail
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -83,13 +83,25 @@ namespace AuthForge.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT")
                         .HasColumnName("name");
 
-                    b.Property<string>("Slug")
+                    b.Property<string>("PublicKey")
                         .IsRequired()
                         .HasMaxLength(100)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("public_key");
+
+                    b.Property<string>("SecretKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("secret_key");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT")
                         .HasColumnName("slug");
 
@@ -97,7 +109,18 @@ namespace AuthForge.Infrastructure.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("updated_at_utc");
 
+                    b.Property<string>("_allowedOrigins")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("allowed_origins");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("PublicKey")
+                        .IsUnique();
+
+                    b.HasIndex("SecretKey")
+                        .IsUnique();
 
                     b.HasIndex("Slug")
                         .IsUnique();
@@ -172,7 +195,9 @@ namespace AuthForge.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationId", "Email")
+                    b.HasIndex("ApplicationId");
+
+                    b.HasIndex("Email")
                         .IsUnique();
 
                     b.ToTable("end_users", (string)null);
@@ -287,22 +312,24 @@ namespace AuthForge.Infrastructure.Migrations
                                 .HasColumnType("TEXT");
 
                             b1.Property<int>("AccessTokenExpirationMinutes")
-                                .HasColumnType("INTEGER");
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("access_token_expiration_minutes");
 
                             b1.Property<int>("LockoutDurationMinutes")
-                                .HasColumnType("INTEGER");
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("lockout_duration_minutes");
 
                             b1.Property<int>("MaxFailedLoginAttempts")
-                                .HasColumnType("INTEGER");
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("max_failed_login_attempts");
 
                             b1.Property<int>("RefreshTokenExpirationDays")
-                                .HasColumnType("INTEGER");
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("refresh_token_expiration_days");
 
                             b1.HasKey("ApplicationId");
 
                             b1.ToTable("applications");
-
-                            b1.ToJson("settings");
 
                             b1.WithOwner()
                                 .HasForeignKey("ApplicationId");

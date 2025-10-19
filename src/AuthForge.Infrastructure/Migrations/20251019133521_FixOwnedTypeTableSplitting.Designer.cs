@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthForge.Infrastructure.Migrations
 {
     [DbContext(typeof(AuthForgeDbContext))]
-    [Migration("20251018210828_AddApiKeysToApplications")]
-    partial class AddApiKeysToApplications
+    [Migration("20251019133521_FixOwnedTypeTableSplitting")]
+    partial class FixOwnedTypeTableSplitting
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -109,6 +109,11 @@ namespace AuthForge.Infrastructure.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("updated_at_utc");
 
+                    b.Property<string>("_allowedOrigins")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("allowed_origins");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PublicKey")
@@ -136,12 +141,6 @@ namespace AuthForge.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("TEXT")
                         .HasColumnName("created_at_utc");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("email");
 
                     b.Property<string>("EmailVerificationToken")
                         .HasMaxLength(255)
@@ -190,8 +189,7 @@ namespace AuthForge.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationId", "Email")
-                        .IsUnique();
+                    b.HasIndex("ApplicationId");
 
                     b.ToTable("end_users", (string)null);
                 });
@@ -340,6 +338,28 @@ namespace AuthForge.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.OwnsOne("AuthForge.Domain.ValueObjects.Email", "Email", b1 =>
+                        {
+                            b1.Property<Guid>("EndUserId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(255)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("email");
+
+                            b1.HasKey("EndUserId");
+
+                            b1.HasIndex("Value")
+                                .IsUnique();
+
+                            b1.ToTable("end_users", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("EndUserId");
+                        });
+
                     b.OwnsOne("AuthForge.Domain.ValueObjects.HashedPassword", "PasswordHash", b1 =>
                         {
                             b1.Property<Guid>("EndUserId")
@@ -359,11 +379,14 @@ namespace AuthForge.Infrastructure.Migrations
 
                             b1.HasKey("EndUserId");
 
-                            b1.ToTable("end_users");
+                            b1.ToTable("end_users", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("EndUserId");
                         });
+
+                    b.Navigation("Email")
+                        .IsRequired();
 
                     b.Navigation("PasswordHash")
                         .IsRequired();

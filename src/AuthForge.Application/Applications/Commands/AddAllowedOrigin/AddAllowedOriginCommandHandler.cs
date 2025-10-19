@@ -9,10 +9,14 @@ namespace AuthForge.Application.Applications.Commands.AddAllowedOrigin;
 public sealed class AddAllowedOriginCommandHandler : ICommandHandler<AddAllowedOriginCommand, Result>
 {
     private readonly IApplicationRepository _applicationRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public AddAllowedOriginCommandHandler(IApplicationRepository applicationRepository)
+    public AddAllowedOriginCommandHandler(
+        IApplicationRepository applicationRepository,
+        IUnitOfWork unitOfWork)
     {
         _applicationRepository = applicationRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async ValueTask<Result> Handle(AddAllowedOriginCommand command, CancellationToken cancellationToken)
@@ -36,6 +40,7 @@ public sealed class AddAllowedOriginCommandHandler : ICommandHandler<AddAllowedO
         }
 
         _applicationRepository.Update(application);
+        await _unitOfWork.SaveChangesAsync(cancellationToken); // ← ADD THIS
 
         return Result.Success();
     }

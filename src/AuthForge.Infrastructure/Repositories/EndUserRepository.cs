@@ -1,9 +1,11 @@
-﻿using AuthForge.Application.Common.Interfaces;
+﻿using AuthForge.Application.Common.Extensions;
+using AuthForge.Application.Common.Interfaces;
 using AuthForge.Application.Common.Models;
 using AuthForge.Application.EndUsers.Enums;
 using AuthForge.Domain.Entities;
 using AuthForge.Domain.ValueObjects;
 using AuthForge.Infrastructure.Data;
+using AuthForge.Infrastructure.Repositories.QueryBuilders;
 using Microsoft.EntityFrameworkCore;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
@@ -23,19 +25,19 @@ public class EndUserRepository : IEndUserRepository
         return await _context.EndUsers
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
-
+    
     public async Task<EndUser?> GetByEmailAsync(ApplicationId applicationId, Email email,
         CancellationToken cancellationToken = default)
     {
         return await _context.EndUsers
-            .FirstOrDefaultAsync(u => u.ApplicationId == applicationId && u.Email == email, cancellationToken);
+            .FirstOrDefaultAsync(u => u.ApplicationId == applicationId && u.Email.Value == email.Value, cancellationToken);
     }
 
     public async Task<bool> ExistsAsync(ApplicationId applicationId, Email email,
         CancellationToken cancellationToken = default)
     {
         return await _context.EndUsers
-            .AnyAsync(u => u.ApplicationId == applicationId && u.Email == email, cancellationToken);
+            .AnyAsync(u => u.ApplicationId == applicationId && u.Email.Value == email.Value, cancellationToken);
     }
 
     public async Task AddAsync(EndUser user, CancellationToken cancellationToken = default)
@@ -75,51 +77,16 @@ public class EndUserRepository : IEndUserRepository
         CancellationToken cancellationToken = default)
     {
         var query = _context.EndUsers
-            .Where(u => u.ApplicationId == applicationId);
+            .Where(u => u.ApplicationId == applicationId)
+            .ApplyFilters(searchTerm, isActive);
 
-        // Apply search filter
-        if (!string.IsNullOrWhiteSpace(searchTerm))
-        {
-            query = query.Where(u =>
-                u.Email.Value.Contains(searchTerm) ||
-                (u.FirstName != null && u.FirstName.Contains(searchTerm)) ||
-                (u.LastName != null && u.LastName.Contains(searchTerm)));
-        }
-
-        // Apply IsActive filter
-        if (isActive.HasValue)
-        {
-            query = query.Where(u => u.IsActive == isActive.Value);
-        }
-
-        // Get total count before pagination
         var totalCount = await query.CountAsync(cancellationToken);
 
-        // Apply sorting
-        query = sortBy switch
-        {
-            EndUserSortBy.Email => sortOrder == SortOrder.Asc
-                ? query.OrderBy(u => u.Email.Value)
-                : query.OrderByDescending(u => u.Email.Value),
-            EndUserSortBy.FirstName => sortOrder == SortOrder.Asc
-                ? query.OrderBy(u => u.FirstName)
-                : query.OrderByDescending(u => u.FirstName),
-            EndUserSortBy.LastName => sortOrder == SortOrder.Asc
-                ? query.OrderBy(u => u.LastName)
-                : query.OrderByDescending(u => u.LastName),
-            EndUserSortBy.LastLoginAt => sortOrder == SortOrder.Asc
-                ? query.OrderBy(u => u.LastLoginAtUtc)
-                : query.OrderByDescending(u => u.LastLoginAtUtc),
-            EndUserSortBy.CreatedAt or _ => sortOrder == SortOrder.Asc
-                ? query.OrderBy(u => u.CreatedAtUtc)
-                : query.OrderByDescending(u => u.CreatedAtUtc)
-        };
-
-        // Apply pagination
         var items = await query
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
+            .ApplySorting(sortBy, sortOrder)
+            .Paginate(pageNumber, pageSize)
             .ToListAsync(cancellationToken);
+
 
         return (items, totalCount);
     }

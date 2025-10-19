@@ -1,6 +1,4 @@
-﻿// src/AuthForge.Api/Endpoints/Applications/AddAllowedOriginEndpoint.cs
-
-using AuthForge.Api.Common.Mappings;
+﻿using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
 using AuthForge.Application.Applications.Commands.AddAllowedOrigin;
 using Mediator;
@@ -15,7 +13,7 @@ public static class AddAllowedOriginEndpoint
         app.MapPost("/api/applications/{applicationId}/origins", HandleAddOrigin)
             .WithName("AddAllowedOrigin")
             .WithTags("Applications")
-            .RequireAuthorization("AdminOnly")
+            .RequireAuthorization("Admin")
             .Produces<ApiResponse<object>>(StatusCodes.Status200OK)
             .Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
             .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)

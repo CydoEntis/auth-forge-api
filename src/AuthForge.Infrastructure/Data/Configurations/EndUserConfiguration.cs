@@ -40,8 +40,10 @@ public class EndUserConfiguration : IEntityTypeConfiguration<EndUser>
                 .HasColumnName("email")
                 .HasMaxLength(255)
                 .IsRequired();
-
+    
             email.HasIndex(e => e.Value).IsUnique();
+            
+            email.ToTable("end_users");
         });
 
         builder.Property(u => u.FirstName)
@@ -65,6 +67,8 @@ public class EndUserConfiguration : IEntityTypeConfiguration<EndUser>
                 .HasColumnName("password_salt")
                 .HasMaxLength(255)
                 .IsRequired();
+                
+            password.ToTable("end_users");
         });
 
         builder.Property(u => u.IsEmailVerified)
