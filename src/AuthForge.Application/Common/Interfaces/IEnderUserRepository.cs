@@ -1,4 +1,6 @@
-﻿using AuthForge.Domain.Entities;
+﻿using AuthForge.Application.Common.Models;
+using AuthForge.Application.EndUsers.Enums;
+using AuthForge.Domain.Entities;
 using AuthForge.Domain.ValueObjects;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
@@ -17,5 +19,15 @@ public interface IEndUserRepository
     void Delete(EndUser user);
 
     Task<List<EndUser>> GetByApplicationAsync(ApplicationId applicationId, int pageNumber, int pageSize,
+        CancellationToken cancellationToken = default);
+
+    Task<(List<EndUser> Items, int TotalCount)> GetPagedAsync(
+        ApplicationId applicationId,
+        string? searchTerm,
+        bool? isActive,
+        EndUserSortBy sortBy,
+        SortOrder sortOrder,
+        int pageNumber,
+        int pageSize,
         CancellationToken cancellationToken = default);
 }

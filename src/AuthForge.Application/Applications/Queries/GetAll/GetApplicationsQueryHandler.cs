@@ -1,4 +1,5 @@
-﻿using AuthForge.Application.Applications.Models;
+﻿using AuthForge.Application.Applications.Enums;
+using AuthForge.Application.Applications.Models;
 using AuthForge.Application.Common.Interfaces;
 using AuthForge.Application.Common.Models;
 using AuthForge.Domain.Common;
@@ -16,19 +17,25 @@ public sealed class GetApplicationsQueryHandler
         _applicationRepository = applicationRepository;
     }
 
+
     public async ValueTask<Result<PagedResponse<ApplicationSummary>>> Handle(
         GetApplicationsQuery query,
         CancellationToken cancellationToken)
     {
         var parameters = query.Parameters;
 
+        var pageNumber = parameters.PageNumber ?? 1;
+        var pageSize = parameters.PageSize ?? 10;
+        var sortBy = parameters.SortBy ?? ApplicationSortBy.CreatedAt;
+        var sortOrder = parameters.SortOrder ?? SortOrder.Desc;
+
         var (items, totalCount) = await _applicationRepository.GetPagedAsync(
             parameters.SearchTerm,
             parameters.IsActive,
-            parameters.SortBy,
-            parameters.SortOrder,
-            parameters.PageNumber,
-            parameters.PageSize,
+            sortBy,
+            sortOrder,
+            pageNumber,
+            pageSize,
             cancellationToken);
 
         var applications = items.Select(app => new ApplicationSummary(
@@ -41,14 +48,14 @@ public sealed class GetApplicationsQueryHandler
             app.CreatedAtUtc
         )).ToList();
 
-        var totalPages = (int)Math.Ceiling(totalCount / (double)parameters.PageSize);
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
         var response = new PagedResponse<ApplicationSummary>
         {
             Items = applications,
             TotalCount = totalCount,
-            PageNumber = parameters.PageNumber,
-            PageSize = parameters.PageSize,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
             TotalPages = totalPages
         };
 
