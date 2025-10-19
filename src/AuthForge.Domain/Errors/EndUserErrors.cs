@@ -34,9 +34,6 @@ public static class EndUserErrors
         "EndUser.InvalidEmailVerificationToken",
         "Email verification token is invalid or expired");
 
-    public static readonly Error EmailAlreadyVerified = new(
-        "EndUser.EmailAlreadyVerified",
-        "Email address is already verified");
     
     public static readonly Error InvalidApiKey = new(
         "Auth.InvalidApiKey",
@@ -49,4 +46,12 @@ public static class EndUserErrors
     public static readonly Error Unauthorized = new(
         "EndUser.Unauthorized",
         "Unauthorized access");
+    
+    public static readonly Error EmailAlreadyVerified = new(
+        "EndUser.EmailAlreadyVerified",
+        "Email is already verified");
+
+    public static readonly Error InvalidVerificationToken = new(
+        "EndUser.InvalidVerificationToken",
+        "Invalid or expired email verification token");
 }

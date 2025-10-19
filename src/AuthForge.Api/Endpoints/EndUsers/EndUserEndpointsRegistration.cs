@@ -11,6 +11,8 @@ public static class EndUserEndpointsRegistration
         app.MapForgotPasswordEndpoint();
         app.MapResetPasswordEndpoint(); 
         app.MapChangePasswordEndpoint();
+        app.MapSendVerificationEmailEndpoint();
+        app.MapVerifyEmailEndpoint();
         
         return app;
     }
