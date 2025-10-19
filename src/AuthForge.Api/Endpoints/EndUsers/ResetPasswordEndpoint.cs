@@ -44,7 +44,8 @@ public static class ResetPasswordEndpoint
             application.Id,
             Email.Create(request.Email),
             request.ResetToken,
-            request.NewPassword);
+            request.NewPassword,
+            request.ConfirmPassword);
 
         var result = await mediator.Send(command, cancellationToken);
 
@@ -66,4 +67,5 @@ public static class ResetPasswordEndpoint
 public record ResetPasswordRequest(
     string Email,
     string ResetToken,
-    string NewPassword);
+    string NewPassword,
+    string ConfirmPassword);

@@ -9,4 +9,5 @@ public record ResetPasswordCommand(
     ApplicationId ApplicationId,
     Email Email,
     string ResetToken,
-    string NewPassword) : ICommand<Result<ResetPasswordResponse>>;
+    string NewPassword,
+    string ConfirmPassword) : ICommand<Result<ResetPasswordResponse>>;

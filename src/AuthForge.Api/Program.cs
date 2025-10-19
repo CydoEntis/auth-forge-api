@@ -10,6 +10,12 @@ builder.Services.AddOpenApi();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("EndUser", policy => policy.RequireAuthenticatedUser());
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

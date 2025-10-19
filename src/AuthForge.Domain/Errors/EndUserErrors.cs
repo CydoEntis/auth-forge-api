@@ -45,4 +45,8 @@ public static class EndUserErrors
     public static readonly Error InvalidResetToken = new(
         "EndUser.InvalidResetToken",
         "Invalid or expired password reset token");
+    
+    public static readonly Error Unauthorized = new(
+        "EndUser.Unauthorized",
+        "Unauthorized access");
 }

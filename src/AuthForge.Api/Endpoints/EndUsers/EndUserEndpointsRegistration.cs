@@ -10,6 +10,7 @@ public static class EndUserEndpointsRegistration
         app.MapGetEndUsersEndpoint();
         app.MapForgotPasswordEndpoint();
         app.MapResetPasswordEndpoint(); 
+        app.MapChangePasswordEndpoint();
         
         return app;
     }

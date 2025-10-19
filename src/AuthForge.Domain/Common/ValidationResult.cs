@@ -4,7 +4,8 @@ namespace AuthForge.Domain.Common;
 
 public sealed class ValidationResult : Result
 {
-    private ValidationResult(Error[] errors) : base(false, Error.None)
+    private ValidationResult(Error[] errors) 
+        : base(false, errors.Length > 0 ? errors[0] : Error.None) 
     {
         Errors = errors;
     }
@@ -19,7 +20,8 @@ public sealed class ValidationResult : Result
 
 public sealed class ValidationResult<T> : Result<T>
 {
-    private ValidationResult(Error[] errors) : base(default, false, Error.None)
+    private ValidationResult(Error[] errors) 
+        : base(default, false, errors.Length > 0 ? errors[0] : Error.None) 
     {
         Errors = errors;
     }
