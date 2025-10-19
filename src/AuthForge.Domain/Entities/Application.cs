@@ -35,6 +35,7 @@ public sealed class Application : AggregateRoot<ApplicationId>
     public DateTime? UpdatedAtUtc { get; private set; }
     public DateTime? DeactivatedAtUtc { get; private set; }
     public ApplicationSettings Settings { get; private set; } = default!;
+    public ApplicationEmailSettings? ApplicationEmailSettings { get; private set; }
 
     private readonly List<string> _allowedOrigins = new();
     public IReadOnlyList<string> AllowedOrigins => _allowedOrigins.AsReadOnly();
@@ -138,6 +139,18 @@ public sealed class Application : AggregateRoot<ApplicationId>
         UpdatedAtUtc = DateTime.UtcNow;
     }
 
+    public void ConfigureEmail(ApplicationEmailSettings settings)
+    {
+        ApplicationEmailSettings = settings ?? throw new ArgumentNullException(nameof(settings));
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    public void RemoveEmailConfiguration()
+    {
+        ApplicationEmailSettings = null;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+    
     private static string GeneratePublicKey()
     {
         var random = Guid.NewGuid().ToString("N");

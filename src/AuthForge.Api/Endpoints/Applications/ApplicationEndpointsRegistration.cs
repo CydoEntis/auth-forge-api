@@ -12,6 +12,7 @@ public static class ApplicationsEndpointsRegistration
         app.MapAddAllowedOriginEndpoint();
         app.MapGetApplicationKeysEndpoint();
         app.MapRegenerateApplicationKeysEndpoint();
+        app.MapConfigureEmailEndpoint();
 
         return app;
     }

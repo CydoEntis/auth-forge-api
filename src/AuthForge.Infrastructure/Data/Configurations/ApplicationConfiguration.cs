@@ -95,6 +95,30 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<App>
 
         builder.Property(a => a.DeactivatedAtUtc)
             .HasColumnName("deactivated_at_utc");
+        
+        builder.OwnsOne(a => a.ApplicationEmailSettings, email =>
+        {
+            email.Property(e => e.Provider)
+                .HasColumnName("email_provider")
+                .HasConversion<int>();
+
+            email.Property(e => e.ApiKey)
+                .HasColumnName("email_api_key")
+                .HasMaxLength(500)
+                .IsRequired(false);
+
+            email.Property(e => e.FromEmail)
+                .HasColumnName("email_from_email")
+                .HasMaxLength(255)
+                .IsRequired(false);
+
+            email.Property(e => e.FromName)
+                .HasColumnName("email_from_name")
+                .HasMaxLength(255)
+                .IsRequired(false);
+
+            email.ToTable("applications");
+        });
 
         builder.Ignore(a => a.DomainEvents);
     }

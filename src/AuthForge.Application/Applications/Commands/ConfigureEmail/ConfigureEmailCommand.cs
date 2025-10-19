@@ -1,0 +1,14 @@
+﻿using AuthForge.Domain.Common;
+using AuthForge.Domain.ValueObjects;
+using Mediator;
+using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
+
+namespace AuthForge.Application.Applications.Commands.ConfigureEmail;
+
+public record ConfigureEmailCommand(
+    ApplicationId ApplicationId,
+    EmailProvider Provider,
+    string ApiKey,
+    string FromEmail,
+    string FromName) : ICommand<Result<ConfigureEmailResponse>>;
+

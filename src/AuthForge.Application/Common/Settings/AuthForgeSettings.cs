@@ -6,6 +6,5 @@ public class AuthForgeSettings
 
     public required AdminSettings Admin { get; init; }
     public required JwtSettings Jwt { get; init; }
-    public EmailSettings? Email { get; init; }
     public OAuthSettings? OAuth { get; init; }
 }
