@@ -34,11 +34,10 @@ public sealed class SendVerificationEmailCommandHandler
         var verificationToken = GenerateVerificationToken();
         var expiresAt = DateTime.UtcNow.AddHours(24);
 
-        user.SetEmailVerificationToken(verificationToken, expiresAt);
+        user.SetEmailVerificationToken(verificationToken, expiresAt);  
+        
         _endUserRepository.Update(user);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        // TODO: Send email with verification token
+        await _unitOfWork.SaveChangesAsync(cancellationToken);  
 
         return Result<SendVerificationEmailResponse>.Success(
             new SendVerificationEmailResponse("Verification email sent successfully."));

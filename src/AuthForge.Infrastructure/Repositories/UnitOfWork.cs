@@ -1,5 +1,7 @@
 ﻿using AuthForge.Application.Common.Interfaces;
+using AuthForge.Domain.Common;
 using AuthForge.Infrastructure.Data;
+using Mediator;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthForge.Infrastructure.Repositories;
@@ -7,17 +9,38 @@ namespace AuthForge.Infrastructure.Repositories;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly AuthForgeDbContext _context;
+    private readonly IMediator _mediator;
 
-    public UnitOfWork(AuthForgeDbContext context)
+    public UnitOfWork(AuthForgeDbContext context, IMediator mediator)
     {
         _context = context;
+        _mediator = mediator;
     }
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _context.SaveChangesAsync(cancellationToken);
+            var domainEntities = _context.ChangeTracker
+                .Entries<IAggregateRoot>()
+                .Where(x => x.Entity.DomainEvents.Any())
+                .Select(x => x.Entity)
+                .ToList();
+
+            var domainEvents = domainEntities
+                .SelectMany(x => x.DomainEvents)
+                .ToList();
+
+            domainEntities.ForEach(entity => entity.ClearDomainEvents());
+
+            var result = await _context.SaveChangesAsync(cancellationToken);
+
+            foreach (var domainEvent in domainEvents)
+            {
+                await _mediator.Publish(domainEvent, cancellationToken);
+            }
+
+            return result;
         }
         catch (DbUpdateConcurrencyException ex)
         {

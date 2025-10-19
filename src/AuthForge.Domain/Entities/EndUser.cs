@@ -72,12 +72,13 @@ public sealed class EndUser : AggregateRoot<EndUserId>
             firstName,
             lastName);
 
-        user.RaiseDomainEvent(new EndUserRegisteredDomainEvent(
-            user.Id,
-            user.ApplicationId,
-            user.Email,
-            user.FirstName,
-            user.LastName));
+        var verificationToken = GenerateVerificationToken();
+        var expiresAt = DateTime.UtcNow.AddHours(24);
+        user.EmailVerificationToken = verificationToken;
+        user.EmailVerificationTokenExpiresAt = expiresAt;
+
+
+        user.RaiseDomainEvent(new EndUserEmailVerificationRequestedDomainEvent(user.Id));
 
         return user;
     }
@@ -219,5 +220,13 @@ public sealed class EndUser : AggregateRoot<EndUserId>
         FirstName = firstName;
         LastName = lastName;
         UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    private static string GenerateVerificationToken()
+    {
+        return Convert.ToBase64String(Guid.NewGuid().ToByteArray())
+            .Replace("/", "_")
+            .Replace("+", "-")
+            .TrimEnd('=');
     }
 }

@@ -13,13 +13,11 @@ public class ResendEmailService : IEmailService
 
     private static readonly string PasswordResetTemplate;
     private static readonly string EmailVerificationTemplate;
-    private static readonly string WelcomeTemplate;
 
     static ResendEmailService()
     {
         PasswordResetTemplate = LoadEmbeddedTemplate("DefaultPasswordResetTemplate.html");
         EmailVerificationTemplate = LoadEmbeddedTemplate("DefaultEmailVerificationTemplate.html");
-        WelcomeTemplate = LoadEmbeddedTemplate("DefaultWelcomeTemplate.html");
     }
 
     public ResendEmailService(
@@ -41,9 +39,13 @@ public class ResendEmailService : IEmailService
         string appName,
         CancellationToken cancellationToken = default)
     {
+        // TODO: make reset URL configurable per application
+        var resetUrl = $"https://yourapp.com/reset-password?token={resetToken}";
+
         var html = PasswordResetTemplate
             .Replace("{{userName}}", toName)
             .Replace("{{resetToken}}", resetToken)
+            .Replace("{{resetUrl}}", resetUrl)
             .Replace("{{appName}}", appName);
 
         var request = new
@@ -64,37 +66,20 @@ public class ResendEmailService : IEmailService
         string appName,
         CancellationToken cancellationToken = default)
     {
+        // TODO: make verification URL configurable per application
+        var verificationUrl = $"https://yourapp.com/verify?token={verificationToken}";
+
         var html = EmailVerificationTemplate
             .Replace("{{userName}}", toName)
             .Replace("{{verificationToken}}", verificationToken)
+            .Replace("{{verificationUrl}}", verificationUrl)
             .Replace("{{appName}}", appName);
 
         var request = new
         {
             from = $"{_fromName} <{_fromEmail}>",
             to = new[] { toEmail },
-            subject = $"Verify your {appName} email",
-            html
-        };
-
-        await SendEmailAsync(request, cancellationToken);
-    }
-
-    public async Task SendWelcomeEmailAsync(
-        string toEmail,
-        string toName,
-        string appName,
-        CancellationToken cancellationToken = default)
-    {
-        var html = WelcomeTemplate
-            .Replace("{{userName}}", toName)
-            .Replace("{{appName}}", appName);
-
-        var request = new
-        {
-            from = $"{_fromName} <{_fromEmail}>",
-            to = new[] { toEmail },
-            subject = $"Welcome to {appName}!",
+            subject = $"Welcome to {appName}! Verify your email",
             html
         };
 

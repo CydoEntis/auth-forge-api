@@ -15,10 +15,4 @@ public interface IEmailService
         string verificationToken,
         string appName,
         CancellationToken cancellationToken = default);
-
-    Task SendWelcomeEmailAsync(
-        string toEmail,
-        string toName,
-        string appName,
-        CancellationToken cancellationToken = default);
 }

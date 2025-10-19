@@ -1,9 +1,13 @@
-﻿using AuthForge.Domain.ValueObjects;
+﻿using AuthForge.Domain.Common;
+using AuthForge.Domain.ValueObjects;
+using Mediator;
+using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
-namespace AuthForge.Application.Applications.Commands.UpdateEmailConfig;
+namespace AuthForge.Application.Applications.Commands.UpdateEmail;
 
-public void UpdateEmailConfiguration(ApplicationEmailSettings settings)
-{
-    EmailSettings = settings ?? throw new ArgumentNullException(nameof(settings));
-    UpdatedAtUtc = DateTime.UtcNow;
-}
+public record UpdateEmailCommand(
+    ApplicationId ApplicationId,
+    EmailProvider Provider,
+    string ApiKey,
+    string FromEmail,
+    string FromName) : ICommand<Result<UpdateEmailResponse>>;

@@ -4,13 +4,6 @@ using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
 namespace AuthForge.Domain.Events;
 
-public sealed record EndUserRegisteredDomainEvent(
-    EndUserId UserId,
-    ApplicationId ApplicationId,
-    Email Email,
-    string FirstName,
-    string LastName) : IDomainEvent;
-
 public sealed record EndUserLoggedInDomainEvent(
     EndUserId UserId,
     ApplicationId ApplicationId,

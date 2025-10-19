@@ -13,6 +13,7 @@ public static class ApplicationsEndpointsRegistration
         app.MapGetApplicationKeysEndpoint();
         app.MapRegenerateApplicationKeysEndpoint();
         app.MapConfigureEmailEndpoint();
+        app.MapUpdateEmailEndpoint();
 
         return app;
     }

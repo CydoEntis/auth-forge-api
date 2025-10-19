@@ -1,6 +1,4 @@
 ﻿namespace AuthForge.Application.Applications.Commands.UpdateEmail;
 
-public class UpdateEmailResponse
-{
-    
-}
+public record UpdateEmailResponse(
+    string Message);
