@@ -1,14 +1,24 @@
-﻿using AuthForge.Domain.ValueObjects;
-
-namespace AuthForge.Application.Common.Interfaces;
+﻿namespace AuthForge.Application.Common.Interfaces;
 
 public interface IEmailService
 {
-    Task SendEmailVerificationAsync(Email to, string userName, string verificationToken,
+    Task SendPasswordResetEmailAsync(
+        string toEmail,
+        string toName,
+        string resetToken,
+        string appName,
         CancellationToken cancellationToken = default);
 
-    Task SendPasswordResetAsync(Email to, string userName, string resetToken,
+    Task SendEmailVerificationEmailAsync(
+        string toEmail,
+        string toName,
+        string verificationToken,
+        string appName,
         CancellationToken cancellationToken = default);
 
-    Task SendWelcomeEmailAsync(Email to, string userName, CancellationToken cancellationToken = default);
+    Task SendWelcomeEmailAsync(
+        string toEmail,
+        string toName,
+        string appName,
+        CancellationToken cancellationToken = default);
 }

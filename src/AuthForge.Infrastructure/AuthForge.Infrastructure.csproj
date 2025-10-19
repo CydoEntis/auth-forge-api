@@ -31,6 +31,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <EmbeddedResource Include="EmailProviders\Templates\*.html" />
+    </ItemGroup>
+    
+    <ItemGroup>
       <Folder Include="Migrations\" />
     </ItemGroup>
 </Project>

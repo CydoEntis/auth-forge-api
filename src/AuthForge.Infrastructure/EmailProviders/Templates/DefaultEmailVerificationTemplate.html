@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="color-scheme" content="light dark" />
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #ffffff;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        background-color: #e1e0eb;
+        color: #333;
+        padding: 30px 20px;
+        text-align: center;
+        border-radius: 8px 8px 0 0;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .content {
+        background-color: #f9f9f9;
+        padding: 30px;
+        border-radius: 0 0 8px 8px;
+      }
+      .content p {
+        margin: 0 0 15px 0;
+      }
+      .token {
+        background-color: #fff;
+        padding: 15px;
+        border: 2px dashed #979696;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+        margin: 20px 0;
+        border-radius: 4px;
+        color: #333;
+      }
+      .emphasis {
+        font-weight: bold;
+      }
+      .subtext {
+        font-size: 12px;
+        color: #888;
+        margin-top: 20px;
+      }
+      .footer {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        font-size: 12px;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          color: #e0e0e0;
+          background-color: #1a1a1a;
+        }
+        .header {
+          background-color: #2d2d3a;
+          color: #e0e0e0;
+        }
+        .content {
+          background-color: #252525;
+          color: #e0e0e0;
+        }
+        .token {
+          background-color: #1a1a1a;
+          border-color: #666;
+          color: #e0e0e0;
+        }
+        .subtext {
+          color: #aaa;
+        }
+        .footer {
+          color: #999;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Verify Your Email</h1>
+      </div>
+      <div class="content">
+        <p>Hi {{userName}},</p>
+        <p>Welcome to <strong>{{appName}}</strong>! Please verify your email address to get started.</p>
+        <p>Your verification token is:</p>
+        <div class="token">{{verificationToken}}</div>
+        <p class="emphasis">This token will expire in 24 hours.</p>
+        <p class="subtext">If you didn't create an account, please ignore this email.</p>
+      </div>
+      <div class="footer">
+        <p>This is an automated message from {{appName}}.</p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,4 +1,5 @@
-﻿using AuthForge.Infrastructure.Extensions;
+﻿using AuthForge.Infrastructure.EmailProviders; // ✅ Add this
+using AuthForge.Infrastructure.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,6 +15,9 @@ public static class DependencyInjection
         services.AddJwtAuthentication(configuration);
         services.AddRepositories();
         services.AddApplicationServices();
+
+        services.AddHttpClient();
+        services.AddSingleton<EmailServiceFactory>();
 
         return services;
     }
