@@ -1,32 +1,40 @@
 ﻿using AuthForge.Application.Common.Interfaces;
 using AuthForge.Domain.ValueObjects;
+using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
 namespace AuthForge.Infrastructure.EmailProviders;
 
-public class EmailServiceFactory
+public class EmailServiceFactory : IEmailServiceFactory
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IApplicationRepository _applicationRepository;
 
-    public EmailServiceFactory(IHttpClientFactory httpClientFactory)
+    public EmailServiceFactory(
+        IHttpClientFactory httpClientFactory,
+        IApplicationRepository applicationRepository)
     {
         _httpClientFactory = httpClientFactory;
+        _applicationRepository = applicationRepository;
     }
 
-    public IEmailService? Create(ApplicationEmailSettings? settings)
+    public IEmailService? CreateForApplication(Guid applicationId)
     {
-        if (settings == null)
+        var application = _applicationRepository.GetByIdAsync(
+            ApplicationId.Create(applicationId),
+            CancellationToken.None).Result;
+
+        if (application?.ApplicationEmailSettings == null)
             return null;
 
-        //TODO: In the future I will add other email providers
-        return settings.Provider switch
+        return application.ApplicationEmailSettings.Provider switch
         {
             EmailProvider.Resend => new ResendEmailService(
                 _httpClientFactory.CreateClient(),
-                settings.ApiKey,
-                settings.FromEmail,
-                settings.FromName),
+                application.ApplicationEmailSettings.ApiKey,
+                application.ApplicationEmailSettings.FromEmail,
+                application.ApplicationEmailSettings.FromName),
             
-            _ => throw new NotSupportedException($"Email provider {settings.Provider} is not supported")
+            _ => throw new NotSupportedException($"Email provider {application.ApplicationEmailSettings.Provider} is not supported")
         };
     }
 }

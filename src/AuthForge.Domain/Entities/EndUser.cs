@@ -104,6 +104,8 @@ public sealed class EndUser : AggregateRoot<EndUserId>
 
         EmailVerificationToken = token;
         EmailVerificationTokenExpiresAt = expiresAt;
+    
+        RaiseDomainEvent(new EndUserEmailVerificationRequestedDomainEvent(Id));
     }
 
     public bool IsEmailVerificationTokenValid(string token)
@@ -127,6 +129,8 @@ public sealed class EndUser : AggregateRoot<EndUserId>
         PasswordResetToken = token;
         PasswordResetTokenExpiresAt = expiresAt;
         UpdatedAtUtc = DateTime.UtcNow;
+    
+        RaiseDomainEvent(new EndUserPasswordResetRequestedDomainEvent(Id));
     }
 
     public bool IsPasswordResetTokenValid(string token)

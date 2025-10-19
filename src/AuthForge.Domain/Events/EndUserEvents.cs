@@ -36,3 +36,9 @@ public sealed record EndUserRefreshTokenRevokedDomainEvent(
     string Token) : IDomainEvent;
 
 public sealed record EndUserPasswordResetDomainEvent(EndUserId UserId) : IDomainEvent;
+
+public sealed record EndUserPasswordResetRequestedDomainEvent(
+    EndUserId UserId) : IDomainEvent;
+
+public sealed record EndUserEmailVerificationRequestedDomainEvent(
+    EndUserId UserId) : IDomainEvent;

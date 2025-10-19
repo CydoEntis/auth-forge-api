@@ -1,6 +1,8 @@
-﻿namespace AuthForge.Domain.Common;
+﻿using Mediator;
 
-public interface IDomainEvent
+namespace AuthForge.Domain.Common;
+
+public interface IDomainEvent : INotification
 {
     DateTime OccurredOnUtc => DateTime.UtcNow;
 }

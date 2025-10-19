@@ -1,4 +1,5 @@
-﻿using AuthForge.Infrastructure.EmailProviders; // ✅ Add this
+﻿using AuthForge.Application.Common.Interfaces;
+using AuthForge.Infrastructure.EmailProviders;
 using AuthForge.Infrastructure.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +18,7 @@ public static class DependencyInjection
         services.AddApplicationServices();
 
         services.AddHttpClient();
-        services.AddSingleton<EmailServiceFactory>();
+        services.AddScoped<IEmailServiceFactory, EmailServiceFactory>();
 
         return services;
     }
