@@ -9,12 +9,12 @@ public static class ApplicationsEndpointsRegistration
         app.MapUpdateApplicationEndpoint();
         app.MapDeleteApplicationEndpoint();
         app.MapGetApplicationsEndpoint();
-        app.MapAddAllowedOriginEndpoint();
         app.MapGetApplicationKeysEndpoint();
         app.MapRegenerateApplicationKeysEndpoint();
         app.MapConfigureEmailEndpoint();
         app.MapUpdateEmailEndpoint();
-
+        app.MapAddAllowedOriginEndpoint();
+        app.MapUpdateAllowedOriginEndpoint();
         return app;
     }
 }

@@ -10,4 +10,6 @@ public record UpdateEmailCommand(
     EmailProvider Provider,
     string ApiKey,
     string FromEmail,
-    string FromName) : ICommand<Result<UpdateEmailResponse>>;
+    string FromName,
+    string? PasswordResetCallbackUrl,
+    string? EmailVerificationCallbackUrl) : ICommand<Result<UpdateEmailResponse>>;

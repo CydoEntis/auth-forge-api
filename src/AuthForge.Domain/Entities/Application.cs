@@ -109,7 +109,7 @@ public sealed class Application : AggregateRoot<ApplicationId>
         SecretKey = GenerateSecretKey();
         UpdatedAtUtc = DateTime.UtcNow;
     }
-    
+
     public void AddAllowedOrigin(string origin)
     {
         if (string.IsNullOrWhiteSpace(origin))
@@ -124,6 +124,29 @@ public sealed class Application : AggregateRoot<ApplicationId>
             UpdatedAtUtc = DateTime.UtcNow;
         }
     }
+
+    public void UpdateAllowedOrigin(string oldOrigin, string newOrigin)
+    {
+        if (string.IsNullOrWhiteSpace(oldOrigin))
+            throw new ArgumentException("Old origin cannot be empty", nameof(oldOrigin));
+
+        if (string.IsNullOrWhiteSpace(newOrigin))
+            throw new ArgumentException("New origin cannot be empty", nameof(newOrigin));
+
+        if (!Uri.TryCreate(newOrigin, UriKind.Absolute, out _))
+            throw new ArgumentException("Invalid new origin URL", nameof(newOrigin));
+
+        if (!_allowedOrigins.Contains(oldOrigin))
+            throw new InvalidOperationException($"Origin '{oldOrigin}' does not exist");
+
+        if (_allowedOrigins.Contains(newOrigin))
+            throw new InvalidOperationException($"Origin '{newOrigin}' already exists");
+
+        var index = _allowedOrigins.IndexOf(oldOrigin);
+        _allowedOrigins[index] = newOrigin;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
 
     public void RemoveAllowedOrigin(string origin)
     {
@@ -150,7 +173,7 @@ public sealed class Application : AggregateRoot<ApplicationId>
         ApplicationEmailSettings = null;
         UpdatedAtUtc = DateTime.UtcNow;
     }
-    
+
     private static string GeneratePublicKey()
     {
         var random = Guid.NewGuid().ToString("N");
