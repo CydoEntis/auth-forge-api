@@ -37,12 +37,12 @@ public sealed class UpdateAllowedOriginCommandHandler
         catch (ArgumentException ex)
         {
             return Result<UpdateAllowedOriginResponse>.Failure(
-                new Error("Application.InvalidOrigin", ex.Message));
+                ApplicationErrors.InvalidOriginDetail(ex.Message));  
         }
         catch (InvalidOperationException ex)
         {
             return Result<UpdateAllowedOriginResponse>.Failure(
-                new Error("Application.OriginError", ex.Message));
+                ApplicationErrors.OriginErrorDetail(ex.Message)); 
         }
 
         _applicationRepository.Update(application);

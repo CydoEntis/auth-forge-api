@@ -36,11 +36,11 @@ public sealed class AddAllowedOriginCommandHandler : ICommandHandler<AddAllowedO
         }
         catch (ArgumentException ex)
         {
-            return Result.Failure(new Error("Application.InvalidOrigin", ex.Message));
+            return Result.Failure(ApplicationErrors.InvalidOriginDetail(ex.Message));
         }
 
         _applicationRepository.Update(application);
-        await _unitOfWork.SaveChangesAsync(cancellationToken); // ← ADD THIS
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

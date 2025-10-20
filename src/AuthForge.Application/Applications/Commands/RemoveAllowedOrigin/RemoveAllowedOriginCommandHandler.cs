@@ -5,7 +5,7 @@ using Mediator;
 
 namespace AuthForge.Application.Applications.Commands.RemoveAllowedOrigin;
 
-public sealed class RemoveAllowedOriginCommandHandler 
+public sealed class RemoveAllowedOriginCommandHandler
     : ICommandHandler<RemoveAllowedOriginCommand, Result<RemoveAllowedOriginResponse>>
 {
     private readonly IApplicationRepository _applicationRepository;
@@ -37,12 +37,12 @@ public sealed class RemoveAllowedOriginCommandHandler
         catch (ArgumentException ex)
         {
             return Result<RemoveAllowedOriginResponse>.Failure(
-                new Error("Application.InvalidOrigin", ex.Message));
+                ApplicationErrors.InvalidOriginDetail(ex.Message));
         }
         catch (InvalidOperationException ex)
         {
             return Result<RemoveAllowedOriginResponse>.Failure(
-                new Error("Application.OriginError", ex.Message));
+                ApplicationErrors.OriginErrorDetail(ex.Message));
         }
 
         _applicationRepository.Update(application);
