@@ -1,5 +1,6 @@
 ﻿using AuthForge.Application.Applications.Enums;
 using AuthForge.Application.Applications.Queries.GetAll;
+using AuthForge.Application.Applications.Queries.GetAllApplications;
 using AuthForge.Application.Common.Interfaces;
 using AuthForge.Application.Common.Models;
 using FluentAssertions;

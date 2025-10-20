@@ -1,6 +1,7 @@
-﻿using FluentValidation;
+﻿using AuthForge.Application.Applications.Queries.GetAll;
+using FluentValidation;
 
-namespace AuthForge.Application.Applications.Queries.GetAll;
+namespace AuthForge.Application.Applications.Queries.GetAllApplications;
 
 public sealed class ApplicationFilterParametersValidator : AbstractValidator<ApplicationFilterParameters>
 {

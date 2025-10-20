@@ -1,4 +1,4 @@
-﻿using AuthForge.Application.Applications.Commands.Create;
+﻿using AuthForge.Application.Applications.Commands.CreateApplication;
 using AuthForge.Application.Common.Interfaces;
 using AuthForge.Domain.Entities;
 using AuthForge.Domain.Errors;

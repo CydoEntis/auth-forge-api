@@ -1,4 +1,4 @@
-﻿using AuthForge.Application.Applications.Commands.Update;
+﻿using AuthForge.Application.Applications.Commands.UpdateApplication;
 using AuthForge.Application.Applications.Models;
 using AuthForge.Application.Common.Interfaces;
 using AuthForge.Domain.Errors;

@@ -1,4 +1,4 @@
-﻿using AuthForge.Application.Applications.Commands.Delete;
+﻿using AuthForge.Application.Applications.Commands.DeleteApplication;
 using AuthForge.Application.Common.Interfaces;
 using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;

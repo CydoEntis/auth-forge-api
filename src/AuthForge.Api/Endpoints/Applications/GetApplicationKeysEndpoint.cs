@@ -1,6 +1,6 @@
 ﻿using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
-using AuthForge.Application.Applications.Queries.GetKeys;
+using AuthForge.Application.Applications.Queries.GetApplicationKeys;
 using AuthForge.Domain.Errors;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;

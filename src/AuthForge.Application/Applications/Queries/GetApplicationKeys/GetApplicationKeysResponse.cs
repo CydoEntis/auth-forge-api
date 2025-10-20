@@ -1,4 +1,4 @@
-﻿namespace AuthForge.Application.Applications.Queries.GetKeys;
+﻿namespace AuthForge.Application.Applications.Queries.GetApplicationKeys;
 
 public record GetApplicationKeysResponse(
     string PublicKey,

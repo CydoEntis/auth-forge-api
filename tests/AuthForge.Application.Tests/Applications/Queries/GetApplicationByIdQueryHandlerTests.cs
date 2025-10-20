@@ -1,4 +1,4 @@
-﻿using AuthForge.Application.Applications.Queries.GetById;
+﻿using AuthForge.Application.Applications.Queries.GetApplicationById;
 using AuthForge.Application.Common.Interfaces;
 using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;

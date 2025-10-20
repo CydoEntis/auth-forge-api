@@ -1,6 +1,7 @@
 ﻿using AuthForge.Api.Common.Responses;
 using AuthForge.Application.Applications.Models;
 using AuthForge.Application.Applications.Queries.GetAll;
+using AuthForge.Application.Applications.Queries.GetAllApplications;
 using AuthForge.Application.Common.Models;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;

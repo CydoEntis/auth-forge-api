@@ -2,7 +2,7 @@
 using Mediator;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
-namespace AuthForge.Application.Applications.Queries.GetKeys;
+namespace AuthForge.Application.Applications.Queries.GetApplicationKeys;
 
 public record GetApplicationKeysQuery(ApplicationId ApplicationId) 
     : IQuery<Result<GetApplicationKeysResponse>>;

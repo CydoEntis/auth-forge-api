@@ -5,7 +5,7 @@ using AuthForge.Application.Common.Models;
 using AuthForge.Domain.Common;
 using Mediator;
 
-namespace AuthForge.Application.Applications.Queries.GetAll;
+namespace AuthForge.Application.Applications.Queries.GetAllApplications;
 
 public sealed class GetApplicationsQueryHandler
     : IQueryHandler<GetApplicationsQuery, Result<PagedResponse<ApplicationSummary>>>

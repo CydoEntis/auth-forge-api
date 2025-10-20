@@ -1,4 +1,4 @@
-﻿namespace AuthForge.Application.Applications.Queries.GetAll;
+﻿namespace AuthForge.Application.Applications.Queries.GetAllApplications;
 
 public sealed record ApplicationQueryParameters
 {

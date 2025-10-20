@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace AuthForge.Application.Applications.Queries.GetById;
+namespace AuthForge.Application.Applications.Queries.GetApplicationById;
 
 public sealed class GetApplicationByIdQueryValidator : AbstractValidator<GetApplicationByIdQuery>
 {

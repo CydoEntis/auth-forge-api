@@ -2,11 +2,10 @@
 using AuthForge.Application.Common.Interfaces;
 using AuthForge.Domain.Common;
 using AuthForge.Domain.Errors;
-using AuthForge.Domain.ValueObjects;
 using Mediator;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
-namespace AuthForge.Application.Applications.Queries.GetById;
+namespace AuthForge.Application.Applications.Queries.GetApplicationById;
 
 public sealed class GetApplicationByIdQueryHandler
     : IQueryHandler<GetApplicationByIdQuery, Result<ApplicationDetail>>

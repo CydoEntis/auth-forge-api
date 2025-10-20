@@ -3,7 +3,7 @@ using AuthForge.Domain.Common;
 using AuthForge.Domain.Errors;
 using Mediator;
 
-namespace AuthForge.Application.Applications.Queries.GetKeys;
+namespace AuthForge.Application.Applications.Queries.GetApplicationKeys;
 
 public sealed class GetApplicationKeysQueryHandler 
     : IQueryHandler<GetApplicationKeysQuery, Result<GetApplicationKeysResponse>>
