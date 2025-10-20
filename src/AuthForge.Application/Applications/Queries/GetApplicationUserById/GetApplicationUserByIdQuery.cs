@@ -1,6 +1,10 @@
-﻿namespace AuthForge.Application.Applications.Queries.GetApplicationUserById;
+﻿using AuthForge.Domain.Common;
+using AuthForge.Domain.ValueObjects;
+using Mediator;
+using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
-public class GetApplicationUserByIdQuery
-{
-    
-}
+namespace AuthForge.Application.Applications.Queries.GetApplicationUserById;
+
+public record GetApplicationUserByIdQuery(
+    ApplicationId ApplicationId,
+    EndUserId UserId) : IQuery<Result<GetApplicationUserByIdResponse>>;
