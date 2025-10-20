@@ -10,6 +10,8 @@ public class ResendEmailService : IEmailService
     private readonly string _apiKey;
     private readonly string _fromEmail;
     private readonly string _fromName;
+    private readonly string? _passwordResetCallbackUrl;
+    private readonly string? _emailVerificationCallbackUrl;
 
     private static readonly string PasswordResetTemplate;
     private static readonly string EmailVerificationTemplate;
@@ -24,12 +26,16 @@ public class ResendEmailService : IEmailService
         HttpClient httpClient,
         string apiKey,
         string fromEmail,
-        string fromName)
+        string fromName,
+        string? passwordResetCallbackUrl,
+        string? emailVerificationCallbackUrl)
     {
         _httpClient = httpClient;
         _apiKey = apiKey;
         _fromEmail = fromEmail;
         _fromName = fromName;
+        _passwordResetCallbackUrl = passwordResetCallbackUrl;
+        _emailVerificationCallbackUrl = emailVerificationCallbackUrl;
     }
 
     public async Task SendPasswordResetEmailAsync(
@@ -39,8 +45,11 @@ public class ResendEmailService : IEmailService
         string appName,
         CancellationToken cancellationToken = default)
     {
-        // TODO: make reset URL configurable per application
-        var resetUrl = $"https://yourapp.com/reset-password?token={resetToken}";
+        var resetUrl = string.IsNullOrWhiteSpace(_passwordResetCallbackUrl)
+            ? $"https://yourapp.com/reset-password?token={resetToken}"
+            : _passwordResetCallbackUrl.Contains("{token}")
+                ? _passwordResetCallbackUrl.Replace("{token}", resetToken)
+                : $"{_passwordResetCallbackUrl}?token={resetToken}";
 
         var html = PasswordResetTemplate
             .Replace("{{userName}}", toName)
@@ -66,8 +75,11 @@ public class ResendEmailService : IEmailService
         string appName,
         CancellationToken cancellationToken = default)
     {
-        // TODO: make verification URL configurable per application
-        var verificationUrl = $"https://yourapp.com/verify?token={verificationToken}";
+        var verificationUrl = string.IsNullOrWhiteSpace(_emailVerificationCallbackUrl)
+            ? $"https://yourapp.com/verify?token={verificationToken}"
+            : _emailVerificationCallbackUrl.Contains("{token}")
+                ? _emailVerificationCallbackUrl.Replace("{token}", verificationToken)
+                : $"{_emailVerificationCallbackUrl}?token={verificationToken}";
 
         var html = EmailVerificationTemplate
             .Replace("{{userName}}", toName)

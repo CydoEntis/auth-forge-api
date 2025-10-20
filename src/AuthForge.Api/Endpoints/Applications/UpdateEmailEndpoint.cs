@@ -40,13 +40,14 @@ public static class UpdateEmailEndpoint
             return Results.Json(errorResponse, statusCode: StatusCodes.Status400BadRequest);
         }
 
-        // ✅ Same command as POST endpoint!
         var command = new ConfigureEmailCommand(
             ApplicationId.Create(guid),
             request.Provider,
             request.ApiKey,
             request.FromEmail,
-            request.FromName);
+            request.FromName,
+            request.PasswordResetCallbackUrl,
+            request.EmailVerificationCallbackUrl);
 
         var result = await mediator.Send(command, cancellationToken);
 
@@ -69,4 +70,6 @@ public record UpdateEmailRequest(
     EmailProvider Provider,
     string ApiKey,
     string FromEmail,
-    string FromName);
+    string FromName,
+    string? PasswordResetCallbackUrl,
+    string? EmailVerificationCallbackUrl);

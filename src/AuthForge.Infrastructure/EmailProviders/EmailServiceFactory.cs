@@ -32,9 +32,12 @@ public class EmailServiceFactory : IEmailServiceFactory
                 _httpClientFactory.CreateClient(),
                 application.ApplicationEmailSettings.ApiKey,
                 application.ApplicationEmailSettings.FromEmail,
-                application.ApplicationEmailSettings.FromName),
-            
-            _ => throw new NotSupportedException($"Email provider {application.ApplicationEmailSettings.Provider} is not supported")
+                application.ApplicationEmailSettings.FromName,
+                application.ApplicationEmailSettings.PasswordResetCallbackUrl,
+                application.ApplicationEmailSettings.EmailVerificationCallbackUrl),
+
+            _ => throw new NotSupportedException(
+                $"Email provider {application.ApplicationEmailSettings.Provider} is not supported")
         };
     }
 }

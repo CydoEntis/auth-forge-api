@@ -6,7 +6,7 @@ using Mediator;
 
 namespace AuthForge.Application.Applications.Commands.ConfigureEmail;
 
-public sealed class ConfigureEmailCommandHandler 
+public sealed class ConfigureEmailCommandHandler
     : ICommandHandler<ConfigureEmailCommand, Result<ConfigureEmailResponse>>
 {
     private readonly IApplicationRepository _applicationRepository;
@@ -35,7 +35,9 @@ public sealed class ConfigureEmailCommandHandler
             command.Provider,
             command.ApiKey,
             command.FromEmail,
-            command.FromName);
+            command.FromName,
+            command.PasswordResetCallbackUrl,
+            command.EmailVerificationCallbackUrl);
 
         application.ConfigureEmail(emailSettings);
 

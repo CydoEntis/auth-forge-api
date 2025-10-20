@@ -10,5 +10,6 @@ public record ConfigureEmailCommand(
     EmailProvider Provider,
     string ApiKey,
     string FromEmail,
-    string FromName) : ICommand<Result<ConfigureEmailResponse>>;
-
+    string FromName,
+    string? PasswordResetCallbackUrl,
+    string? EmailVerificationCallbackUrl) : ICommand<Result<ConfigureEmailResponse>>;

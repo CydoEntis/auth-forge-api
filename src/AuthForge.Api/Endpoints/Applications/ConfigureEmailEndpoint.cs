@@ -45,7 +45,9 @@ public static class ConfigureEmailEndpoint
             request.Provider,
             request.ApiKey,
             request.FromEmail,
-            request.FromName);
+            request.FromName,
+            request.PasswordResetCallbackUrl,
+            request.EmailVerificationCallbackUrl);
 
         var result = await mediator.Send(command, cancellationToken);
 
@@ -68,4 +70,6 @@ public record ConfigureEmailRequest(
     EmailProvider Provider,
     string ApiKey,
     string FromEmail,
-    string FromName);
+    string FromName,
+    string? PasswordResetCallbackUrl,
+    string? EmailVerificationCallbackUrl);

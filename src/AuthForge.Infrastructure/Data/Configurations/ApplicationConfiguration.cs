@@ -1,6 +1,4 @@
-﻿using AuthForge.Domain.Entities;
-using AuthForge.Domain.ValueObjects;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Text.Json;
@@ -62,7 +60,7 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<App>
             .HasColumnType("TEXT")
             .HasConversion(allowedOriginsConverter)
             .IsRequired();
-        
+
         builder.Property(a => a.IsActive)
             .HasColumnName("is_active")
             .IsRequired();
@@ -95,7 +93,7 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<App>
 
         builder.Property(a => a.DeactivatedAtUtc)
             .HasColumnName("deactivated_at_utc");
-        
+
         builder.OwnsOne(a => a.ApplicationEmailSettings, email =>
         {
             email.Property(e => e.Provider)
@@ -115,6 +113,16 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<App>
             email.Property(e => e.FromName)
                 .HasColumnName("email_from_name")
                 .HasMaxLength(255)
+                .IsRequired(false);
+
+            email.Property(e => e.PasswordResetCallbackUrl)
+                .HasColumnName("email_password_reset_callback_url")
+                .HasMaxLength(500)
+                .IsRequired(false);
+
+            email.Property(e => e.EmailVerificationCallbackUrl)
+                .HasColumnName("email_verification_callback_url")
+                .HasMaxLength(500)
                 .IsRequired(false);
 
             email.ToTable("applications");
