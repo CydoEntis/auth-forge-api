@@ -1,6 +1,6 @@
 ﻿using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
-using AuthForge.Application.Applications.Commands.Delete;
+using AuthForge.Application.Applications.Commands.DeleteApplication;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
 

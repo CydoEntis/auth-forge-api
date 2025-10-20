@@ -1,6 +1,6 @@
 ﻿using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
-using AuthForge.Application.Applications.Commands.AllowedOrigins.UpdateAllowedOrigin;
+using AuthForge.Application.Applications.Commands.UpdateAllowedOrigin;
 using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;
 using Mediator;

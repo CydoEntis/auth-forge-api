@@ -1,6 +1,6 @@
 ﻿using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
-using AuthForge.Application.Applications.Commands.Update;
+using AuthForge.Application.Applications.Commands.UpdateApplication;
 using AuthForge.Application.Applications.Models;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;

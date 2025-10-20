@@ -1,6 +1,6 @@
 ﻿using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
-using AuthForge.Application.Applications.Commands.AllowedOrigins.RemoveAllowedOrigin;
+using AuthForge.Application.Applications.Commands.RemoveAllowedOrigin;
 using AuthForge.Domain.Errors;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
