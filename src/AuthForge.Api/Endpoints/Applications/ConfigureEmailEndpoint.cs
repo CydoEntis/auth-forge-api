@@ -1,6 +1,6 @@
 ﻿using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
-using AuthForge.Application.Applications.Commands.ConfigureEmail;
+using AuthForge.Application.Applications.Commands.EmailSettings.ConfigureEmail;
 using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;
 using Mediator;

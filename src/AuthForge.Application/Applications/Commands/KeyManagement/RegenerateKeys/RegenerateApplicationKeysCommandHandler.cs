@@ -3,7 +3,7 @@ using AuthForge.Domain.Common;
 using AuthForge.Domain.Errors;
 using Mediator;
 
-namespace AuthForge.Application.Applications.Commands.RegenerateKeys;
+namespace AuthForge.Application.Applications.Commands.KeyManagement.RegenerateKeys;
 
 public sealed class RegenerateApplicationKeysCommandHandler 
     : ICommandHandler<RegenerateApplicationKeysCommand, Result<RegenerateApplicationKeysResponse>>

@@ -3,7 +3,7 @@ using AuthForge.Domain.Common;
 using AuthForge.Domain.Errors;
 using Mediator;
 
-namespace AuthForge.Application.Applications.Commands.RemoveAllowedOrigin;
+namespace AuthForge.Application.Applications.Commands.AllowedOrigins.RemoveAllowedOrigin;
 
 public sealed class RemoveAllowedOriginCommandHandler 
     : ICommandHandler<RemoveAllowedOriginCommand, Result<RemoveAllowedOriginResponse>>

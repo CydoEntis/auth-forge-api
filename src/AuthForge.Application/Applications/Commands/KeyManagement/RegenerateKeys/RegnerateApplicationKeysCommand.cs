@@ -2,7 +2,7 @@
 using Mediator;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
-namespace AuthForge.Application.Applications.Commands.RegenerateKeys;
+namespace AuthForge.Application.Applications.Commands.KeyManagement.RegenerateKeys;
 
 public record RegenerateApplicationKeysCommand(ApplicationId ApplicationId) 
     : ICommand<Result<RegenerateApplicationKeysResponse>>;

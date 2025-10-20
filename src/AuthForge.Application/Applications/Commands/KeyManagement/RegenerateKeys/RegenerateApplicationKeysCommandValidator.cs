@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace AuthForge.Application.Applications.Commands.RegenerateKeys;
+namespace AuthForge.Application.Applications.Commands.KeyManagement.RegenerateKeys;
 
 public class RegenerateApplicationKeysCommandValidator : AbstractValidator<RegenerateApplicationKeysCommand>
 {

@@ -3,7 +3,7 @@ using AuthForge.Domain.Common;
 using AuthForge.Domain.Errors;
 using Mediator;
 
-namespace AuthForge.Application.Applications.Commands.UpdateAllowedOrigin;
+namespace AuthForge.Application.Applications.Commands.AllowedOrigins.UpdateAllowedOrigin;
 
 public sealed class UpdateAllowedOriginCommandHandler
     : ICommandHandler<UpdateAllowedOriginCommand, Result<UpdateAllowedOriginResponse>>

@@ -4,7 +4,7 @@ using AuthForge.Domain.Errors;
 using Mediator;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
-namespace AuthForge.Application.Applications.Commands.AddAllowedOrigin;
+namespace AuthForge.Application.Applications.Commands.AllowedOrigins.AddAllowedOrigin;
 
 public sealed class AddAllowedOriginCommandHandler : ICommandHandler<AddAllowedOriginCommand, Result>
 {

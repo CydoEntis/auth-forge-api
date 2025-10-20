@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace AuthForge.Application.Applications.Commands.UpdateAllowedOrigin;
+namespace AuthForge.Application.Applications.Commands.AllowedOrigins.UpdateAllowedOrigin;
 
 public class UpdateAllowedOriginCommandValidator : AbstractValidator<UpdateAllowedOriginCommand>
 {

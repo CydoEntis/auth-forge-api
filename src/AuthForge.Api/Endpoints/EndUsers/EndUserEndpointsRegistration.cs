@@ -13,6 +13,8 @@ public static class EndUserEndpointsRegistration
         app.MapChangePasswordEndpoint();
         app.MapSendVerificationEmailEndpoint();
         app.MapVerifyEmailEndpoint();
+        app.MapGetCurrentUserEndpoint();  
+        app.MapUpdateCurrentUserEndpoint();
         
         return app;
     }

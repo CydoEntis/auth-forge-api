@@ -23,4 +23,10 @@
 
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Applications\Commands\AllowedOrigins\" />
+      <Folder Include="Applications\Commands\EmailSettings\" />
+      <Folder Include="Applications\Commands\KeyManagement\" />
+    </ItemGroup>
 </Project>

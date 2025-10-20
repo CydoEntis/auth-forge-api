@@ -1,4 +1,4 @@
-﻿namespace AuthForge.Application.Applications.Commands.RegenerateKeys;
+﻿namespace AuthForge.Application.Applications.Commands.KeyManagement.RegenerateKeys;
 
 public record RegenerateApplicationKeysResponse(
     string PublicKey,

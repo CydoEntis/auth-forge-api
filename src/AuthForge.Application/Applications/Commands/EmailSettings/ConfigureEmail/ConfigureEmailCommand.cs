@@ -3,7 +3,7 @@ using AuthForge.Domain.ValueObjects;
 using Mediator;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
-namespace AuthForge.Application.Applications.Commands.ConfigureEmail;
+namespace AuthForge.Application.Applications.Commands.EmailSettings.ConfigureEmail;
 
 public record ConfigureEmailCommand(
     ApplicationId ApplicationId,

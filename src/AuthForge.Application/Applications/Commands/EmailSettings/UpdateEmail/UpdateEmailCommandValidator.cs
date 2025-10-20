@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace AuthForge.Application.Applications.Commands.UpdateEmail;
+namespace AuthForge.Application.Applications.Commands.EmailSettings.UpdateEmail;
 
 public class UpdateEmailCommandValidator : AbstractValidator<UpdateEmailCommand>
 {

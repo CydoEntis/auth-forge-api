@@ -4,7 +4,7 @@ using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;
 using Mediator;
 
-namespace AuthForge.Application.Applications.Commands.UpdateEmail;
+namespace AuthForge.Application.Applications.Commands.EmailSettings.UpdateEmail;
 
 public sealed class UpdateEmailCommandHandler 
     : ICommandHandler<UpdateEmailCommand, Result<UpdateEmailResponse>>

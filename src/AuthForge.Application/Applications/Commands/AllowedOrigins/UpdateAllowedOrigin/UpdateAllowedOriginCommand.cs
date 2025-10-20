@@ -2,7 +2,7 @@
 using Mediator;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
-namespace AuthForge.Application.Applications.Commands.UpdateAllowedOrigin;
+namespace AuthForge.Application.Applications.Commands.AllowedOrigins.UpdateAllowedOrigin;
 
 public record UpdateAllowedOriginCommand(
     ApplicationId ApplicationId,

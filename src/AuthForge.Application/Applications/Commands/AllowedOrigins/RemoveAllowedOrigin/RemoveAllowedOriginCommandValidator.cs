@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace AuthForge.Application.Applications.Commands.RemoveAllowedOrigin;
+namespace AuthForge.Application.Applications.Commands.AllowedOrigins.RemoveAllowedOrigin;
 
 public class RemoveAllowedOriginCommandValidator : AbstractValidator<RemoveAllowedOriginCommand>
 {

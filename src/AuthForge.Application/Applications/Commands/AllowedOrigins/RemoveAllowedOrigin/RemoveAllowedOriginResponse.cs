@@ -1,3 +1,3 @@
-﻿namespace AuthForge.Application.Applications.Commands.RemoveAllowedOrigin;
+﻿namespace AuthForge.Application.Applications.Commands.AllowedOrigins.RemoveAllowedOrigin;
 
 public record RemoveAllowedOriginResponse(string Message);

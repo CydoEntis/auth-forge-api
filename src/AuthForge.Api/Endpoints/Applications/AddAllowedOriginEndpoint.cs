@@ -1,6 +1,6 @@
 ﻿using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
-using AuthForge.Application.Applications.Commands.AddAllowedOrigin;
+using AuthForge.Application.Applications.Commands.AllowedOrigins.AddAllowedOrigin;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
 
