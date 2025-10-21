@@ -6,6 +6,7 @@ using AuthForge.Domain.ValueObjects;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using AuthForge.Api.Attributes;
 
 namespace AuthForge.Api.Endpoints.EndUsers;
 
@@ -14,6 +15,7 @@ public static class SendVerificationEmailEndpoint
     public static IEndpointRouteBuilder MapSendVerificationEmailEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/endusers/send-verification-email", Handle)
+            .WithMetadata(new RateLimitAttribute(3, 60))
             .RequireAuthorization("EndUser")
             .WithName("SendVerificationEmail")
             .WithTags("EndUsers")

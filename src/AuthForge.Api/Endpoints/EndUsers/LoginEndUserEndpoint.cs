@@ -1,4 +1,5 @@
-﻿using AuthForge.Api.Common.Mappings;
+﻿using AuthForge.Api.Attributes;
+using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
 using AuthForge.Application.EndUsers.Commands.Login;
 using AuthForge.Domain.Errors;
@@ -12,6 +13,7 @@ public static class LoginEndUserEndpoint
     public static IEndpointRouteBuilder MapLoginEndUserEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/endusers/login", HandleLogin)
+            .WithMetadata(new RateLimitAttribute(5, 1))
             .WithName("LoginEndUser")
             .WithTags("EndUsers")
             .WithDescription("Authenticate end user and receive JWT tokens")

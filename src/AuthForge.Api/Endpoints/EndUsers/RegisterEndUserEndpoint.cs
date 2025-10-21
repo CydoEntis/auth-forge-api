@@ -1,4 +1,5 @@
-﻿using AuthForge.Api.Common.Mappings;
+﻿using AuthForge.Api.Attributes;
+using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
 using AuthForge.Application.EndUsers.Commands.Register;
 using AuthForge.Domain.Errors;
@@ -12,6 +13,7 @@ public static class RegisterEndUserEndpoint
     public static IEndpointRouteBuilder MapRegisterEndUserEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/endusers/register", HandleRegister)
+            .WithMetadata(new RateLimitAttribute(5, 60))
             .WithName("RegisterEndUser")
             .WithTags("EndUsers")
             .WithDescription("Register a new end user for an application")

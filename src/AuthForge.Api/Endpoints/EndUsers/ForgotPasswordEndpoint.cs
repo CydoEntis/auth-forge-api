@@ -1,5 +1,6 @@
 ﻿// src/AuthForge.Api/Endpoints/EndUsers/ForgotPasswordEndpoint.cs
 
+using AuthForge.Api.Attributes;
 using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
 using AuthForge.Application.EndUsers.Commands.ForgotPassword;
@@ -15,6 +16,7 @@ public static class ForgotPasswordEndpoint
     public static IEndpointRouteBuilder MapForgotPasswordEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/endusers/forgot-password", Handle)
+            .WithMetadata(new RateLimitAttribute(3, 15))
             .WithName("ForgotPassword")
             .WithTags("EndUsers")
             .WithDescription("Request a password reset token")

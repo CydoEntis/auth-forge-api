@@ -9,6 +9,7 @@ using AuthForge.Domain.ValueObjects;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using AuthForge.Api.Attributes;
 
 namespace AuthForge.Api.Endpoints.EndUsers;
 
@@ -17,6 +18,7 @@ public static class ChangePasswordEndpoint
     public static IEndpointRouteBuilder MapChangePasswordEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/endusers/change-password", Handle)
+            .WithMetadata(new RateLimitAttribute(5, 15))
             .RequireAuthorization("EndUser")
             .WithName("ChangePassword")
             .WithTags("EndUsers")

@@ -1,4 +1,5 @@
-﻿using AuthForge.Api.Common.Mappings;
+﻿using AuthForge.Api.Attributes;
+using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
 using AuthForge.Application.EndUsers.Commands.ResetPassword;
 using AuthForge.Domain.Errors;
@@ -13,6 +14,7 @@ public static class ResetPasswordEndpoint
     public static IEndpointRouteBuilder MapResetPasswordEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/endusers/reset-password", Handle)
+            .WithMetadata(new RateLimitAttribute(5, 15))
             .WithName("ResetPassword")
             .WithTags("EndUsers")
             .WithDescription("Reset password using reset token")

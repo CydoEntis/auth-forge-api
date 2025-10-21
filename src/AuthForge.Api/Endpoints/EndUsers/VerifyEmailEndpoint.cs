@@ -1,4 +1,5 @@
-﻿using AuthForge.Api.Common.Mappings;
+﻿using AuthForge.Api.Attributes;
+using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
 using AuthForge.Application.EndUsers.Commands.VerifyEmail;
 using AuthForge.Domain.Errors;
@@ -13,6 +14,7 @@ public static class VerifyEmailEndpoint
     public static IEndpointRouteBuilder MapVerifyEmailEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/endusers/verify-email", Handle)
+            .WithMetadata(new RateLimitAttribute(10, 60))
             .WithName("VerifyEmail")
             .WithTags("EndUsers")
             .WithDescription("Verify email using verification token")
