@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "Bash(git mv \"C:\\Users\\cstin\\Programming\\portfolio-projects\\AuthForge\\src\\AuthForge.Application\\Common\\Interfaces\\IEnderUserRepository.cs\" \"C:\\Users\\cstin\\Programming\\portfolio-projects\\AuthForge\\src\\AuthForge.Application\\Common\\Interfaces\\IEndUserRepository.cs\")",
+      "Bash(git mv \"C:\\Users\\cstin\\Programming\\portfolio-projects\\AuthForge\\src\\AuthForge.Application\\Applications\\Queries\\GetApplicationUserById\\GetApplicationUserByIdQuery.cs\" \"C:\\Users\\cstin\\Programming\\portfolio-projects\\AuthForge\\src\\AuthForge.Application\\EndUsers\\Queries\\GetById\\GetEndUserByIdQuery.cs\")",
+      "Bash(git mv \"C:\\Users\\cstin\\Programming\\portfolio-projects\\AuthForge\\src\\AuthForge.Application\\Applications\\Queries\\GetApplicationUserById\\GetApplicationUserByIdQueryHandler.cs\" \"C:\\Users\\cstin\\Programming\\portfolio-projects\\AuthForge\\src\\AuthForge.Application\\EndUsers\\Queries\\GetById\\GetEndUserByIdQueryHandler.cs\")",
+      "Bash(git mv \"C:\\Users\\cstin\\Programming\\portfolio-projects\\AuthForge\\src\\AuthForge.Application\\Applications\\Queries\\GetApplicationUserById\\GetApplicationUserByIdResponse.cs\" \"C:\\Users\\cstin\\Programming\\portfolio-projects\\AuthForge\\src\\AuthForge.Application\\EndUsers\\Queries\\GetById\\GetEndUserByIdResponse.cs\")",
+      "Bash(git mv \"C:\\Users\\cstin\\Programming\\portfolio-projects\\AuthForge\\src\\AuthForge.Api\\Endpoints\\Applications\\GetApplicationUserByIdEndpoint.cs\" \"C:\\Users\\cstin\\Programming\\portfolio-projects\\AuthForge\\src\\AuthForge.Api\\Endpoints\\EndUsers\\GetEndUserByIdEndpoint.cs\")"
     ],
     "deny": [],
     "ask": []
