@@ -20,7 +20,7 @@ public static class EndUserEndpointsRegistration
         app.MapActivateEndUserEndpoint();
         app.MapUnlockEndUserEndpoint();
         app.MapLockEndUserEndpoint();
-        
+        app.MapManualVerifyEmailEndpoint();
         return app;
     }
 }
