@@ -1,5 +1,4 @@
 ﻿using AuthForge.Application.Applications.Models;
-using AuthForge.Application.Applications.Queries.GetAll;
 using AuthForge.Application.Common.Models;
 using AuthForge.Domain.Common;
 using Mediator;

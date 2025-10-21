@@ -5,9 +5,9 @@ public sealed record EndUserSummary(
     string Email,
     string FirstName,
     string LastName,
-    string FullName,
+    bool IsEmailVerified,
     bool IsActive,
-    bool EmailVerified,
-    DateTime CreatedAt,
-    DateTime? LastLoginAt
-);
+    int FailedLoginAttempts,
+    DateTime? LockedOutUntil,
+    DateTime CreatedAtUtc,
+    DateTime? LastLoginAtUtc);

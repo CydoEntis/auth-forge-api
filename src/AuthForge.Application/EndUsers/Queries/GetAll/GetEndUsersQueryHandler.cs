@@ -45,6 +45,7 @@ public sealed class GetEndUsersQueryHandler
             applicationId,
             parameters.SearchTerm,
             parameters.IsActive,
+            parameters.IsEmailVerified,
             parameters.SortBy ?? EndUserSortBy.CreatedAt,
             parameters.SortOrder ?? SortOrder.Desc,
             pageNumber,
@@ -56,9 +57,10 @@ public sealed class GetEndUsersQueryHandler
             user.Email.Value,
             user.FirstName,
             user.LastName,
-            user.FullName,
-            user.IsActive,
             user.IsEmailVerified,
+            user.IsActive,
+            user.FailedLoginAttempts,
+            user.LockedOutUntil,
             user.CreatedAtUtc,
             user.LastLoginAtUtc
         )).ToList();

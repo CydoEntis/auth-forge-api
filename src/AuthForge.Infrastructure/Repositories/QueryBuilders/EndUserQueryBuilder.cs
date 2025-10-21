@@ -10,17 +10,22 @@ public static class EndUserQueryBuilder
     public static IQueryable<EndUser> ApplyFilters(
         this IQueryable<EndUser> query,
         string? searchTerm,
-        bool? isActive)
+        bool? isActive,
+        bool? isEmailVerified)
     {
         query = query.WhereIf(
             !string.IsNullOrWhiteSpace(searchTerm),
-            u => u.Email.Value.Contains(searchTerm!) || 
-                 u.FirstName.Contains(searchTerm!) || 
+            u => u.Email.Value.Contains(searchTerm!) ||
+                 u.FirstName.Contains(searchTerm!) ||
                  u.LastName.Contains(searchTerm!));
 
         query = query.WhereIf(
             isActive.HasValue,
             u => u.IsActive == isActive!.Value);
+
+        query = query.WhereIf(
+            isEmailVerified.HasValue,
+            u => u.IsEmailVerified == isEmailVerified!.Value);
 
         return query;
     }
@@ -36,7 +41,7 @@ public static class EndUserQueryBuilder
             EndUserSortBy.FirstName => query.OrderByDirection(u => u.FirstName, sortOrder),
             EndUserSortBy.LastName => query.OrderByDirection(u => u.LastName, sortOrder),
             EndUserSortBy.LastLoginAt => query.OrderByDirection(u => u.LastLoginAtUtc, sortOrder),
-            EndUserSortBy.CreatedAt or _ => query.OrderByDirection(u => u.CreatedAtUtc, sortOrder)
+            _ => query.OrderByDirection(u => u.CreatedAtUtc, sortOrder)
         };
     }
 }

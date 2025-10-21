@@ -1,6 +1,6 @@
-﻿namespace AuthForge.Application.Applications.Queries.GetApplicationUserById;
+﻿namespace AuthForge.Application.EndUsers.Queries.GetById;
 
-public record GetApplicationUserByIdResponse(
+public record GetEndUserByIdResponse(
     string UserId,
     string Email,
     string FirstName,

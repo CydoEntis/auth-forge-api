@@ -3,15 +3,15 @@ using AuthForge.Domain.Common;
 using AuthForge.Domain.Errors;
 using Mediator;
 
-namespace AuthForge.Application.Applications.Queries.GetApplicationUserById;
+namespace AuthForge.Application.EndUsers.Queries.GetById;
 
-public sealed class GetApplicationUserByIdQueryHandler
-    : IQueryHandler<GetApplicationUserByIdQuery, Result<GetApplicationUserByIdResponse>>
+public sealed class GetEndUserByIdQueryHandler
+    : IQueryHandler<GetEndUserByIdQuery, Result<GetEndUserByIdResponse>>
 {
     private readonly IEndUserRepository _endUserRepository;
     private readonly IApplicationRepository _applicationRepository;
 
-    public GetApplicationUserByIdQueryHandler(
+    public GetEndUserByIdQueryHandler(
         IEndUserRepository endUserRepository,
         IApplicationRepository applicationRepository)
     {
@@ -19,8 +19,8 @@ public sealed class GetApplicationUserByIdQueryHandler
         _applicationRepository = applicationRepository;
     }
 
-    public async ValueTask<Result<GetApplicationUserByIdResponse>> Handle(
-        GetApplicationUserByIdQuery query,
+    public async ValueTask<Result<GetEndUserByIdResponse>> Handle(
+        GetEndUserByIdQuery query,
         CancellationToken cancellationToken)
     {
         var application = await _applicationRepository.GetByIdAsync(
@@ -28,18 +28,18 @@ public sealed class GetApplicationUserByIdQueryHandler
             cancellationToken);
 
         if (application == null)
-            return Result<GetApplicationUserByIdResponse>.Failure(ApplicationErrors.NotFound);
+            return Result<GetEndUserByIdResponse>.Failure(ApplicationErrors.NotFound);
 
         var user = await _endUserRepository.GetByIdAsync(query.UserId, cancellationToken);
 
         if (user == null)
-            return Result<GetApplicationUserByIdResponse>.Failure(EndUserErrors.NotFound);
+            return Result<GetEndUserByIdResponse>.Failure(EndUserErrors.NotFound);
 
         if (user.ApplicationId != query.ApplicationId)
-            return Result<GetApplicationUserByIdResponse>.Failure(
+            return Result<GetEndUserByIdResponse>.Failure(
                 new Error("Application.UserNotFound", "User does not belong to this application"));
 
-        var response = new GetApplicationUserByIdResponse(
+        var response = new GetEndUserByIdResponse(
             user.Id.Value.ToString(),
             user.Email.Value,
             user.FirstName,
@@ -52,6 +52,6 @@ public sealed class GetApplicationUserByIdQueryHandler
             user.UpdatedAtUtc,
             user.LastLoginAtUtc);
 
-        return Result<GetApplicationUserByIdResponse>.Success(response);
+        return Result<GetEndUserByIdResponse>.Success(response);
     }
 }

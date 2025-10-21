@@ -1,32 +1,32 @@
 ﻿using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
-using AuthForge.Application.Applications.Queries.GetApplicationUserById;
+using AuthForge.Application.EndUsers.Queries.GetById;
 using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
-namespace AuthForge.Api.Endpoints.Applications;
+namespace AuthForge.Api.Endpoints.EndUsers;
 
-public static class GetApplicationUserByIdEndpoint
+public static class GetEndUserByIdEndpoint
 {
-    public static IEndpointRouteBuilder MapGetApplicationUserByIdEndpoint(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapGetEndUserByIdEndpoint(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/applications/{applicationId}/users/{userId}", Handle)
+        app.MapGet("/api/applications/{applicationId}/users/{userId}", HandleAsync)
             .RequireAuthorization("Admin")
-            .WithName("GetApplicationUserById")
-            .WithTags("Applications - User Management")
+            .WithName("GetEndUserById")
+            .WithTags("EndUsers")
             .WithDescription("Get a specific user for an application")
-            .Produces<ApiResponse<GetApplicationUserByIdResponse>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<GetApplicationUserByIdResponse>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<GetApplicationUserByIdResponse>>(StatusCodes.Status404NotFound)
+            .Produces<ApiResponse<GetEndUserByIdResponse>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<GetEndUserByIdResponse>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<GetEndUserByIdResponse>>(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
         return app;
     }
 
-    private static async Task<IResult> Handle(
+    private static async Task<IResult> HandleAsync(
         string applicationId,
         string userId,
         [FromServices] IMediator mediator,
@@ -34,7 +34,7 @@ public static class GetApplicationUserByIdEndpoint
     {
         if (!Guid.TryParse(applicationId, out var appGuid))
         {
-            var errorResponse = ApiResponse<GetApplicationUserByIdResponse>.FailureResponse(
+            var errorResponse = ApiResponse<GetEndUserByIdResponse>.FailureResponse(
                 ApplicationErrors.InvalidId.Code,
                 ApplicationErrors.InvalidId.Message);
             return Results.Json(errorResponse, statusCode: StatusCodes.Status400BadRequest);
@@ -42,13 +42,13 @@ public static class GetApplicationUserByIdEndpoint
 
         if (!Guid.TryParse(userId, out var userGuid))
         {
-            var errorResponse = ApiResponse<GetApplicationUserByIdResponse>.FailureResponse(
+            var errorResponse = ApiResponse<GetEndUserByIdResponse>.FailureResponse(
                 EndUserErrors.InvalidId.Code,
                 EndUserErrors.InvalidId.Message);
             return Results.Json(errorResponse, statusCode: StatusCodes.Status400BadRequest);
         }
 
-        var query = new GetApplicationUserByIdQuery(
+        var query = new GetEndUserByIdQuery(
             ApplicationId.Create(appGuid),
             EndUserId.Create(userGuid));
 
@@ -56,7 +56,7 @@ public static class GetApplicationUserByIdEndpoint
 
         if (result.IsFailure)
         {
-            var errorResponse = ApiResponse<GetApplicationUserByIdResponse>.FailureResponse(
+            var errorResponse = ApiResponse<GetEndUserByIdResponse>.FailureResponse(
                 result.Error.Code,
                 result.Error.Message);
 
@@ -64,7 +64,7 @@ public static class GetApplicationUserByIdEndpoint
             return Results.Json(errorResponse, statusCode: statusCode);
         }
 
-        var successResponse = ApiResponse<GetApplicationUserByIdResponse>.SuccessResponse(result.Value);
+        var successResponse = ApiResponse<GetEndUserByIdResponse>.SuccessResponse(result.Value);
         return Results.Ok(successResponse);
     }
 }

@@ -58,4 +58,16 @@ public static class EndUserErrors
     public static readonly Error InvalidId = new(
         "EndUser.InvalidId",
         "The provided user ID is invalid");
+
+    public static readonly Error AlreadyActive = new(
+        "EndUser.AlreadyActive",
+        "User is already active");
+
+    public static readonly Error AlreadyDeactivated = new(
+        "EndUser.AlreadyDeactivated",
+        "User is already deactivated");
+
+    public static readonly Error NotLockedOut = new(
+        "EndUser.NotLockedOut",
+        "User account is not locked");
 }

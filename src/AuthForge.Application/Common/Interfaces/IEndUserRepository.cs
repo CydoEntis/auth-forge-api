@@ -17,7 +17,7 @@ public interface IEndUserRepository
     Task AddAsync(EndUser user, CancellationToken cancellationToken = default);
     void Update(EndUser user);
     void Delete(EndUser user);
-
+    
     Task<List<EndUser>> GetByApplicationAsync(ApplicationId applicationId, int pageNumber, int pageSize,
         CancellationToken cancellationToken = default);
 
@@ -25,6 +25,7 @@ public interface IEndUserRepository
         ApplicationId applicationId,
         string? searchTerm,
         bool? isActive,
+        bool? isEmailVerified,
         EndUserSortBy sortBy,
         SortOrder sortOrder,
         int pageNumber,

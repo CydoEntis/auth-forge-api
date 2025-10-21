@@ -1,7 +1,7 @@
 ﻿using AuthForge.Application.Applications.Enums;
 using AuthForge.Application.Common.Models;
 
-namespace AuthForge.Application.Applications.Queries.GetAll;
+namespace AuthForge.Application.Applications.Queries.GetAllApplications;
 
 public sealed record ApplicationFilterParameters : PagedQuery
 {

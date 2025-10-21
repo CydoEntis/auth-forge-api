@@ -15,7 +15,6 @@ public static class ApplicationsEndpointsRegistration
         app.MapUpdateEmailEndpoint();
         app.MapAddAllowedOriginEndpoint();
         app.MapUpdateAllowedOriginEndpoint();
-        app.MapGetApplicationUserByIdEndpoint();
         return app;
     }
 }

@@ -50,4 +50,6 @@ public static class ApplicationErrors
     public static Error OriginErrorDetail(string message) => new(
         "Application.OriginError",
         message);
+    
+    
 }

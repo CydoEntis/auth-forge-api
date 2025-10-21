@@ -8,13 +8,16 @@ public static class EndUserEndpointsRegistration
         app.MapLoginEndUserEndpoint();
         app.MapRefreshEndUserTokenEndpoint();
         app.MapGetEndUsersEndpoint();
+        app.MapGetEndUserByIdEndpoint();
         app.MapForgotPasswordEndpoint();
-        app.MapResetPasswordEndpoint(); 
+        app.MapResetPasswordEndpoint();
         app.MapChangePasswordEndpoint();
         app.MapSendVerificationEmailEndpoint();
         app.MapVerifyEmailEndpoint();
-        app.MapGetCurrentUserEndpoint();  
+        app.MapGetCurrentUserEndpoint();
         app.MapUpdateCurrentUserEndpoint();
+        app.MapDeactivateEndUserEndpoint();
+        app.MapActivateEndUserEndpoint(); 
         
         return app;
     }

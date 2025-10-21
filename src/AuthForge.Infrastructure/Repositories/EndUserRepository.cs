@@ -25,12 +25,13 @@ public class EndUserRepository : IEndUserRepository
         return await _context.EndUsers
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
-    
+
     public async Task<EndUser?> GetByEmailAsync(ApplicationId applicationId, Email email,
         CancellationToken cancellationToken = default)
     {
         return await _context.EndUsers
-            .FirstOrDefaultAsync(u => u.ApplicationId == applicationId && u.Email.Value == email.Value, cancellationToken);
+            .FirstOrDefaultAsync(u => u.ApplicationId == applicationId && u.Email.Value == email.Value,
+                cancellationToken);
     }
 
     public async Task<bool> ExistsAsync(ApplicationId applicationId, Email email,
@@ -70,6 +71,7 @@ public class EndUserRepository : IEndUserRepository
         ApplicationId applicationId,
         string? searchTerm,
         bool? isActive,
+        bool? isEmailVerified,
         EndUserSortBy sortBy,
         SortOrder sortOrder,
         int pageNumber,
@@ -78,7 +80,7 @@ public class EndUserRepository : IEndUserRepository
     {
         var query = _context.EndUsers
             .Where(u => u.ApplicationId == applicationId)
-            .ApplyFilters(searchTerm, isActive);
+            .ApplyFilters(searchTerm, isActive, isEmailVerified);
 
         var totalCount = await query.CountAsync(cancellationToken);
 
@@ -86,7 +88,6 @@ public class EndUserRepository : IEndUserRepository
             .ApplySorting(sortBy, sortOrder)
             .Paginate(pageNumber, pageSize)
             .ToListAsync(cancellationToken);
-
 
         return (items, totalCount);
     }

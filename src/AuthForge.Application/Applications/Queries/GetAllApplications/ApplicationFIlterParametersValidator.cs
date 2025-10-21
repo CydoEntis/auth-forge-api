@@ -1,5 +1,4 @@
-﻿using AuthForge.Application.Applications.Queries.GetAll;
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace AuthForge.Application.Applications.Queries.GetAllApplications;
 
