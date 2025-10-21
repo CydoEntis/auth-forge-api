@@ -21,6 +21,8 @@ public static class EndUserEndpointsRegistration
         app.MapUnlockEndUserEndpoint();
         app.MapLockEndUserEndpoint();
         app.MapManualVerifyEmailEndpoint();
+        app.MapDeleteEndUserEndpoint();
+        
         return app;
     }
 }
