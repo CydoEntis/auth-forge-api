@@ -17,7 +17,9 @@ public static class EndUserEndpointsRegistration
         app.MapGetCurrentUserEndpoint();
         app.MapUpdateCurrentUserEndpoint();
         app.MapDeactivateEndUserEndpoint();
-        app.MapActivateEndUserEndpoint(); 
+        app.MapActivateEndUserEndpoint();
+        app.MapUnlockEndUserEndpoint();
+        app.MapLockEndUserEndpoint();
         
         return app;
     }

@@ -105,7 +105,7 @@ public sealed class EndUser : AggregateRoot<EndUserId>
 
         EmailVerificationToken = token;
         EmailVerificationTokenExpiresAt = expiresAt;
-    
+
         RaiseDomainEvent(new EndUserEmailVerificationRequestedDomainEvent(Id));
     }
 
@@ -130,7 +130,7 @@ public sealed class EndUser : AggregateRoot<EndUserId>
         PasswordResetToken = token;
         PasswordResetTokenExpiresAt = expiresAt;
         UpdatedAtUtc = DateTime.UtcNow;
-    
+
         RaiseDomainEvent(new EndUserPasswordResetRequestedDomainEvent(Id));
     }
 
@@ -173,6 +173,15 @@ public sealed class EndUser : AggregateRoot<EndUserId>
             LockedOutUntil = DateTime.UtcNow.AddMinutes(lockoutMinutes);
             RaiseDomainEvent(new EndUserLockedOutDomainEvent(Id, LockedOutUntil.Value, FailedLoginAttempts));
         }
+    }
+
+    public void ManualLock(int lockoutMinutes)
+    {
+        if (IsLockedOut())
+            throw new InvalidOperationException("User is already locked out.");
+
+        LockedOutUntil = DateTime.UtcNow.AddMinutes(lockoutMinutes);
+        UpdatedAtUtc = DateTime.UtcNow;
     }
 
     public bool IsLockedOut()

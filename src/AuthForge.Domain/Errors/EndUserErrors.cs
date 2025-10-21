@@ -67,6 +67,11 @@ public static class EndUserErrors
         "EndUser.AlreadyDeactivated",
         "User is already deactivated");
 
+    
+    public static readonly Error AlreadyLockedOut = new(
+        "EndUser.AlreadyLockedOut",
+        "User account is already locked out");
+
     public static readonly Error NotLockedOut = new(
         "EndUser.NotLockedOut",
         "User account is not locked");
