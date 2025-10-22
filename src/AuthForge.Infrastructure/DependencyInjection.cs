@@ -1,6 +1,7 @@
 ﻿using AuthForge.Application.Common.Interfaces;
 using AuthForge.Infrastructure.EmailProviders;
 using AuthForge.Infrastructure.Extensions;
+using AuthForge.Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,7 +17,8 @@ public static class DependencyInjection
         services.AddJwtAuthentication(configuration);
         services.AddRepositories();
         services.AddApplicationServices();
-
+        services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+        
         services.AddHttpClient();
         services.AddScoped<IEmailServiceFactory, EmailServiceFactory>();
 

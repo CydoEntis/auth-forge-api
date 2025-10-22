@@ -16,6 +16,7 @@ public class AuthForgeDbContext : DbContext
     public DbSet<EndUser> EndUsers => Set<EndUser>();
     public DbSet<EndUserRefreshToken> EndUserRefreshTokens => Set<EndUserRefreshToken>();
     public DbSet<EndUserPasswordResetToken> EndUserPasswordResetTokens => Set<EndUserPasswordResetToken>();
+    public DbSet<AuditLog> AuditLogs { get; set; } = null!;
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
