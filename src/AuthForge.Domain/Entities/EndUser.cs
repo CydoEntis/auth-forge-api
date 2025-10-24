@@ -1,4 +1,6 @@
-﻿using AuthForge.Domain.Common;
+﻿// src/AuthForge.Domain/Entities/EndUser.cs
+
+using AuthForge.Domain.Common;
 using AuthForge.Domain.Events;
 using AuthForge.Domain.ValueObjects;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
@@ -42,10 +44,8 @@ public sealed class EndUser : AggregateRoot<EndUserId>
     public DateTime CreatedAtUtc { get; private set; }
     public DateTime? UpdatedAtUtc { get; private set; }
     public DateTime? LastLoginAtUtc { get; private set; }
-
     public string? EmailVerificationToken { get; private set; }
     public DateTime? EmailVerificationTokenExpiresAt { get; private set; }
-
     public string? PasswordResetToken { get; private set; }
     public DateTime? PasswordResetTokenExpiresAt { get; private set; }
 
@@ -77,10 +77,21 @@ public sealed class EndUser : AggregateRoot<EndUserId>
         user.EmailVerificationToken = verificationToken;
         user.EmailVerificationTokenExpiresAt = expiresAt;
 
+        user.RaiseDomainEvent(new EndUserRegisteredDomainEvent(
+            user.Id,
+            user.ApplicationId,
+            user.Email,
+            user.FirstName,
+            user.LastName));
 
         user.RaiseDomainEvent(new EndUserEmailVerificationRequestedDomainEvent(user.Id));
 
         return user;
+    }
+
+    public void Delete()
+    {
+        RaiseDomainEvent(new EndUserDeletedDomainEvent(Id, ApplicationId, Email));
     }
 
     public void VerifyEmail()
@@ -91,8 +102,22 @@ public sealed class EndUser : AggregateRoot<EndUserId>
         IsEmailVerified = true;
         EmailVerificationToken = null;
         EmailVerificationTokenExpiresAt = null;
+        UpdatedAtUtc = DateTime.UtcNow;
 
         RaiseDomainEvent(new EndUserEmailVerifiedDomainEvent(Id, Email));
+    }
+
+    public void VerifyEmailManually()
+    {
+        if (IsEmailVerified)
+            throw new InvalidOperationException("Email is already verified.");
+
+        IsEmailVerified = true;
+        EmailVerificationToken = null;
+        EmailVerificationTokenExpiresAt = null;
+        UpdatedAtUtc = DateTime.UtcNow;
+
+        RaiseDomainEvent(new EndUserEmailVerifiedManuallyDomainEvent(Id, ApplicationId, Email));
     }
 
     public void SetEmailVerificationToken(string token, DateTime expiresAt)
@@ -105,6 +130,7 @@ public sealed class EndUser : AggregateRoot<EndUserId>
 
         EmailVerificationToken = token;
         EmailVerificationTokenExpiresAt = expiresAt;
+        UpdatedAtUtc = DateTime.UtcNow;
 
         RaiseDomainEvent(new EndUserEmailVerificationRequestedDomainEvent(Id));
     }
@@ -154,6 +180,14 @@ public sealed class EndUser : AggregateRoot<EndUserId>
         RaiseDomainEvent(new EndUserPasswordResetDomainEvent(Id));
     }
 
+    public void UpdatePassword(HashedPassword newPasswordHash)
+    {
+        PasswordHash = newPasswordHash ?? throw new ArgumentException(nameof(newPasswordHash));
+        UpdatedAtUtc = DateTime.UtcNow;
+
+        RaiseDomainEvent(new EndUserPasswordChangedDomainEvent(Id));
+    }
+
     public void RecordSuccessfulLogin()
     {
         FailedLoginAttempts = 0;
@@ -167,6 +201,9 @@ public sealed class EndUser : AggregateRoot<EndUserId>
     public void RecordFailedLogin(int maxAttempts, int lockoutMinutes)
     {
         FailedLoginAttempts++;
+        UpdatedAtUtc = DateTime.UtcNow;
+
+        RaiseDomainEvent(new EndUserLoginFailedDomainEvent(Id, ApplicationId, Email, FailedLoginAttempts));
 
         if (FailedLoginAttempts >= maxAttempts)
         {
@@ -182,24 +219,22 @@ public sealed class EndUser : AggregateRoot<EndUserId>
 
         LockedOutUntil = DateTime.UtcNow.AddMinutes(lockoutMinutes);
         UpdatedAtUtc = DateTime.UtcNow;
-    }
 
-    public bool IsLockedOut()
-    {
-        return LockedOutUntil.HasValue && LockedOutUntil.Value > DateTime.UtcNow;
+        RaiseDomainEvent(new EndUserManuallyLockedDomainEvent(Id, ApplicationId, LockedOutUntil.Value));
     }
 
     public void Unlock()
     {
         LockedOutUntil = null;
         FailedLoginAttempts = 0;
+        UpdatedAtUtc = DateTime.UtcNow;
+
+        RaiseDomainEvent(new EndUserUnlockedDomainEvent(Id, ApplicationId));
     }
 
-    public void UpdatePassword(HashedPassword newPasswordHash)
+    public bool IsLockedOut()
     {
-        PasswordHash = newPasswordHash ?? throw new ArgumentException(nameof(newPasswordHash));
-        UpdatedAtUtc = DateTime.UtcNow;
-        RaiseDomainEvent(new EndUserPasswordChangedDomainEvent(Id));
+        return LockedOutUntil.HasValue && LockedOutUntil.Value > DateTime.UtcNow;
     }
 
     public void Deactivate()
@@ -208,7 +243,9 @@ public sealed class EndUser : AggregateRoot<EndUserId>
             throw new InvalidOperationException("User is already deactivated.");
 
         IsActive = false;
-        RaiseDomainEvent(new EndUserDeactivatedDomainEvent(Id));
+        UpdatedAtUtc = DateTime.UtcNow;
+
+        RaiseDomainEvent(new EndUserDeactivatedDomainEvent(Id, ApplicationId));
     }
 
     public void Activate()
@@ -217,12 +254,16 @@ public sealed class EndUser : AggregateRoot<EndUserId>
             throw new InvalidOperationException("User is already active.");
 
         IsActive = true;
+        UpdatedAtUtc = DateTime.UtcNow;
+
+        RaiseDomainEvent(new EndUserActivatedDomainEvent(Id, ApplicationId));
     }
 
     public void UpdateProfile(string firstName, string lastName)
     {
         if (string.IsNullOrWhiteSpace(firstName))
             throw new ArgumentException("First name cannot be empty", nameof(firstName));
+
         if (string.IsNullOrWhiteSpace(lastName))
             throw new ArgumentException("Last name cannot be empty", nameof(lastName));
 

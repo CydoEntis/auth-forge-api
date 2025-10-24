@@ -30,7 +30,7 @@ public sealed class ManualVerifyEmailCommandHandler
 
         try
         {
-            user.VerifyEmail();
+            user.VerifyEmailManually();
         }
         catch (InvalidOperationException)
         {

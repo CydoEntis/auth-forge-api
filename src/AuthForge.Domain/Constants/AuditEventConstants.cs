@@ -1,7 +1,6 @@
-﻿namespace AuthForge.Domain.Events;
+﻿namespace AuthForge.Domain.Constants;
 
-// TODO: Temporary for now - Refactor to match other DomainEvents,
-public static class AuditEventTypes
+public static class AuditEventConstants
 {
     // Authentication Events
     public const string UserLoginSuccess = "user.login.success";

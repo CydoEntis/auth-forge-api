@@ -1,6 +1,7 @@
 ﻿using AuthForge.Application.Common.Interfaces;
 using AuthForge.Domain.Common;
 using AuthForge.Domain.Errors;
+using AuthForge.Domain.Events;
 using Mediator;
 
 namespace AuthForge.Application.EndUsers.Commands.DeleteEndUser;
@@ -19,6 +20,7 @@ public sealed class DeleteEndUserCommandHandler
         _unitOfWork = unitOfWork;
     }
 
+
     public async ValueTask<Result<DeleteEndUserResponse>> Handle(
         DeleteEndUserCommand command,
         CancellationToken cancellationToken)
@@ -27,6 +29,8 @@ public sealed class DeleteEndUserCommandHandler
 
         if (user == null)
             return Result<DeleteEndUserResponse>.Failure(EndUserErrors.NotFound);
+
+        user.Delete();
 
         _endUserRepository.Delete(user);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
