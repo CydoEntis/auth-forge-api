@@ -29,17 +29,14 @@ public class LogEmailVerifiedManuallyHandlerTests
     [Fact]
     public async Task Handle_WithValidEvent_ShouldCreateAuditLog()
     {
-        // ARRANGE
         var applicationId = ApplicationId.Create(Guid.NewGuid());
         var email = Email.Create("user@example.com");
         var userId = EndUserId.Create(Guid.NewGuid());
 
         var domainEvent = new EndUserEmailVerifiedManuallyDomainEvent(userId, applicationId, email);
 
-        // ACT
         await _handler.Handle(domainEvent, CancellationToken.None);
 
-        // ASSERT
         _auditLogRepositoryMock.Verify(
             x => x.AddAsync(It.IsAny<AuditLog>(), It.IsAny<CancellationToken>()),
             Times.Once);
@@ -52,7 +49,6 @@ public class LogEmailVerifiedManuallyHandlerTests
     [Fact]
     public async Task Handle_ShouldSerializeEventDetailsCorrectly()
     {
-        // ARRANGE
         var applicationId = ApplicationId.Create(Guid.NewGuid());
         var email = Email.Create("verified@example.com");
         var userId = EndUserId.Create(Guid.NewGuid());
@@ -66,10 +62,8 @@ public class LogEmailVerifiedManuallyHandlerTests
             .Callback<AuditLog, CancellationToken>((log, _) => capturedAuditLog = log)
             .Returns(Task.CompletedTask);
 
-        // ACT
         await _handler.Handle(domainEvent, CancellationToken.None);
 
-        // ASSERT
         capturedAuditLog.Should().NotBeNull();
         capturedAuditLog!.Details.Should().Contain(email.Value);
         capturedAuditLog!.Details.Should().Contain(userId.Value.ToString());
@@ -79,7 +73,6 @@ public class LogEmailVerifiedManuallyHandlerTests
     [Fact]
     public async Task Handle_ShouldSetCorrectEventType()
     {
-        // ARRANGE
         var applicationId = ApplicationId.Create(Guid.NewGuid());
         var email = Email.Create("user@example.com");
         var userId = EndUserId.Create(Guid.NewGuid());
@@ -93,10 +86,8 @@ public class LogEmailVerifiedManuallyHandlerTests
             .Callback<AuditLog, CancellationToken>((log, _) => capturedAuditLog = log)
             .Returns(Task.CompletedTask);
 
-        // ACT
         await _handler.Handle(domainEvent, CancellationToken.None);
 
-        // ASSERT
         capturedAuditLog!.EventType.Should().Be(AuditEventConstants.EmailVerifiedManually);
     }
 }

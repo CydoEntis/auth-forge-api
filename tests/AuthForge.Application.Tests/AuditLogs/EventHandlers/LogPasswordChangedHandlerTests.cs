@@ -32,7 +32,6 @@ public class LogPasswordChangedHandlerTests
     [Fact]
     public async Task Handle_WithValidEvent_ShouldCreateAuditLog()
     {
-        // ARRANGE
         var applicationId = ApplicationId.Create(Guid.NewGuid());
         var email = Email.Create("user@example.com");
         var userId = EndUserId.Create(Guid.NewGuid());
@@ -50,10 +49,8 @@ public class LogPasswordChangedHandlerTests
             .Setup(x => x.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(endUser);
 
-        // ACT
         await _handler.Handle(domainEvent, CancellationToken.None);
 
-        // ASSERT
         _auditLogRepositoryMock.Verify(
             x => x.AddAsync(It.IsAny<AuditLog>(), It.IsAny<CancellationToken>()),
             Times.Once);
@@ -66,7 +63,6 @@ public class LogPasswordChangedHandlerTests
     [Fact]
     public async Task Handle_WhenUserNotFound_ShouldNotCreateAuditLog()
     {
-        // ARRANGE
         var userId = EndUserId.Create(Guid.NewGuid());
         var domainEvent = new EndUserPasswordChangedDomainEvent(userId);
 
@@ -74,10 +70,8 @@ public class LogPasswordChangedHandlerTests
             .Setup(x => x.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((EndUser?)null);
 
-        // ACT
         await _handler.Handle(domainEvent, CancellationToken.None);
 
-        // ASSERT
         _auditLogRepositoryMock.Verify(
             x => x.AddAsync(It.IsAny<AuditLog>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -90,7 +84,6 @@ public class LogPasswordChangedHandlerTests
     [Fact]
     public async Task Handle_ShouldSerializeEventDetailsCorrectly()
     {
-        // ARRANGE
         var applicationId = ApplicationId.Create(Guid.NewGuid());
         var email = Email.Create("testuser@example.com");
         var userId = EndUserId.Create(Guid.NewGuid());
@@ -115,10 +108,8 @@ public class LogPasswordChangedHandlerTests
             .Callback<AuditLog, CancellationToken>((log, _) => capturedAuditLog = log)
             .Returns(Task.CompletedTask);
 
-        // ACT
         await _handler.Handle(domainEvent, CancellationToken.None);
 
-        // ASSERT
         capturedAuditLog.Should().NotBeNull();
         capturedAuditLog!.Details.Should().Contain(email.Value);
         capturedAuditLog!.Details.Should().Contain(userId.Value.ToString());
@@ -128,7 +119,6 @@ public class LogPasswordChangedHandlerTests
     [Fact]
     public async Task Handle_ShouldSetCorrectEventType()
     {
-        // ARRANGE
         var applicationId = ApplicationId.Create(Guid.NewGuid());
         var email = Email.Create("user@example.com");
         var userId = EndUserId.Create(Guid.NewGuid());
@@ -153,17 +143,14 @@ public class LogPasswordChangedHandlerTests
             .Callback<AuditLog, CancellationToken>((log, _) => capturedAuditLog = log)
             .Returns(Task.CompletedTask);
 
-        // ACT
         await _handler.Handle(domainEvent, CancellationToken.None);
 
-        // ASSERT
         capturedAuditLog!.EventType.Should().Be(AuditEventConstants.PasswordChanged);
     }
 
     [Fact]
     public async Task Handle_ShouldUseUserEmailFromRepository()
     {
-        // ARRANGE
         var applicationId = ApplicationId.Create(Guid.NewGuid());
         var email = Email.Create("retrieveduser@example.com");
         var userId = EndUserId.Create(Guid.NewGuid());
@@ -188,10 +175,8 @@ public class LogPasswordChangedHandlerTests
             .Callback<AuditLog, CancellationToken>((log, _) => capturedAuditLog = log)
             .Returns(Task.CompletedTask);
 
-        // ACT
         await _handler.Handle(domainEvent, CancellationToken.None);
 
-        // ASSERT
         capturedAuditLog!.PerformedBy.Should().Be(email.Value);
         capturedAuditLog!.Details.Should().Contain(email.Value);
     }
