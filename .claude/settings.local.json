@@ -7,7 +7,9 @@
       "Bash(git mv \"C:\\Users\\cstin\\Programming\\portfolio-projects\\AuthForge\\src\\AuthForge.Application\\Applications\\Queries\\GetApplicationUserById\\GetApplicationUserByIdQueryHandler.cs\" \"C:\\Users\\cstin\\Programming\\portfolio-projects\\AuthForge\\src\\AuthForge.Application\\EndUsers\\Queries\\GetById\\GetEndUserByIdQueryHandler.cs\")",
       "Bash(git mv \"C:\\Users\\cstin\\Programming\\portfolio-projects\\AuthForge\\src\\AuthForge.Application\\Applications\\Queries\\GetApplicationUserById\\GetApplicationUserByIdResponse.cs\" \"C:\\Users\\cstin\\Programming\\portfolio-projects\\AuthForge\\src\\AuthForge.Application\\EndUsers\\Queries\\GetById\\GetEndUserByIdResponse.cs\")",
       "Bash(git mv \"C:\\Users\\cstin\\Programming\\portfolio-projects\\AuthForge\\src\\AuthForge.Api\\Endpoints\\Applications\\GetApplicationUserByIdEndpoint.cs\" \"C:\\Users\\cstin\\Programming\\portfolio-projects\\AuthForge\\src\\AuthForge.Api\\Endpoints\\EndUsers\\GetEndUserByIdEndpoint.cs\")",
-      "Bash(dotnet test:*)"
+      "Bash(dotnet test:*)",
+      "Bash(git mv:*)",
+      "Bash(dotnet restore:*)"
     ],
     "deny": [],
     "ask": []

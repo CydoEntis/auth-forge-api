@@ -18,8 +18,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthForge.Application.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthForge.Infrastructure.Tests", "tests\AuthForge.Infrastructure.Tests\AuthForge.Infrastructure.Tests.csproj", "{2279F69E-ABFA-4822-90C0-3056246A6489}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthForge.Api.Tests", "tests\AuthForge.Api.Tests\AuthForge.Api.Tests.csproj", "{49059FDE-49CA-4BB4-8DC4-89DD9FCC09DA}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -114,18 +112,6 @@ Global
 		{2279F69E-ABFA-4822-90C0-3056246A6489}.Release|x64.Build.0 = Release|Any CPU
 		{2279F69E-ABFA-4822-90C0-3056246A6489}.Release|x86.ActiveCfg = Release|Any CPU
 		{2279F69E-ABFA-4822-90C0-3056246A6489}.Release|x86.Build.0 = Release|Any CPU
-		{49059FDE-49CA-4BB4-8DC4-89DD9FCC09DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{49059FDE-49CA-4BB4-8DC4-89DD9FCC09DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{49059FDE-49CA-4BB4-8DC4-89DD9FCC09DA}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{49059FDE-49CA-4BB4-8DC4-89DD9FCC09DA}.Debug|x64.Build.0 = Debug|Any CPU
-		{49059FDE-49CA-4BB4-8DC4-89DD9FCC09DA}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{49059FDE-49CA-4BB4-8DC4-89DD9FCC09DA}.Debug|x86.Build.0 = Debug|Any CPU
-		{49059FDE-49CA-4BB4-8DC4-89DD9FCC09DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{49059FDE-49CA-4BB4-8DC4-89DD9FCC09DA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{49059FDE-49CA-4BB4-8DC4-89DD9FCC09DA}.Release|x64.ActiveCfg = Release|Any CPU
-		{49059FDE-49CA-4BB4-8DC4-89DD9FCC09DA}.Release|x64.Build.0 = Release|Any CPU
-		{49059FDE-49CA-4BB4-8DC4-89DD9FCC09DA}.Release|x86.ActiveCfg = Release|Any CPU
-		{49059FDE-49CA-4BB4-8DC4-89DD9FCC09DA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -138,6 +124,5 @@ Global
 		{B7F4E54A-75B4-4C47-8C82-3A99F2E33256} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{DDA03F18-1FE7-4B66-BB2D-33BE458EF915} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{2279F69E-ABFA-4822-90C0-3056246A6489} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
-		{49059FDE-49CA-4BB4-8DC4-89DD9FCC09DA} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal
