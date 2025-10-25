@@ -1,4 +1,5 @@
 ﻿using AuthForge.Domain.Common;
+using AuthForge.Domain.ValueObjects;
 
 namespace AuthForge.Domain.Entities;
 
@@ -10,11 +11,13 @@ public sealed class AdminRefreshToken : Entity<Guid>
 
     private AdminRefreshToken(
         Guid id,
+        AdminId adminId,
         string token,
         DateTime expiresAtUtc,
         string? ipAddress = null,
         string? userAgent = null) : base(id)
     {
+        AdminId = adminId;
         Token = token;
         ExpiresAtUtc = expiresAtUtc;
         CreatedAtUtc = DateTime.UtcNow;
@@ -22,6 +25,7 @@ public sealed class AdminRefreshToken : Entity<Guid>
         UserAgent = userAgent;
     }
 
+    public AdminId AdminId { get; private set; } = default!;
     public string Token { get; private set; } = string.Empty;
     public DateTime ExpiresAtUtc { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
@@ -36,6 +40,7 @@ public sealed class AdminRefreshToken : Entity<Guid>
     public bool IsActive => !IsRevoked && !IsExpired;
 
     public static AdminRefreshToken Create(
+        AdminId adminId,
         string token,
         DateTime expiresAtUtc,
         string? ipAddress = null,
@@ -49,6 +54,7 @@ public sealed class AdminRefreshToken : Entity<Guid>
 
         return new AdminRefreshToken(
             Guid.NewGuid(),
+            adminId,
             token,
             expiresAtUtc,
             ipAddress,

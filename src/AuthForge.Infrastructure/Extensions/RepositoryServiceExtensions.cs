@@ -9,6 +9,7 @@ public static class RepositoryServiceExtensions
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         services.AddScoped<IApplicationRepository, ApplicationRepository>();
+        services.AddScoped<IAdminRepository, AdminRepository>();
         services.AddScoped<IAdminRefreshTokenRepository, AdminRefreshTokenRepository>();
         services.AddScoped<IEndUserRepository, EndUserRepository>();
         services.AddScoped<IEndUserRefreshTokenRepository, EndUserRefreshTokenRepository>();

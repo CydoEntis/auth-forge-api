@@ -1,6 +1,4 @@
-﻿// src/AuthForge.Application/Admin/Commands/Login/LoginAdminCommandHandler.cs
-
-using AuthForge.Application.Common.Interfaces;
+﻿using AuthForge.Application.Common.Interfaces;
 using AuthForge.Application.Common.Settings;
 using AuthForge.Domain.Common;
 using AuthForge.Domain.Entities;
@@ -14,48 +12,60 @@ namespace AuthForge.Application.Admin.Commands.Login;
 public sealed class LoginAdminCommandHandler
     : ICommandHandler<LoginAdminCommand, Result<LoginAdminResponse>>
 {
-    private readonly IOptions<AuthForgeSettings> _settings;
-    private readonly IAdminJwtTokenGenerator _tokenGenerator;
+    private readonly IAdminRepository _adminRepository;
     private readonly IAdminRefreshTokenRepository _refreshTokenRepository;
+    private readonly IAdminJwtTokenGenerator _tokenGenerator;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly AuthForgeSettings _settings;
 
     public LoginAdminCommandHandler(
-        IOptions<AuthForgeSettings> settings,
-        IAdminJwtTokenGenerator tokenGenerator,
+        IAdminRepository adminRepository,
         IAdminRefreshTokenRepository refreshTokenRepository,
-        IUnitOfWork unitOfWork)
+        IAdminJwtTokenGenerator tokenGenerator,
+        IUnitOfWork unitOfWork,
+        IOptions<AuthForgeSettings> settings)
     {
-        _settings = settings;
-        _tokenGenerator = tokenGenerator;
+        _adminRepository = adminRepository;
         _refreshTokenRepository = refreshTokenRepository;
+        _tokenGenerator = tokenGenerator;
         _unitOfWork = unitOfWork;
+        _settings = settings.Value;
     }
 
     public async ValueTask<Result<LoginAdminResponse>> Handle(
         LoginAdminCommand command,
         CancellationToken cancellationToken)
     {
-        var adminSettings = _settings.Value.Admin;
+        var admin = await _adminRepository.GetByEmailAsync(
+            Email.Create(command.Email),
+            cancellationToken);
 
-        if (command.Email != adminSettings.Email)
+        if (admin == null)
+            return Result<LoginAdminResponse>.Failure(AdminErrors.InvalidCredentials);
+
+        if (!admin.PasswordHash.Verify(command.Password))
         {
+            admin.RecordFailedLogin(5, 15);
+            _adminRepository.Update(admin);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
             return Result<LoginAdminResponse>.Failure(AdminErrors.InvalidCredentials);
         }
 
-        var configPasswordHash = HashedPassword.Create(adminSettings.Password);
-        
-        if (!configPasswordHash.Verify(command.Password))
-        {
-            return Result<LoginAdminResponse>.Failure(AdminErrors.InvalidCredentials);
-        }
+        if (admin.IsLockedOut())
+            return Result<LoginAdminResponse>.Failure(AdminErrors.LockedOut);
 
-        var accessToken = _tokenGenerator.GenerateAccessToken(command.Email);
+        admin.RecordSuccessfulLogin();
+        _adminRepository.Update(admin);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var accessToken = _tokenGenerator.GenerateAccessToken(admin.Email.Value);
         var refreshTokenString = _tokenGenerator.GenerateRefreshToken();
 
-        var refreshTokenExpiresAt = DateTime.UtcNow
-            .AddDays(_settings.Value.Jwt.RefreshTokenExpirationDays);
+        var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(_settings.Jwt.AccessTokenExpirationMinutes);
+        var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(_settings.Jwt.RefreshTokenExpirationDays);
 
         var refreshToken = AdminRefreshToken.Create(
+            admin.Id,
             refreshTokenString,
             refreshTokenExpiresAt);
 
@@ -65,7 +75,7 @@ public sealed class LoginAdminCommandHandler
         var response = new LoginAdminResponse(
             accessToken,
             refreshTokenString,
-            DateTime.UtcNow.AddMinutes(_settings.Value.Jwt.AccessTokenExpirationMinutes));
+            accessTokenExpiresAt);
 
         return Result<LoginAdminResponse>.Success(response);
     }

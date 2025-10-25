@@ -3,6 +3,7 @@ using System;
 using AuthForge.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthForge.Infrastructure.Migrations
 {
     [DbContext(typeof(AuthForgeDbContext))]
-    partial class AuthForgeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251025230028_AddAdminTables")]
+    partial class AddAdminTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
@@ -64,49 +67,37 @@ namespace AuthForge.Infrastructure.Migrations
             modelBuilder.Entity("AuthForge.Domain.Entities.AdminRefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("AdminId")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("admin_id");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("created_at_utc");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("ExpiresAtUtc")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("expires_at_utc");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("IpAddress")
                         .HasMaxLength(45)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("ip_address");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ReplacedByToken")
                         .HasMaxLength(500)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("replaced_by_token");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("RevokedAtUtc")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("revoked_at_utc");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("token");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UsedAtUtc")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("used_at_utc");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserAgent")
                         .HasMaxLength(500)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("user_agent");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 

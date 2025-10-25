@@ -11,21 +11,24 @@ namespace AuthForge.Application.Admin.Commands.Refresh;
 public sealed class RefreshAdminTokenCommandHandler
     : ICommandHandler<RefreshAdminTokenCommand, Result<RefreshAdminTokenResponse>>
 {
-    private readonly IOptions<AuthForgeSettings> _settings;
-    private readonly IAdminJwtTokenGenerator _tokenGenerator;
+    private readonly IAdminRepository _adminRepository;
     private readonly IAdminRefreshTokenRepository _refreshTokenRepository;
+    private readonly IAdminJwtTokenGenerator _tokenGenerator;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly AuthForgeSettings _settings;
 
     public RefreshAdminTokenCommandHandler(
-        IOptions<AuthForgeSettings> settings,
-        IAdminJwtTokenGenerator tokenGenerator,
+        IAdminRepository adminRepository,
         IAdminRefreshTokenRepository refreshTokenRepository,
-        IUnitOfWork unitOfWork)
+        IAdminJwtTokenGenerator tokenGenerator,
+        IUnitOfWork unitOfWork,
+        IOptions<AuthForgeSettings> settings)
     {
-        _settings = settings;
-        _tokenGenerator = tokenGenerator;
+        _adminRepository = adminRepository;
         _refreshTokenRepository = refreshTokenRepository;
+        _tokenGenerator = tokenGenerator;
         _unitOfWork = unitOfWork;
+        _settings = settings.Value;
     }
 
     public async ValueTask<Result<RefreshAdminTokenResponse>> Handle(
@@ -40,16 +43,23 @@ public sealed class RefreshAdminTokenCommandHandler
             return Result<RefreshAdminTokenResponse>.Failure(AdminErrors.InvalidCredentials);
         }
 
+        var admin = await _adminRepository.GetByIdAsync(
+            refreshToken.AdminId,
+            cancellationToken);
+
+        if (admin is null)
+            return Result<RefreshAdminTokenResponse>.Failure(AdminErrors.NotFound);
+
         refreshToken.MarkAsUsed();
 
-        var adminEmail = _settings.Value.Admin.Email;
-        var newAccessToken = _tokenGenerator.GenerateAccessToken(adminEmail);
+        var newAccessToken = _tokenGenerator.GenerateAccessToken(admin.Email.Value);
         var newRefreshTokenString = _tokenGenerator.GenerateRefreshToken();
 
         var newRefreshTokenExpiresAt = DateTime.UtcNow
-            .AddDays(_settings.Value.Jwt.RefreshTokenExpirationDays);
+            .AddDays(_settings.Jwt.RefreshTokenExpirationDays);
 
         var newRefreshToken = AdminRefreshToken.Create(
+            admin.Id,
             newRefreshTokenString,
             newRefreshTokenExpiresAt);
 
@@ -62,7 +72,7 @@ public sealed class RefreshAdminTokenCommandHandler
         var response = new RefreshAdminTokenResponse(
             newAccessToken,
             newRefreshTokenString,
-            DateTime.UtcNow.AddMinutes(_settings.Value.Jwt.AccessTokenExpirationMinutes));
+            DateTime.UtcNow.AddMinutes(_settings.Jwt.AccessTokenExpirationMinutes));
 
         return Result<RefreshAdminTokenResponse>.Success(response);
     }
