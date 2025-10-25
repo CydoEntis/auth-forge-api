@@ -1,5 +1,6 @@
 ﻿using AuthForge.Api.Endpoints.Admin;
 using AuthForge.Api.Endpoints.Applications;
+using AuthForge.Api.Endpoints.AuditLogs;
 using AuthForge.Api.Endpoints.EndUsers;
 
 namespace AuthForge.Api.Endpoints;
@@ -11,7 +12,8 @@ public static class EndpointExtensions
         app.MapAdminEndpoints();
         app.MapEndUserEndpoints();
         app.MapApplicationsEndpoints();
-
+        app.MapAuditLogEndpoints();
+        
         return app;
     }
 }
