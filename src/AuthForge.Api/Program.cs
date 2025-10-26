@@ -20,6 +20,14 @@ try
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration);
 
+    builder.Services.AddHealthChecks()
+        .AddDbContextCheck<AuthForge.Infrastructure.Data.AuthForgeDbContext>(
+            name: "database",
+            tags: new[] { "db", "ready" })
+        .AddCheck<AuthForge.Api.HealthChecks.EmailServiceHealthCheck>(
+            name: "email_service",
+            tags: new[] { "email", "ready" });
+    
     builder.Services.AddAuthorization(options =>
     {
         options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
@@ -37,7 +45,8 @@ try
 
     app.ConfigureSerilogRequestLogging();
 
-
+    app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+    
     app.UseAuthentication();
     app.UseMiddleware<ApplicationIdentificationMiddleware>();
     app.UseAuthorization();
@@ -46,6 +55,31 @@ try
 
     app.MapEndpoints();
 
+    
+    app.MapHealthChecks("/api/health");
+    app.MapHealthChecks("/api/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+    {
+        Predicate = check => check.Tags.Contains("ready"),
+        ResponseWriter = async (context, report) =>
+        {
+            context.Response.ContentType = "application/json";
+            var result = System.Text.Json.JsonSerializer.Serialize(new
+            {
+                status = report.Status.ToString(),
+                totalDuration = report.TotalDuration.ToString(),
+                entries = report.Entries.Select(e => new
+                {
+                    name = e.Key,
+                    status = e.Value.Status.ToString(),
+                    duration = e.Value.Duration.ToString(),
+                    description = e.Value.Description
+                })
+            });
+            await context.Response.WriteAsync(result);
+        }
+    });
+
+    
     Log.Information("AuthForge API started successfully on {Urls}", string.Join(", ", app.Urls));
 
     app.Run();
