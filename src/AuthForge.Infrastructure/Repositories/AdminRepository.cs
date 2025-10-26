@@ -41,4 +41,15 @@ public class AdminRepository : IAdminRepository
     {
         _context.Admins.Update(admin);
     }
+
+    public async Task<Admin?> GetByPasswordResetTokenAsync(
+        string resetToken,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Admins
+            .FirstOrDefaultAsync(
+                a => a.PasswordResetToken == resetToken &&
+                     a.PasswordResetTokenExpiresAt > DateTime.UtcNow,
+                cancellationToken);
+    }
 }

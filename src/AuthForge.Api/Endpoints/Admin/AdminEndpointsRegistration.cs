@@ -7,6 +7,8 @@ public static class AdminEndpointsRegistration
         app.MapSetupAdminEndpoint(); 
         app.MapLoginAdminEndpoint();
         app.MapRefreshAdminTokenEndpoint();
+        app.MapRequestAdminPasswordResetEndpoint();
+        app.MapResetAdminPasswordEndpoint();
         
         return app;
     }

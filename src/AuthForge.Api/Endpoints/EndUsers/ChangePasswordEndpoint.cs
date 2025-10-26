@@ -1,7 +1,4 @@
-﻿// src/AuthForge.Api/Endpoints/EndUsers/ChangePasswordEndpoint.cs
-
-using System.IdentityModel.Tokens.Jwt;
-using AuthForge.Api.Common.Mappings;
+﻿using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
 using AuthForge.Application.EndUsers.Commands.ChangePassword;
 using AuthForge.Domain.Errors;

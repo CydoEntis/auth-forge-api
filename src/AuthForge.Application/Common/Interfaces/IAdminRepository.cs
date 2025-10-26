@@ -9,4 +9,7 @@ public interface IAdminRepository
     Task<bool> AnyExistsAsync(CancellationToken cancellationToken = default);
     Task AddAsync(Domain.Entities.Admin admin, CancellationToken cancellationToken = default);
     void Update(Domain.Entities.Admin admin);
+    Task<Domain.Entities.Admin?> GetByPasswordResetTokenAsync(
+        string resetToken, 
+        CancellationToken cancellationToken = default);
 }

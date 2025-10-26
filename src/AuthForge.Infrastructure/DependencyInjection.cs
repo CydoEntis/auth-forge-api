@@ -21,7 +21,8 @@ public static class DependencyInjection
         
         services.AddHttpClient();
         services.AddScoped<IEmailServiceFactory, EmailServiceFactory>();
-
+        services.AddHttpClient<ISystemEmailService, SystemEmailService>();
+        
         return services;
     }
 }
