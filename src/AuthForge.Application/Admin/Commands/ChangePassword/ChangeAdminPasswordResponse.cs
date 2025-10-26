@@ -1,6 +1,3 @@
 ﻿namespace AuthForge.Application.Admin.Commands.ChangePassword;
 
-public class ChangeAdminPasswordResponse
-{
-    
-}
+public sealed record ChangeAdminPasswordResponse(string Message);

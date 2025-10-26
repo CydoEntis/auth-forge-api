@@ -7,21 +7,24 @@ using Mediator;
 
 namespace AuthForge.Application.AuditLogs.EventHandlers;
 
-public sealed class LogEmailVerifiedHandler 
+public sealed class LogEmailVerifiedHandler
     : INotificationHandler<EndUserEmailVerifiedDomainEvent>
 {
     private readonly IAuditLogRepository _auditLogRepository;
     private readonly IEndUserRepository _endUserRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
     public LogEmailVerifiedHandler(
         IAuditLogRepository auditLogRepository,
         IEndUserRepository endUserRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService)
     {
         _auditLogRepository = auditLogRepository;
         _endUserRepository = endUserRepository;
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async ValueTask Handle(
@@ -43,7 +46,7 @@ public sealed class LogEmailVerifiedHandler
             notification.Email.Value,
             notification.UserId.Value.ToString(),
             details,
-            null);
+            _currentUserService.IpAddress);
 
         await _auditLogRepository.AddAsync(auditLog, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

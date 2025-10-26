@@ -1,6 +1,4 @@
-﻿// src/AuthForge.Domain/Entities/EndUser.cs
-
-using AuthForge.Domain.Common;
+﻿using AuthForge.Domain.Common;
 using AuthForge.Domain.Events;
 using AuthForge.Domain.ValueObjects;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
@@ -271,6 +269,33 @@ public sealed class EndUser : AggregateRoot<EndUserId>
         LastName = lastName;
         UpdatedAtUtc = DateTime.UtcNow;
     }
+    
+    public bool IsEmailVerificationTokenExpired()
+    {
+        return EmailVerificationTokenExpiresAt.HasValue && 
+               DateTime.UtcNow > EmailVerificationTokenExpiresAt.Value;
+    }
+    
+    public void ClearExpiredEmailVerificationToken()
+    {
+        if (IsEmailVerificationTokenExpired())
+        {
+            EmailVerificationToken = null;
+            EmailVerificationTokenExpiresAt = null;
+        }
+    }
+
+    public void ClearExpiredPasswordResetToken()
+    {
+        if (PasswordResetToken != null && 
+            PasswordResetTokenExpiresAt.HasValue && 
+            DateTime.UtcNow > PasswordResetTokenExpiresAt.Value)
+        {
+            PasswordResetToken = null;
+            PasswordResetTokenExpiresAt = null;
+        }
+    }
+    
 
     private static string GenerateVerificationToken()
     {

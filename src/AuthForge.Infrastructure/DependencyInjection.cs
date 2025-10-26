@@ -2,6 +2,7 @@
 using AuthForge.Infrastructure.EmailProviders;
 using AuthForge.Infrastructure.Extensions;
 using AuthForge.Infrastructure.Repositories;
+using AuthForge.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,6 +23,9 @@ public static class DependencyInjection
         services.AddHttpClient();
         services.AddScoped<IEmailServiceFactory, EmailServiceFactory>();
         services.AddHttpClient<ISystemEmailService, SystemEmailService>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddHostedService<TokenCleanupBackgroundService>();
+        services.AddHostedService<EmailTokenCleanupBackgroundService>();
         
         return services;
     }

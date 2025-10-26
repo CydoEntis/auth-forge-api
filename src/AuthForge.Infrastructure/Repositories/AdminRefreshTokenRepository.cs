@@ -48,4 +48,17 @@ public class AdminRefreshTokenRepository : IAdminRefreshTokenRepository
             token.Revoke();
         }
     }
+
+    public async Task<IEnumerable<AdminRefreshToken>> GetExpiredTokensAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.AdminRefreshTokens
+            .Where(t => t.ExpiresAtUtc < DateTime.UtcNow || t.RevokedAtUtc != null)
+            .ToListAsync(cancellationToken);
+    }
+
+    public void Remove(AdminRefreshToken refreshToken)
+    {
+        _context.AdminRefreshTokens.Remove(refreshToken);
+    }
 }

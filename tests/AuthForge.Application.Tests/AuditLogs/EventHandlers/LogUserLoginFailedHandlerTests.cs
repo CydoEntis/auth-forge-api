@@ -14,16 +14,19 @@ public class LogUserLoginFailedHandlerTests
 {
     private readonly Mock<IAuditLogRepository> _auditLogRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<ICurrentUserService> _currentUserServiceMock;
     private readonly LogUserLoginFailedHandler _handler;
 
     public LogUserLoginFailedHandlerTests()
     {
         _auditLogRepositoryMock = new Mock<IAuditLogRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _currentUserServiceMock = new Mock<ICurrentUserService>();
 
         _handler = new LogUserLoginFailedHandler(
             _auditLogRepositoryMock.Object,
-            _unitOfWorkMock.Object);
+            _unitOfWorkMock.Object,
+            _currentUserServiceMock.Object);
     }
 
     [Fact]

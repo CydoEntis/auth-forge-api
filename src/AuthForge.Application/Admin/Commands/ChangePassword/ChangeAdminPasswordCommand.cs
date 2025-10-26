@@ -1,6 +1,8 @@
-﻿namespace AuthForge.Application.Admin.Commands.ChangePassword;
+﻿using AuthForge.Domain.Common;
+using Mediator;
 
-public class ChangeAdminPasswordCommand
-{
-    
-}
+namespace AuthForge.Application.Admin.Commands.ChangePassword;
+
+public sealed record ChangeAdminPasswordCommand(
+    string CurrentPassword,
+    string NewPassword) : ICommand<Result<ChangeAdminPasswordResponse>>;

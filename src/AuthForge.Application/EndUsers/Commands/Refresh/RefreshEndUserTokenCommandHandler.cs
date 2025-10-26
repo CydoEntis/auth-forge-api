@@ -164,7 +164,7 @@ public sealed class RefreshEndUserTokenCommandHandler
 
         foreach (var token in tokensToRemove)
         {
-            _refreshTokenRepository.Delete(token);
+            _refreshTokenRepository.Remove(token);
         }
     }
 }

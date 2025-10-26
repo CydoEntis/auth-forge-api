@@ -9,4 +9,6 @@ public interface IAdminRefreshTokenRepository
     Task AddAsync(AdminRefreshToken refreshToken, CancellationToken cancellationToken = default);
     void Update(AdminRefreshToken refreshToken);
     Task RevokeAllForAdminAsync(AdminId adminId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<AdminRefreshToken>> GetExpiredTokensAsync(CancellationToken cancellationToken = default);
+    void Remove(AdminRefreshToken refreshToken);
 }

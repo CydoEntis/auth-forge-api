@@ -15,6 +15,7 @@ public class LogPasswordChangedHandlerTests
     private readonly Mock<IAuditLogRepository> _auditLogRepositoryMock;
     private readonly Mock<IEndUserRepository> _endUserRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<ICurrentUserService> _currentUserServiceMock;
     private readonly LogPasswordChangedHandler _handler;
 
     public LogPasswordChangedHandlerTests()
@@ -22,11 +23,13 @@ public class LogPasswordChangedHandlerTests
         _auditLogRepositoryMock = new Mock<IAuditLogRepository>();
         _endUserRepositoryMock = new Mock<IEndUserRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _currentUserServiceMock = new Mock<ICurrentUserService>();
 
         _handler = new LogPasswordChangedHandler(
             _auditLogRepositoryMock.Object,
             _endUserRepositoryMock.Object,
-            _unitOfWorkMock.Object);
+            _unitOfWorkMock.Object,
+            _currentUserServiceMock.Object);
     }
 
     [Fact]

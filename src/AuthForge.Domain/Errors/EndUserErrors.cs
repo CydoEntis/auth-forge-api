@@ -34,6 +34,11 @@ public static class EndUserErrors
         "EndUser.InvalidEmailVerificationToken",
         "Email verification token is invalid or expired");
 
+    public static Error VerificationTokenExpired =>
+        new(
+            "EndUser.VerificationTokenExpired",
+            "Email verification token has expired. Please request a new verification email.");
+
 
     public static readonly Error InvalidApiKey = new(
         "Auth.InvalidApiKey",
@@ -67,7 +72,7 @@ public static class EndUserErrors
         "EndUser.AlreadyDeactivated",
         "User is already deactivated");
 
-    
+
     public static readonly Error AlreadyLockedOut = new(
         "EndUser.AlreadyLockedOut",
         "User account is already locked out");

@@ -14,6 +14,7 @@ public interface IEndUserRefreshTokenRepository
     Task<List<EndUserRefreshToken>> GetByUserIdAsync(EndUserId userId, CancellationToken cancellationToken = default);
     Task AddAsync(EndUserRefreshToken refreshToken, CancellationToken cancellationToken = default);
     void Update(EndUserRefreshToken refreshToken);
-    void Delete(EndUserRefreshToken refreshToken);
+    void Remove(EndUserRefreshToken refreshToken);
     Task<bool> ExistsAsync(string token, CancellationToken cancellationToken = default);
+    Task<IEnumerable<EndUserRefreshToken>> GetExpiredTokensAsync(CancellationToken cancellationToken = default);
 }

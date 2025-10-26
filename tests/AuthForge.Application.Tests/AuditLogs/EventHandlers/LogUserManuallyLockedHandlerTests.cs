@@ -15,6 +15,7 @@ public class LogUserManuallyLockedHandlerTests
     private readonly Mock<IAuditLogRepository> _auditLogRepositoryMock;
     private readonly Mock<IEndUserRepository> _endUserRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<ICurrentUserService> _currentUserServiceMock;
     private readonly LogUserManuallyLockedHandler _handler;
 
     public LogUserManuallyLockedHandlerTests()
@@ -22,11 +23,13 @@ public class LogUserManuallyLockedHandlerTests
         _auditLogRepositoryMock = new Mock<IAuditLogRepository>();
         _endUserRepositoryMock = new Mock<IEndUserRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _currentUserServiceMock = new Mock<ICurrentUserService>();
 
         _handler = new LogUserManuallyLockedHandler(
             _auditLogRepositoryMock.Object,
             _endUserRepositoryMock.Object,
-            _unitOfWorkMock.Object);
+            _unitOfWorkMock.Object,
+            _currentUserServiceMock.Object);
     }
 
     [Fact]

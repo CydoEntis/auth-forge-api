@@ -53,7 +53,7 @@ public class EndUserRefreshTokenRepository : IEndUserRefreshTokenRepository
         _context.EndUserRefreshTokens.Update(refreshToken);
     }
 
-    public void Delete(EndUserRefreshToken refreshToken)
+    public void Remove(EndUserRefreshToken refreshToken)
     {
         _context.EndUserRefreshTokens.Remove(refreshToken);
     }
@@ -62,5 +62,13 @@ public class EndUserRefreshTokenRepository : IEndUserRefreshTokenRepository
     {
         return await _context.EndUserRefreshTokens
             .AnyAsync(rt => rt.Token == token, cancellationToken);
+    }
+
+    public async Task<IEnumerable<EndUserRefreshToken>> GetExpiredTokensAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.EndUserRefreshTokens
+            .Where(t => t.ExpiresAtUtc < DateTime.UtcNow || t.RevokedAtUtc != null) 
+            .ToListAsync(cancellationToken);
     }
 }

@@ -1,5 +1,4 @@
-﻿
-using System.Text.Json;
+﻿using System.Text.Json;
 using AuthForge.Application.Common.Interfaces;
 using AuthForge.Domain.Constants;
 using AuthForge.Domain.Entities;
@@ -13,13 +12,16 @@ public sealed class LogUserLoginSuccessHandler
 {
     private readonly IAuditLogRepository _auditLogRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
     public LogUserLoginSuccessHandler(
         IAuditLogRepository auditLogRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService)
     {
         _auditLogRepository = auditLogRepository;
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async ValueTask Handle(
@@ -35,10 +37,10 @@ public sealed class LogUserLoginSuccessHandler
         var auditLog = AuditLog.Create(
             notification.ApplicationId,
             AuditEventConstants.UserLoginSuccess,
-            notification.Email.Value, 
-            notification.UserId.Value.ToString(), 
+            notification.Email.Value,
+            notification.UserId.Value.ToString(),
             details,
-            null); // TODO: Add IP address 
+            _currentUserService.IpAddress);
 
         await _auditLogRepository.AddAsync(auditLog, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

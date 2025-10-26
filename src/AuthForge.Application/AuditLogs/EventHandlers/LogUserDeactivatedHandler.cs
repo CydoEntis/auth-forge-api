@@ -13,15 +13,18 @@ public sealed class LogUserDeactivatedHandler
     private readonly IAuditLogRepository _auditLogRepository;
     private readonly IEndUserRepository _endUserRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
     public LogUserDeactivatedHandler(
         IAuditLogRepository auditLogRepository,
         IEndUserRepository endUserRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService)
     {
         _auditLogRepository = auditLogRepository;
         _endUserRepository = endUserRepository;
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async ValueTask Handle(
@@ -37,13 +40,17 @@ public sealed class LogUserDeactivatedHandler
             email = user.Email.Value
         });
 
+        var performedBy = _currentUserService.Email 
+            ?? _currentUserService.UserId 
+            ?? "system";
+
         var auditLog = AuditLog.Create(
             notification.ApplicationId,
             AuditEventConstants.UserDeactivated,
-            "admin",  // TODO: Get actual admin email from HttpContext
+            performedBy,
             notification.UserId.Value.ToString(),
             details,
-            null);
+            _currentUserService.IpAddress);
 
         await _auditLogRepository.AddAsync(auditLog, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

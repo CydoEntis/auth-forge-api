@@ -33,7 +33,6 @@ public sealed class Admin : AggregateRoot<AdminId>
     public string? PasswordResetToken { get; private set; }
     public DateTime? PasswordResetTokenExpiresAt { get; private set; }
 
-
     public static Admin Create(
         Email email,
         HashedPassword passwordHash)
@@ -77,9 +76,11 @@ public sealed class Admin : AggregateRoot<AdminId>
 
     public void UpdatePassword(HashedPassword newPasswordHash)
     {
-        PasswordHash = newPasswordHash ?? throw new ArgumentException(nameof(newPasswordHash));
+        PasswordHash = newPasswordHash ?? throw new ArgumentNullException(nameof(newPasswordHash));
         PasswordResetToken = null;
         PasswordResetTokenExpiresAt = null;
+        FailedLoginAttempts = 0;
+        LockedOutUntil = null;
         UpdatedAtUtc = DateTime.UtcNow;
     }
 
@@ -104,5 +105,16 @@ public sealed class Admin : AggregateRoot<AdminId>
         return PasswordResetToken == token &&
                PasswordResetTokenExpiresAt.HasValue &&
                PasswordResetTokenExpiresAt.Value > DateTime.UtcNow;
+    }
+    
+    public void ClearExpiredPasswordResetToken()
+    {
+        if (PasswordResetToken != null && 
+            PasswordResetTokenExpiresAt.HasValue && 
+            DateTime.UtcNow > PasswordResetTokenExpiresAt.Value)
+        {
+            PasswordResetToken = null;
+            PasswordResetTokenExpiresAt = null;
+        }
     }
 }

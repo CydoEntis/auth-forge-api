@@ -15,6 +15,7 @@ public class LogUserLockedOutHandlerTests
     private readonly Mock<IAuditLogRepository> _auditLogRepositoryMock;
     private readonly Mock<IEndUserRepository> _endUserRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<ICurrentUserService> _currentUserServiceMock;
     private readonly LogUserLockedOutHandler _handler;
 
     public LogUserLockedOutHandlerTests()
@@ -22,11 +23,13 @@ public class LogUserLockedOutHandlerTests
         _auditLogRepositoryMock = new Mock<IAuditLogRepository>();
         _endUserRepositoryMock = new Mock<IEndUserRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _currentUserServiceMock = new Mock<ICurrentUserService>();
 
         _handler = new LogUserLockedOutHandler(
             _auditLogRepositoryMock.Object,
             _endUserRepositoryMock.Object,
-            _unitOfWorkMock.Object);
+            _unitOfWorkMock.Object,
+            _currentUserServiceMock.Object);
     }
 
     [Fact]

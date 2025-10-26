@@ -7,21 +7,24 @@ using Mediator;
 
 namespace AuthForge.Application.AuditLogs.EventHandlers;
 
-public sealed class LogUserLockedOutHandler 
+public sealed class LogUserLockedOutHandler
     : INotificationHandler<EndUserLockedOutDomainEvent>
 {
     private readonly IAuditLogRepository _auditLogRepository;
     private readonly IEndUserRepository _endUserRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
     public LogUserLockedOutHandler(
         IAuditLogRepository auditLogRepository,
         IEndUserRepository endUserRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService)
     {
         _auditLogRepository = auditLogRepository;
         _endUserRepository = endUserRepository;
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async ValueTask Handle(
@@ -45,7 +48,7 @@ public sealed class LogUserLockedOutHandler
             "system",
             notification.UserId.Value.ToString(),
             details,
-            null);
+            _currentUserService.IpAddress);
 
         await _auditLogRepository.AddAsync(auditLog, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

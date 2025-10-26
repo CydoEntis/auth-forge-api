@@ -1,6 +1,6 @@
-﻿namespace AuthForge.Application.Admin.Queries.GetCurrentAdmin;
+﻿using AuthForge.Domain.Common;
+using Mediator;
 
-public class GetCurrentAdminQuery
-{
-    
-}
+namespace AuthForge.Application.Admin.Queries.GetCurrentAdmin;
+
+public sealed record GetCurrentAdminQuery : IQuery<Result<GetCurrentAdminResponse>>;

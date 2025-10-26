@@ -177,7 +177,7 @@ public sealed class LoginEndUserCommandHandler
 
         foreach (var token in tokensToRemove)
         {
-            _refreshTokenRepository.Delete(token);
+            _refreshTokenRepository.Remove(token);
         }
     }
 }
