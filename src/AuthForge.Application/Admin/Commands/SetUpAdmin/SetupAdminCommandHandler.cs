@@ -5,6 +5,7 @@ using AuthForge.Domain.Entities;
 using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;
 using Mediator;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace AuthForge.Application.Admin.Commands.SetUpAdmin;
@@ -17,28 +18,36 @@ public sealed class SetupAdminCommandHandler
     private readonly IAdminJwtTokenGenerator _jwtTokenGenerator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly AuthForgeSettings _settings;
+    private readonly ILogger<SetupAdminCommandHandler> _logger;
 
     public SetupAdminCommandHandler(
         IAdminRepository adminRepository,
         IAdminRefreshTokenRepository adminRefreshTokenRepository,
         IAdminJwtTokenGenerator jwtTokenGenerator,
         IUnitOfWork unitOfWork,
-        IOptions<AuthForgeSettings> settings)
+        IOptions<AuthForgeSettings> settings,
+        ILogger<SetupAdminCommandHandler> logger)
     {
         _adminRepository = adminRepository;
         _adminRefreshTokenRepository = adminRefreshTokenRepository;
         _jwtTokenGenerator = jwtTokenGenerator;
         _unitOfWork = unitOfWork;
         _settings = settings.Value;
+        _logger = logger;
     }
 
     public async ValueTask<Result<SetupAdminResponse>> Handle(
         SetupAdminCommand command,
         CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Admin setup attempt for email {Email}", command.Email);
+
         var adminExists = await _adminRepository.AnyExistsAsync(cancellationToken);
         if (adminExists)
+        {
+            _logger.LogWarning("Admin setup failed - Admin already exists");
             return Result<SetupAdminResponse>.Failure(AdminErrors.AlreadyExists);
+        }
 
         var hashedPassword = HashedPassword.Create(command.Password);
         var admin = Domain.Entities.Admin.Create(
@@ -67,6 +76,8 @@ public sealed class SetupAdminCommandHandler
 
         await _adminRefreshTokenRepository.AddAsync(refreshToken, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation("Admin account successfully created: {AdminId} ({Email})", admin.Id, admin.Email.Value);
 
         var adminDetails = new AdminDetails(
             admin.Id.Value,

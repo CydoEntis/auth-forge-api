@@ -1,37 +1,63 @@
+using AuthForge.Api.Configuration;
 using AuthForge.Api.Endpoints;
 using AuthForge.Api.Middleware;
 using AuthForge.Application;
 using AuthForge.Infrastructure;
+using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+SerilogConfiguration.ConfigureSerilog();
 
-builder.Services.AddOpenApi();
-
-builder.Services.AddMemoryCache();
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
-
-builder.Services.AddAuthorization(options =>
+try
 {
-    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("EndUser", policy => policy.RequireAuthenticatedUser());
-});
+    Log.Information("Starting AuthForge API");
 
-var app = builder.Build();
+    var builder = WebApplication.CreateBuilder(args);
 
-if (app.Environment.IsDevelopment())
+    builder.Host.UseSerilog();
+
+    builder.Services.AddOpenApi();
+    builder.Services.AddMemoryCache();
+    builder.Services.AddApplication();
+    builder.Services.AddInfrastructure(builder.Configuration);
+
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+        options.AddPolicy("EndUser", policy => policy.RequireAuthenticatedUser());
+    });
+
+    var app = builder.Build();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapOpenApi();
+    }
+
+    app.UseHttpsRedirection();
+
+    app.ConfigureSerilogRequestLogging();
+
+
+    app.UseAuthentication();
+    app.UseMiddleware<ApplicationIdentificationMiddleware>();
+    app.UseAuthorization();
+
+    app.UseMiddleware<RateLimitMiddleware>();
+
+    app.MapEndpoints();
+
+    Log.Information("AuthForge API started successfully on {Urls}", string.Join(", ", app.Urls));
+
+    app.Run();
+}
+catch (Exception ex)
 {
-    app.MapOpenApi();
+    Log.Fatal(ex, "AuthForge API terminated unexpectedly");
+    return 1;
+}
+finally
+{
+    Log.CloseAndFlush();
 }
 
-app.UseHttpsRedirection();
-
-app.UseAuthentication();
-app.UseMiddleware<ApplicationIdentificationMiddleware>();
-app.UseAuthorization();
-
-app.UseMiddleware<RateLimitMiddleware>();
-
-app.MapEndpoints();
-
-app.Run();
+return 0;

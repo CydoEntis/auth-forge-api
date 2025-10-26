@@ -4,6 +4,7 @@ using AuthForge.Domain.Entities;
 using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
@@ -17,6 +18,7 @@ public class RefreshEndUserTokenCommandHandlerTests
     private readonly IEndUserRefreshTokenRepository _refreshTokenRepository;
     private readonly IEndUserJwtTokenGenerator _jwtTokenGenerator;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<RefreshEndUserTokenCommandHandler> _logger;
     private readonly RefreshEndUserTokenCommandHandler _handler;
 
     public RefreshEndUserTokenCommandHandlerTests()
@@ -26,13 +28,15 @@ public class RefreshEndUserTokenCommandHandlerTests
         _refreshTokenRepository = Substitute.For<IEndUserRefreshTokenRepository>();
         _jwtTokenGenerator = Substitute.For<IEndUserJwtTokenGenerator>();
         _unitOfWork = Substitute.For<IUnitOfWork>();
+        _logger = Substitute.For<ILogger<RefreshEndUserTokenCommandHandler>>();
 
         _handler = new RefreshEndUserTokenCommandHandler(
             _endUserRepository,
             _applicationRepository,
             _refreshTokenRepository,
             _jwtTokenGenerator,
-            _unitOfWork);
+            _unitOfWork,
+            _logger);
     }
 
     [Fact]

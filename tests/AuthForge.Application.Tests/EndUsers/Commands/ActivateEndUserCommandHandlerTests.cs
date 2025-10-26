@@ -4,6 +4,7 @@ using AuthForge.Domain.Entities;
 using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
@@ -14,16 +15,19 @@ public class ActivateEndUserCommandHandlerTests
 {
     private readonly IEndUserRepository _endUserRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<ActivateEndUserCommandHandler> _logger;
     private readonly ActivateEndUserCommandHandler _handler;
 
     public ActivateEndUserCommandHandlerTests()
     {
         _endUserRepository = Substitute.For<IEndUserRepository>();
         _unitOfWork = Substitute.For<IUnitOfWork>();
+        _logger = Substitute.For<ILogger<ActivateEndUserCommandHandler>>();
 
         _handler = new ActivateEndUserCommandHandler(
             _endUserRepository,
-            _unitOfWork);
+            _unitOfWork,
+            _logger);
     }
 
     [Fact]

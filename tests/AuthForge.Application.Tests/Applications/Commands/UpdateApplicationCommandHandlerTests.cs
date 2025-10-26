@@ -4,6 +4,7 @@ using AuthForge.Application.Common.Interfaces;
 using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -13,16 +14,19 @@ public class UpdateApplicationCommandHandlerTests
 {
     private readonly Mock<IApplicationRepository> _applicationRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<ILogger<UpdateApplicationCommandHandler>> _loggerMock;
     private readonly UpdateApplicationCommandHandler _handler;
 
     public UpdateApplicationCommandHandlerTests()
     {
         _applicationRepositoryMock = new Mock<IApplicationRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _loggerMock = new Mock<ILogger<UpdateApplicationCommandHandler>>();
 
         _handler = new UpdateApplicationCommandHandler(
             _applicationRepositoryMock.Object,
-            _unitOfWorkMock.Object);
+            _unitOfWorkMock.Object,
+            _loggerMock.Object);
     }
 
     [Fact]

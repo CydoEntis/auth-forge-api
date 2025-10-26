@@ -6,6 +6,7 @@ using AuthForge.Domain.Entities;
 using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
@@ -19,6 +20,7 @@ public class RegisterEndUserCommandHandlerTests
     private readonly IPasswordHasher _passwordHasher;
     private readonly IEmailParser _emailParser;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<RegisterEndUserCommandHandler> _logger;
     private readonly RegisterEndUserCommandHandler _handler;
 
     public RegisterEndUserCommandHandlerTests()
@@ -28,13 +30,15 @@ public class RegisterEndUserCommandHandlerTests
         _passwordHasher = Substitute.For<IPasswordHasher>();
         _emailParser = Substitute.For<IEmailParser>();
         _unitOfWork = Substitute.For<IUnitOfWork>();
+        _logger = Substitute.For<ILogger<RegisterEndUserCommandHandler>>();
 
         _handler = new RegisterEndUserCommandHandler(
             _endUserRepository,
             _applicationRepository,
             _passwordHasher,
             _emailParser,
-            _unitOfWork);
+            _unitOfWork,
+            _logger);
     }
 
     [Fact]

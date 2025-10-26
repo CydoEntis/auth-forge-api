@@ -6,6 +6,7 @@ using AuthForge.Domain.Entities;
 using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace AuthForge.Application.Tests.EndUsers.Commands;
@@ -19,6 +20,7 @@ public class LoginEndUserCommandHandlerTests
     private readonly Mock<IPasswordHasher> _passwordHasherMock;
     private readonly Mock<IEmailParser> _emailParserMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<ILogger<LoginEndUserCommandHandler>> _loggerMock;
     private readonly LoginEndUserCommandHandler _handler;
 
     public LoginEndUserCommandHandlerTests()
@@ -30,6 +32,7 @@ public class LoginEndUserCommandHandlerTests
         _passwordHasherMock = new Mock<IPasswordHasher>();
         _emailParserMock = new Mock<IEmailParser>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _loggerMock = new Mock<ILogger<LoginEndUserCommandHandler>>();
 
         _handler = new LoginEndUserCommandHandler(
             _endUserRepositoryMock.Object,
@@ -38,7 +41,8 @@ public class LoginEndUserCommandHandlerTests
             _tokenGeneratorMock.Object,
             _passwordHasherMock.Object,
             _emailParserMock.Object,
-            _unitOfWorkMock.Object);
+            _unitOfWorkMock.Object,
+            _loggerMock.Object);
     }
 
     [Fact]

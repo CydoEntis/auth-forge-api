@@ -3,6 +3,7 @@ using AuthForge.Application.EndUsers.Commands.ForgotPassword;
 using AuthForge.Domain.Entities;
 using AuthForge.Domain.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
@@ -13,16 +14,19 @@ public class ForgotPasswordCommandHandlerTests
 {
     private readonly IEndUserRepository _endUserRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<ForgotPasswordCommandHandler> _logger;
     private readonly ForgotPasswordCommandHandler _handler;
 
     public ForgotPasswordCommandHandlerTests()
     {
         _endUserRepository = Substitute.For<IEndUserRepository>();
         _unitOfWork = Substitute.For<IUnitOfWork>();
+        _logger = Substitute.For<ILogger<ForgotPasswordCommandHandler>>();
 
         _handler = new ForgotPasswordCommandHandler(
             _endUserRepository,
-            _unitOfWork);
+            _unitOfWork,
+            _logger);
     }
 
     [Fact]

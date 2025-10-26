@@ -4,6 +4,7 @@ using AuthForge.Domain.Entities;
 using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
@@ -14,16 +15,19 @@ public class VerifyEmailCommandHandlerTests
 {
     private readonly IEndUserRepository _endUserRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<VerifyEmailCommandHandler> _logger;
     private readonly VerifyEmailCommandHandler _handler;
 
     public VerifyEmailCommandHandlerTests()
     {
         _endUserRepository = Substitute.For<IEndUserRepository>();
         _unitOfWork = Substitute.For<IUnitOfWork>();
+        _logger = Substitute.For<ILogger<VerifyEmailCommandHandler>>();
 
         _handler = new VerifyEmailCommandHandler(
             _endUserRepository,
-            _unitOfWork);
+            _unitOfWork,
+            _logger);
     }
 
     [Fact]

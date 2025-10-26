@@ -3,6 +3,7 @@ using AuthForge.Application.Common.Interfaces;
 using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -12,16 +13,19 @@ public class DeleteApplicationCommandHandlerTests
 {
     private readonly Mock<IApplicationRepository> _applicationRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<ILogger<DeleteApplicationCommandHandler>> _loggerMock;
     private readonly DeleteApplicationCommandHandler _handler;
 
     public DeleteApplicationCommandHandlerTests()
     {
         _applicationRepositoryMock = new Mock<IApplicationRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _loggerMock = new Mock<ILogger<DeleteApplicationCommandHandler>>();
 
         _handler = new DeleteApplicationCommandHandler(
             _applicationRepositoryMock.Object,
-            _unitOfWorkMock.Object);
+            _unitOfWorkMock.Object,
+            _loggerMock.Object);
     }
 
     [Fact]

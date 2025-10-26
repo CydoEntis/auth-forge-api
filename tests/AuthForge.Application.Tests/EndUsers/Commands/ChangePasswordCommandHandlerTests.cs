@@ -5,6 +5,7 @@ using AuthForge.Domain.Entities;
 using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
@@ -16,6 +17,7 @@ public class ChangePasswordCommandHandlerTests
     private readonly IEndUserRepository _endUserRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<ChangePasswordCommandHandler> _logger;
     private readonly ChangePasswordCommandHandler _handler;
 
     public ChangePasswordCommandHandlerTests()
@@ -23,11 +25,13 @@ public class ChangePasswordCommandHandlerTests
         _endUserRepository = Substitute.For<IEndUserRepository>();
         _passwordHasher = Substitute.For<IPasswordHasher>();
         _unitOfWork = Substitute.For<IUnitOfWork>();
+        _logger = Substitute.For<ILogger<ChangePasswordCommandHandler>>();
 
         _handler = new ChangePasswordCommandHandler(
             _endUserRepository,
             _passwordHasher,
-            _unitOfWork);
+            _unitOfWork,
+            _logger);
     }
 
     [Fact]
