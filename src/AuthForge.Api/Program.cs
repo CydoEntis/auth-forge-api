@@ -15,6 +15,20 @@ try
 
     builder.Host.UseSerilog();
 
+    var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                         ?? new[] { "http://localhost:3000" };
+
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowFrontend", policy =>
+        {
+            policy.WithOrigins(allowedOrigins)
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
+    });
+
     builder.Services.AddOpenApi();
     builder.Services.AddMemoryCache();
     builder.Services.AddHttpContextAccessor();
@@ -28,7 +42,7 @@ try
         .AddCheck<AuthForge.Api.HealthChecks.EmailServiceHealthCheck>(
             name: "email_service",
             tags: new[] { "email", "ready" });
-    
+
     builder.Services.AddAuthorization(options =>
     {
         options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
@@ -42,12 +56,18 @@ try
         app.MapOpenApi();
     }
 
-    app.UseHttpsRedirection();
 
     app.ConfigureSerilogRequestLogging();
 
+    app.UseCors("AllowFrontend");
+
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHttpsRedirection();
+    }
+
     app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
-    
+
     app.UseAuthentication();
     app.UseMiddleware<ApplicationIdentificationMiddleware>();
     app.UseAuthorization();
@@ -56,7 +76,7 @@ try
 
     app.MapEndpoints();
 
-    
+
     app.MapHealthChecks("/api/health");
     app.MapHealthChecks("/api/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
     {
@@ -80,7 +100,7 @@ try
         }
     });
 
-    
+
     Log.Information("AuthForge API started successfully on {Urls}", string.Join(", ", app.Urls));
 
     app.Run();
