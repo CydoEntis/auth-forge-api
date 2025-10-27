@@ -11,6 +11,7 @@ public static class AdminEndpointsRegistration
         app.MapResetAdminPasswordEndpoint();
         app.MapGetCurrentAdminEndpoint();
         app.MapChangeAdminPasswordEndpoint();
+        app.MapGetSetupStatusEndpoint();
         
         return app;
     }
