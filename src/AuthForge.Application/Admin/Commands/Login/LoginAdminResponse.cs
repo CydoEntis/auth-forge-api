@@ -1,7 +1,8 @@
-﻿namespace AuthForge.Application.Admin.Commands.Login;
+﻿using AuthForge.Application.Admin.Commands.SetUpAdmin;
+using AuthForge.Domain.ValueObjects;
+
+namespace AuthForge.Application.Admin.Commands.Login;
 
 public sealed record LoginAdminResponse(
-    string AccessToken,
-    string RefreshToken,
-    DateTime ExpiresAt
-);
+    TokenPair Tokens,
+    AdminDetails Admin);

@@ -1,4 +1,5 @@
-﻿using AuthForge.Application.Common.Interfaces;
+﻿using AuthForge.Application.Admin.Commands.SetUpAdmin;
+using AuthForge.Application.Common.Interfaces;
 using AuthForge.Application.Common.Settings;
 using AuthForge.Domain.Common;
 using AuthForge.Domain.Entities;
@@ -79,6 +80,12 @@ public sealed class LoginAdminCommandHandler
         var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(_settings.Jwt.AccessTokenExpirationMinutes);
         var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(_settings.Jwt.RefreshTokenExpirationDays);
 
+        var tokens = new TokenPair(
+            accessToken,
+            refreshTokenString,
+            accessTokenExpiresAt,
+            refreshTokenExpiresAt);
+
         var refreshToken = AdminRefreshToken.Create(
             admin.Id,
             refreshTokenString,
@@ -89,10 +96,14 @@ public sealed class LoginAdminCommandHandler
 
         _logger.LogInformation("Admin {AdminId} ({Email}) successfully logged in", admin.Id, admin.Email.Value);
 
+        var adminDetails = new AdminDetails(
+            admin.Id.Value,
+            admin.Email.Value,
+            admin.CreatedAtUtc);
+
         var response = new LoginAdminResponse(
-            accessToken,
-            refreshTokenString,
-            accessTokenExpiresAt);
+            tokens,
+            adminDetails);
 
         return Result<LoginAdminResponse>.Success(response);
     }
