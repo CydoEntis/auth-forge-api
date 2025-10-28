@@ -5,4 +5,5 @@ namespace AuthForge.Application.Admin.Commands.SetUpAdmin;
 
 public record SetupAdminCommand(
     string Email,
-    string Password) : ICommand<Result<SetupAdminResponse>>;
+    string Password,
+    string ConfirmPassword) : ICommand<Result<SetupAdminResponse>>;

@@ -1,5 +1,4 @@
-﻿using AuthForge.Api.Attributes;
-using AuthForge.Api.Common.Responses;
+﻿using AuthForge.Api.Common.Responses;
 using AuthForge.Application.Admin.Commands.SetUpAdmin;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +11,7 @@ public static class SetupAdminEndpoint
     {
         app.MapPost("/api/admin/setup", Handle)
             .AllowAnonymous()
-            .WithMetadata(new RateLimitAttribute(3, 60))
+            // .WithMetadata(new RateLimitAttribute(3, 60))
             .WithName("SetupAdmin")
             .WithTags("Admins")
             .WithDescription("First-time setup: Create the admin account (can only be called once)")
@@ -31,7 +30,8 @@ public static class SetupAdminEndpoint
     {
         var command = new SetupAdminCommand(
             request.Email,
-            request.Password);
+            request.Password,
+            request.ConfirmPassword);
 
         var result = await mediator.Send(command, cancellationToken);
 
@@ -55,4 +55,5 @@ public static class SetupAdminEndpoint
 
 public record SetupAdminRequest(
     string Email,
-    string Password);
+    string Password,
+    string ConfirmPassword);

@@ -12,7 +12,7 @@ public static class LoginAdminEndpoint
     public static IEndpointRouteBuilder MapLoginAdminEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/admin/login", HandleAsync)
-            .WithMetadata(new RateLimitAttribute(5, 1)) 
+            // .WithMetadata(new RateLimitAttribute(5, 1)) 
             .AllowAnonymous()
             .WithName("AdminLogin")
             .WithTags("Admin")
