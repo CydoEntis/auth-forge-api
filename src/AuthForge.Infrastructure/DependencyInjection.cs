@@ -27,6 +27,8 @@ public static class DependencyInjection
         services.AddHostedService<TokenCleanupBackgroundService>();
         services.AddHostedService<EmailTokenCleanupBackgroundService>();
         
+        services.AddScoped<IEncryptionService, EncryptionService>();
+        services.AddScoped<ISetupService, SetupService>();
         return services;
     }
 }

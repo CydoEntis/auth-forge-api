@@ -4,7 +4,7 @@ using AuthForge.Domain.Common;
 using Mediator;
 using Microsoft.Extensions.Logging;
 
-namespace AuthForge.Application.Admin.Commands.TestDatabaseConnection;
+namespace AuthForge.Application.Setup.TestDatabaseConnection;
 
 public sealed class TestDatabaseConnectionCommandHandler
     : ICommandHandler<TestDatabaseConnectionCommand, Result<TestDatabaseConnectionResponse>>

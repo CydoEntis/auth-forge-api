@@ -1,6 +1,6 @@
 ﻿namespace AuthForge.Application.Common.Models;
 
-public class SetupConfiguration
-{
-    
-}
+public record SetupConfiguration(
+    DatabaseConfiguration Database,
+    EmailConfiguration Email,
+    AdminSetupConfiguration Admin);

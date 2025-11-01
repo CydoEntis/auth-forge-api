@@ -1,5 +1,5 @@
-﻿using AuthForge.Application.Admin.Commands.SetUpAdmin;
-using AuthForge.Application.Common.Interfaces;
+﻿using AuthForge.Application.Common.Interfaces;
+using AuthForge.Application.Common.Models;
 using AuthForge.Application.Common.Settings;
 using AuthForge.Domain.Common;
 using AuthForge.Domain.Entities;

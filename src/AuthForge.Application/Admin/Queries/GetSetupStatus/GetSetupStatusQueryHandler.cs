@@ -1,38 +1,47 @@
 ﻿using AuthForge.Application.Common.Interfaces;
 using AuthForge.Domain.Common;
+using AuthForge.Domain.Enums;
 using Mediator;
-using Microsoft.Extensions.Logging;
 
 namespace AuthForge.Application.Admin.Queries.GetSetupStatus;
 
-public sealed class GetSetupStatusQueryHandler 
+public sealed class GetSetupStatusQueryHandler
     : IQueryHandler<GetSetupStatusQuery, Result<GetSetupStatusResponse>>
 {
-    private readonly IAdminRepository _adminRepository;
-    private readonly ILogger<GetSetupStatusQueryHandler> _logger;
+    private readonly ISetupService _setupService;
 
-    public GetSetupStatusQueryHandler(
-        IAdminRepository adminRepository,
-        ILogger<GetSetupStatusQueryHandler> logger)
+    public GetSetupStatusQueryHandler(ISetupService setupService)
     {
-        _adminRepository = adminRepository;
-        _logger = logger;
+        _setupService = setupService;
     }
 
     public async ValueTask<Result<GetSetupStatusResponse>> Handle(
         GetSetupStatusQuery query,
         CancellationToken cancellationToken)
     {
-        _logger.LogDebug("Checking admin setup status");
+        var isSetupComplete = await _setupService.IsSetupCompleteAsync();
 
-        var adminExists = await _adminRepository.AnyExistsAsync(cancellationToken);
-        
-        var isSetupRequired = !adminExists;
-        
-        _logger.LogInformation("Setup status check: IsSetupRequired={IsSetupRequired}", isSetupRequired);
+        if (isSetupComplete)
+        {
+            var completeResponse = new GetSetupStatusResponse(
+                IsSetupRequired: false,
+                CurrentStep: SetupStep.Complete,
+                Progress: new SetupProgress(
+                    IsDatabaseConfigured: true,
+                    IsEmailConfigured: true,
+                    IsAdminCreated: true));
 
-        var response = new GetSetupStatusResponse(isSetupRequired);
-        
-        return Result<GetSetupStatusResponse>.Success(response);
+            return Result<GetSetupStatusResponse>.Success(completeResponse);
+        }
+
+        var incompleteResponse = new GetSetupStatusResponse(
+            IsSetupRequired: true,
+            CurrentStep: SetupStep.DatabaseConfiguration,
+            Progress: new SetupProgress(
+                IsDatabaseConfigured: false,
+                IsEmailConfigured: false,
+                IsAdminCreated: false));
+
+        return Result<GetSetupStatusResponse>.Success(incompleteResponse);
     }
 }

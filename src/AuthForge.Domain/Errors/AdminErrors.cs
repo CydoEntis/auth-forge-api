@@ -29,4 +29,5 @@ public static class AdminErrors
     public static readonly Error Unauthorized = new(
         "Admin.Unauthorized",
         "Unauthorized access");
+
 }

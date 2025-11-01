@@ -1,6 +1,7 @@
-﻿namespace AuthForge.Application.Common.Models;
+﻿using AuthForge.Domain.Enums;
 
-public class DatabaseConfiguration
-{
-    
-}
+namespace AuthForge.Application.Common.Models;
+
+public record DatabaseConfiguration(
+    DatabaseType DatabaseType,
+    string? ConnectionString);

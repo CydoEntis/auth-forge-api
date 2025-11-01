@@ -1,5 +1,5 @@
 ﻿
-namespace AuthForge.Application.Admin.Commands.TestDatabaseConnection;
+namespace AuthForge.Application.Setup.TestDatabaseConnection;
 
 public record TestDatabaseConnectionResponse(
     bool IsSuccessful,

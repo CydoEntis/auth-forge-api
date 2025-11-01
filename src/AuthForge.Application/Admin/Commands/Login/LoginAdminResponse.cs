@@ -1,4 +1,4 @@
-﻿using AuthForge.Application.Admin.Commands.SetUpAdmin;
+﻿using AuthForge.Application.Common.Models;
 using AuthForge.Domain.ValueObjects;
 
 namespace AuthForge.Application.Admin.Commands.Login;

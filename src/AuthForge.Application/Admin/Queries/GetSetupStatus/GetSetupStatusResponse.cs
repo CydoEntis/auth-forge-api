@@ -1,3 +1,8 @@
-﻿namespace AuthForge.Application.Admin.Queries.GetSetupStatus;
+﻿using AuthForge.Domain.Enums;
 
-public sealed record GetSetupStatusResponse(bool IsSetupRequired);
+namespace AuthForge.Application.Admin.Queries.GetSetupStatus;
+
+public sealed record GetSetupStatusResponse(
+    bool IsSetupRequired,
+    SetupStep CurrentStep,
+    SetupProgress Progress);

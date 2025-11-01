@@ -2,5 +2,6 @@
 
 public enum DatabaseType
 {
-    
+    SQLite = 1,
+    PostgreSQL = 2
 }

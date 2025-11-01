@@ -2,7 +2,7 @@
 using AuthForge.Domain.Enums;
 using Mediator;
 
-namespace AuthForge.Application.Admin.Commands.TestEmail;
+namespace AuthForge.Application.Setup.TestEmail;
 
 public record TestEmailCommand(
     EmailProvider Provider,

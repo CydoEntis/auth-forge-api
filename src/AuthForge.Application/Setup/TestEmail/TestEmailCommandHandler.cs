@@ -4,7 +4,7 @@ using AuthForge.Domain.Common;
 using Mediator;
 using Microsoft.Extensions.Logging;
 
-namespace AuthForge.Application.Admin.Commands.TestEmail;
+namespace AuthForge.Application.Setup.TestEmail;
 
 public sealed class TestEmailCommandHandler
     : ICommandHandler<TestEmailCommand, Result<TestEmailResponse>>

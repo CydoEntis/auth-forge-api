@@ -1,6 +1,7 @@
 ﻿namespace AuthForge.Application.Common.Interfaces;
 
-public class IEncryptionService
+public interface IEncryptionService
 {
-    
+    string Encrypt(string plainText);
+    string Decrypt(string cipherText);
 }

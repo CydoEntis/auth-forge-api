@@ -1,4 +1,4 @@
-﻿namespace AuthForge.Application.Admin.Commands.TestEmail;
+﻿namespace AuthForge.Application.Setup.TestEmail;
 
 public record TestEmailResponse(
     bool IsSuccessful,

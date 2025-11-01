@@ -1,6 +1,8 @@
 ﻿namespace AuthForge.Domain.Enums;
 
-public class EmailProvider
+public enum EmailProvider
 {
-    
+    None = 0,    
+    SMTP = 1,
+    Resend = 2,
 }
