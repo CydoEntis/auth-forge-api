@@ -1,7 +1,10 @@
-﻿namespace AuthForge.Domain.Enums;
+﻿using System.Text.Json.Serialization;
 
+namespace AuthForge.Domain.Enums;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum DatabaseType
 {
-    SQLite = 1,
-    PostgreSQL = 2
+    Sqlite = 0,
+    PostgreSql = 1
 }

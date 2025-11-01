@@ -1,6 +1,7 @@
 ﻿using AuthForge.Application.Common.Interfaces;
 using AuthForge.Application.Common.Models;
 using AuthForge.Domain.Common;
+using AuthForge.Domain.Errors;
 using Mediator;
 using Microsoft.Extensions.Logging;
 
@@ -33,11 +34,19 @@ public sealed class TestDatabaseConnectionCommandHandler
         var isSuccessful = await _setupService
             .TestDatabaseConnectionAsync(config, cancellationToken);
 
-        var message = isSuccessful
-            ? "Database connection successful"
-            : "Database connection failed. Please check your configuration.";
+        if (!isSuccessful)
+        {
+            _logger.LogWarning("Database connection test failed for {DatabaseType}", command.DatabaseType);
+            
+            return Result<TestDatabaseConnectionResponse>.Failure(
+                SetupErrors.DatabaseConnectionFailed);
+        }
 
-        var response = new TestDatabaseConnectionResponse(isSuccessful, message);
+        _logger.LogInformation("Database connection test succeeded for {DatabaseType}", command.DatabaseType);
+        
+        var response = new TestDatabaseConnectionResponse(
+            true, 
+            "Database connection successful");
 
         return Result<TestDatabaseConnectionResponse>.Success(response);
     }

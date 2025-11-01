@@ -5,9 +5,11 @@ using AuthForge.Domain.Entities;
 using AuthForge.Domain.Enums;
 using AuthForge.Domain.ValueObjects;
 using AuthForge.Infrastructure.Data;
+using MailKit.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MimeKit;
 using EmailProvider = AuthForge.Domain.Enums.EmailProvider;
 
 namespace AuthForge.Infrastructure.Services;
@@ -37,13 +39,13 @@ public class SetupService : ISetupService
     {
         try
         {
-            if (config.DatabaseType == DatabaseType.SQLite)
+            if (config.DatabaseType == DatabaseType.Sqlite)
             {
                 _logger.LogInformation("SQLite connection test passed (default)");
                 return true;
             }
 
-            if (config.DatabaseType == DatabaseType.PostgreSQL)
+            if (config.DatabaseType == DatabaseType.PostgreSql)
             {
                 if (string.IsNullOrEmpty(config.ConnectionString))
                 {
@@ -76,19 +78,13 @@ public class SetupService : ISetupService
         }
     }
 
-    public async Task<bool> TestEmailConnectionAsync(
+    public async Task<bool> TestEmailConfigurationAsync(
         EmailConfiguration config,
         string testRecipient,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            if (config.Provider == EmailProvider.None)
-            {
-                _logger.LogInformation("Email provider is None (skipped)");
-                return true;
-            }
-
             if (config.Provider == EmailProvider.Resend)
             {
                 using var httpClient = new HttpClient();
@@ -124,11 +120,68 @@ public class SetupService : ISetupService
                 return false;
             }
 
+            if (config.Provider == EmailProvider.Smtp)
+            {
+                _logger.LogInformation("SMTP Test - Host: {Host}, Port: {Port}, Username: {Username}, UseSsl: {UseSsl}",
+                    config.SmtpHost,
+                    config.SmtpPort,
+                    config.SmtpUsername,
+                    config.SmtpUseSsl);
+
+                _logger.LogInformation("SMTP Password Length: {Length}", config.SmtpPassword?.Length ?? 0);
+
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(config.FromName, config.FromEmail));
+                message.To.Add(new MailboxAddress("", testRecipient));
+                message.Subject = "AuthForge Setup - Test Email";
+                message.Body = new TextPart("html")
+                {
+                    Text = "<p>This is a test email from AuthForge setup wizard.</p>"
+                };
+
+                using var client = new MailKit.Net.Smtp.SmtpClient();
+
+                try
+                {
+                    _logger.LogInformation("Connecting to SMTP server...");
+
+                    await client.ConnectAsync(
+                        config.SmtpHost,
+                        config.SmtpPort ?? 587,
+                        SecureSocketOptions.StartTls,
+                        cancellationToken);
+
+                    _logger.LogInformation("Connected. Authenticating...");
+
+                    await client.AuthenticateAsync(
+                        config.SmtpUsername,
+                        config.SmtpPassword,
+                        cancellationToken);
+
+                    _logger.LogInformation("Authenticated. Sending email...");
+
+                    await client.SendAsync(message, cancellationToken);
+
+                    _logger.LogInformation("Email sent. Disconnecting...");
+
+                    await client.DisconnectAsync(true, cancellationToken);
+
+                    _logger.LogInformation("SMTP test email sent successfully using MailKit");
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "MailKit SMTP test failed. Error: {ErrorMessage}", ex.Message);
+                    return false;
+                }
+            }
+
+            _logger.LogWarning("Unsupported email provider: {Provider}", config.Provider);
             return false;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Email connection test failed");
+            _logger.LogError(ex, "Email configuration test failed for provider: {Provider}", config.Provider);
             return false;
         }
     }
@@ -171,7 +224,7 @@ public class SetupService : ISetupService
 
         updatedSettings["ConnectionStrings"] = new Dictionary<string, string>
         {
-            ["DefaultConnection"] = config.Database.DatabaseType == DatabaseType.SQLite
+            ["DefaultConnection"] = config.Database.DatabaseType == DatabaseType.Sqlite
                 ? ""
                 : config.Database.ConnectionString ?? ""
         };
@@ -236,13 +289,13 @@ public class SetupService : ISetupService
     {
         var optionsBuilder = new DbContextOptionsBuilder<AuthForgeDbContext>();
 
-        if (config.DatabaseType == DatabaseType.SQLite)
+        if (config.DatabaseType == DatabaseType.Sqlite)
         {
             var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "data", "authforge.db");
             Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
             optionsBuilder.UseSqlite($"Data Source={dbPath}");
         }
-        else if (config.DatabaseType == DatabaseType.PostgreSQL)
+        else if (config.DatabaseType == DatabaseType.PostgreSql)
         {
             optionsBuilder.UseNpgsql(config.ConnectionString);
         }
@@ -259,12 +312,12 @@ public class SetupService : ISetupService
     {
         var optionsBuilder = new DbContextOptionsBuilder<AuthForgeDbContext>();
 
-        if (dbConfig.DatabaseType == DatabaseType.SQLite)
+        if (dbConfig.DatabaseType == DatabaseType.Sqlite)
         {
             var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "data", "authforge.db");
             optionsBuilder.UseSqlite($"Data Source={dbPath}");
         }
-        else if (dbConfig.DatabaseType == DatabaseType.PostgreSQL)
+        else if (dbConfig.DatabaseType == DatabaseType.PostgreSql)
         {
             optionsBuilder.UseNpgsql(dbConfig.ConnectionString);
         }

@@ -2,19 +2,27 @@
 
 public static class SetupErrors
 {
-    public static Error AlreadyConfigured(string component) => new(
-        "Setup.AlreadyConfigured",
-        $"{component} is already configured");
-
-    public static Error ConnectionTestFailed(string component) => new(
-        "Setup.ConnectionTestFailed",
-        $"Failed to connect to {component}. Please check your configuration.");
-
-    public static Error InvalidStep => new(
-        "Setup.InvalidStep",
-        "Cannot perform this action at the current setup step");
-
-    public static Error AlreadyComplete => new(
+    public static readonly Error SetupAlreadyComplete = new(
         "Setup.AlreadyComplete",
-        "Setup has already been completed");
+        "Setup has already been completed.");
+
+    public static readonly Error SetupNotComplete = new(
+        "Setup.NotComplete",
+        "Setup has not been completed yet.");
+
+    public static readonly Error InvalidDatabaseConfiguration = new(
+        "Setup.InvalidDatabaseConfiguration",
+        "The database configuration is invalid.");
+
+    public static readonly Error InvalidEmailConfiguration = new(
+        "Setup.InvalidEmailConfiguration",
+        "The email configuration is invalid.");
+
+    public static readonly Error DatabaseConnectionFailed = new(
+        "Setup.DatabaseConnectionFailed",
+        "Failed to connect to the database. Please check your connection settings and try again.");
+
+    public static readonly Error EmailTestFailed = new(
+        "Setup.EmailTestFailed",
+        "Failed to send test email. Please check your email configuration and try again.");
 }

@@ -31,7 +31,7 @@ public sealed class CompleteSetupCommandHandler
         if (isComplete)
         {
             _logger.LogWarning("Setup already completed");
-            return Result<CompleteSetupResponse>.Failure(SetupErrors.AlreadyComplete);
+            return Result<CompleteSetupResponse>.Failure(SetupErrors.SetupAlreadyComplete);
         }
 
         var databaseConfig = new DatabaseConfiguration(

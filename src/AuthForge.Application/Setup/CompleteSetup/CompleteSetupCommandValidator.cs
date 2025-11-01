@@ -12,7 +12,7 @@ public class CompleteSetupCommandValidator : AbstractValidator<CompleteSetupComm
             .IsInEnum()
             .WithMessage("Invalid database type");
 
-        When(x => x.DatabaseType == DatabaseType.PostgreSQL, () =>
+        When(x => x.DatabaseType == DatabaseType.PostgreSql, () =>
         {
             RuleFor(x => x.ConnectionString)
                 .NotEmpty()
@@ -44,7 +44,7 @@ public class CompleteSetupCommandValidator : AbstractValidator<CompleteSetupComm
                 .WithErrorCode("Validation.ResendApiKey");
         });
 
-        When(x => x.EmailProvider == EmailProvider.SMTP, () =>
+        When(x => x.EmailProvider == EmailProvider.Smtp, () =>
         {
             RuleFor(x => x.SmtpHost)
                 .NotEmpty()

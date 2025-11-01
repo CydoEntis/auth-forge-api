@@ -1,6 +1,7 @@
 ﻿using AuthForge.Application.Common.Interfaces;
 using AuthForge.Application.Common.Models;
 using AuthForge.Domain.Common;
+using AuthForge.Domain.Errors;
 using Mediator;
 using Microsoft.Extensions.Logging;
 
@@ -38,13 +39,21 @@ public sealed class TestEmailCommandHandler
             command.FromName);
 
         var isSuccessful = await _setupService
-            .TestEmailConnectionAsync(config, command.TestRecipient, cancellationToken);
+            .TestEmailConfigurationAsync(config, command.TestRecipient, cancellationToken);
 
-        var message = isSuccessful
-            ? $"Test email sent successfully to {command.TestRecipient}"
-            : "Failed to send test email. Please check your configuration.";
+        if (!isSuccessful)
+        {
+            _logger.LogWarning("Email test failed for {Provider}", command.Provider);
+            
+            return Result<TestEmailResponse>.Failure(
+                SetupErrors.EmailTestFailed);
+        }
 
-        var response = new TestEmailResponse(isSuccessful, message);
+        _logger.LogInformation("Email test succeeded for {Provider}", command.Provider);
+        
+        var response = new TestEmailResponse(
+            true, 
+            "Test email sent successfully");
 
         return Result<TestEmailResponse>.Success(response);
     }
