@@ -2,6 +2,7 @@ using AuthForge.Api.Configuration;
 using AuthForge.Api.Endpoints;
 using AuthForge.Api.Middleware;
 using AuthForge.Application;
+using AuthForge.Application.Common.Settings;
 using AuthForge.Infrastructure;
 using Serilog;
 
@@ -14,6 +15,10 @@ try
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Host.UseSerilog();
+
+    // Bind AuthForge settings
+    builder.Services.Configure<AuthForgeSettings>(
+        builder.Configuration.GetSection("AuthForge"));
 
     var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
                          ?? new[] { "http://localhost:3000" };
@@ -32,9 +37,14 @@ try
     builder.Services.AddOpenApi();
     builder.Services.AddMemoryCache();
     builder.Services.AddHttpContextAccessor();
+
+    Log.Information("Adding Application services...");
     builder.Services.AddApplication();
+
+    Log.Information("Adding Infrastructure services...");
     builder.Services.AddInfrastructure(builder.Configuration);
 
+    Log.Information("Configuring health checks...");
     builder.Services.AddHealthChecks()
         .AddDbContextCheck<AuthForge.Infrastructure.Data.AuthForgeDbContext>(
             name: "database",
@@ -49,13 +59,15 @@ try
         options.AddPolicy("EndUser", policy => policy.RequireAuthenticatedUser());
     });
 
+    Log.Information("Building application...");
     var app = builder.Build();
+
+    Log.Information("Application built successfully");
 
     if (app.Environment.IsDevelopment())
     {
         app.MapOpenApi();
     }
-
 
     app.ConfigureSerilogRequestLogging();
 
@@ -74,8 +86,8 @@ try
 
     app.UseMiddleware<RateLimitMiddleware>();
 
+    Log.Information("Mapping endpoints...");
     app.MapEndpoints();
-
 
     app.MapHealthChecks("/api/health");
     app.MapHealthChecks("/api/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
@@ -100,14 +112,21 @@ try
         }
     });
 
-
     Log.Information("AuthForge API started successfully on {Urls}", string.Join(", ", app.Urls));
 
     app.Run();
 }
+catch (HostAbortedException)
+{
+    // This is thrown when the app is stopped, ignore it
+    Log.Warning("Host was aborted");
+}
 catch (Exception ex)
 {
     Log.Fatal(ex, "AuthForge API terminated unexpectedly");
+    Log.Fatal("Exception Type: {ExceptionType}", ex.GetType().FullName);
+    Log.Fatal("Inner Exception: {InnerException}", ex.InnerException?.Message);
+    Log.Fatal("Stack Trace: {StackTrace}", ex.StackTrace);
     return 1;
 }
 finally
