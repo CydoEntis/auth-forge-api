@@ -1,6 +1,15 @@
-﻿namespace AuthForge.Infrastructure.Data.Converters;
+﻿using AuthForge.Application.Common.Interfaces;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-public class EncryptedStringConverter
+namespace AuthForge.Infrastructure.Data.Converters;
+
+
+public sealed class EncryptedStringConverter : ValueConverter<string, string>
 {
-    
+    public EncryptedStringConverter(IEncryptionService encryptionService)
+        : base(
+            plainText => encryptionService.Encrypt(plainText),
+            cipherText => encryptionService.Decrypt(cipherText))
+    {
+    }
 }
