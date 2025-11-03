@@ -2,7 +2,7 @@
 using AuthForge.Domain.Enums;
 using Mediator;
 
-namespace AuthForge.Application.Setup.CompleteSetup;
+namespace AuthForge.Application.Setup.Commands.CompleteSetup;
 
 public record CompleteSetupCommand(
     DatabaseType DatabaseType,

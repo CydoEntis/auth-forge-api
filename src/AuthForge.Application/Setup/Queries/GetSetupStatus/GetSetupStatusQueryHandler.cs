@@ -3,7 +3,7 @@ using AuthForge.Domain.Common;
 using AuthForge.Domain.Enums;
 using Mediator;
 
-namespace AuthForge.Application.Admin.Queries.GetSetupStatus;
+namespace AuthForge.Application.Setup.Queries.GetSetupStatus;
 
 public sealed class GetSetupStatusQueryHandler
     : IQueryHandler<GetSetupStatusQuery, Result<GetSetupStatusResponse>>

@@ -1,5 +1,5 @@
 ﻿using AuthForge.Api.Common.Responses;
-using AuthForge.Application.Setup.CompleteSetup;
+using AuthForge.Application.Setup.Commands.CompleteSetup;
 using AuthForge.Domain.Enums;
 using AuthForge.Domain.ValueObjects;
 using Mediator;
@@ -59,6 +59,10 @@ public static class CompleteSetupEndpoint
         }
 
         var successResponse = ApiResponse<CompleteSetupResponse>.SuccessResponse(result.Value);
+
+        // No restart needed! The application now uses dynamic configuration resolution.
+        // Subsequent requests will automatically use the newly configured settings.
+
         return Results.Created("/api/setup/complete", successResponse);
     }
 }

@@ -1,13 +1,12 @@
 ﻿using AuthForge.Domain.Enums;
 using FluentValidation;
 
-namespace AuthForge.Application.Setup.CompleteSetup;
+namespace AuthForge.Application.Setup.Commands.CompleteSetup;
 
 public class CompleteSetupCommandValidator : AbstractValidator<CompleteSetupCommand>
 {
     public CompleteSetupCommandValidator()
     {
-        // Database validation
         RuleFor(x => x.DatabaseType)
             .IsInEnum()
             .WithMessage("Invalid database type");
@@ -20,7 +19,6 @@ public class CompleteSetupCommandValidator : AbstractValidator<CompleteSetupComm
                 .WithErrorCode("Validation.ConnectionString");
         });
 
-        // Email validation
         RuleFor(x => x.EmailProvider)
             .IsInEnum()
             .WithMessage("Invalid email provider");
@@ -68,7 +66,6 @@ public class CompleteSetupCommandValidator : AbstractValidator<CompleteSetupComm
                 .WithErrorCode("Validation.SmtpPassword");
         });
 
-        // Admin validation
         RuleFor(x => x.AdminEmail)
             .NotEmpty()
             .EmailAddress()

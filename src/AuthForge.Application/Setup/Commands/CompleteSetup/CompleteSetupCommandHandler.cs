@@ -5,7 +5,7 @@ using AuthForge.Domain.Errors;
 using Mediator;
 using Microsoft.Extensions.Logging;
 
-namespace AuthForge.Application.Setup.CompleteSetup;
+namespace AuthForge.Application.Setup.Commands.CompleteSetup;
 
 public sealed class CompleteSetupCommandHandler
     : ICommandHandler<CompleteSetupCommand, Result<CompleteSetupResponse>>
@@ -27,8 +27,7 @@ public sealed class CompleteSetupCommandHandler
     {
         _logger.LogInformation("Starting setup completion process");
 
-        var isComplete = await _setupService.IsSetupCompleteAsync();
-        if (isComplete)
+        if (await _setupService.IsSetupCompleteAsync())
         {
             _logger.LogWarning("Setup already completed");
             return Result<CompleteSetupResponse>.Failure(SetupErrors.SetupAlreadyComplete);
@@ -62,8 +61,8 @@ public sealed class CompleteSetupCommandHandler
 
         _logger.LogInformation("Setup completed successfully");
 
-        var response = new CompleteSetupResponse(
-            "Setup completed successfully. Please restart the application.");
+
+        var response = new CompleteSetupResponse("Setup completed successfully.");
 
         return Result<CompleteSetupResponse>.Success(response);
     }

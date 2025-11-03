@@ -1,4 +1,4 @@
-﻿namespace AuthForge.Application.Setup.CompleteSetup;
+﻿namespace AuthForge.Application.Setup.Commands.CompleteSetup;
 
 public record CompleteSetupResponse(
     string Message);

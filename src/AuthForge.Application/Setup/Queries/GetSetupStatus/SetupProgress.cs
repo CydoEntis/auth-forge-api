@@ -1,4 +1,4 @@
-﻿namespace AuthForge.Application.Admin.Queries.GetSetupStatus;
+﻿namespace AuthForge.Application.Setup.Queries.GetSetupStatus;
 
 public record SetupProgress(
     bool IsDatabaseConfigured,

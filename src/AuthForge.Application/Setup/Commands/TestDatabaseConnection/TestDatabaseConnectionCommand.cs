@@ -2,7 +2,7 @@
 using AuthForge.Domain.Enums;
 using Mediator;
 
-namespace AuthForge.Application.Setup.TestDatabaseConnection;
+namespace AuthForge.Application.Setup.Commands.TestDatabaseConnection;
 
 public record TestDatabaseConnectionCommand(
     DatabaseType DatabaseType,

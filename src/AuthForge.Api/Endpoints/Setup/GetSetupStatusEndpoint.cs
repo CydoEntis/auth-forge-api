@@ -1,6 +1,6 @@
 ﻿using AuthForge.Api.Common.Responses;
-using AuthForge.Application.Admin.Queries.GetSetupStatus;
-using Mediator;
+using AuthForge.Application.Common.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace AuthForge.Api.Endpoints.Setup;
 
@@ -9,22 +9,29 @@ public static class GetSetupStatusEndpoint
     public static void MapGetSetupStatusEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapGet("/api/setup/status", async (
-                IMediator mediator,
+                ISetupService setupService,
+                ILogger<ISetupService> logger,
                 CancellationToken cancellationToken) =>
             {
-                var query = new GetSetupStatusQuery();
-                var result = await mediator.Send(query, cancellationToken);
+                logger.LogInformation("Setup status check requested");
 
-                return result.IsSuccess
-                    ? Results.Ok(ApiResponse<GetSetupStatusResponse>.SuccessResponse(result.Value))
-                    : Results.BadRequest(ApiResponse<GetSetupStatusResponse>.FailureResponse(result.Error));
+                var isComplete = await setupService.IsSetupCompleteAsync();
+
+                logger.LogInformation("Setup complete status: {IsComplete}", isComplete);
+
+                var response = new SetupStatusResponse(isComplete);
+
+                logger.LogInformation("Returning response: {@Response}", response);
+
+                return Results.Ok(ApiResponse<SetupStatusResponse>.SuccessResponse(response));
             })
             .AllowAnonymous()
             .WithName("GetSetupStatus")
             .WithTags("Setup")
             .WithDescription("Check if initial setup is required")
-            .Produces<ApiResponse<GetSetupStatusResponse>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<GetSetupStatusResponse>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<SetupStatusResponse>>(StatusCodes.Status200OK)
             .WithOpenApi();
     }
 }
+
+public record SetupStatusResponse(bool IsComplete);

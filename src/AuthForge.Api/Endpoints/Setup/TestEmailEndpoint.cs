@@ -1,5 +1,5 @@
 ﻿using AuthForge.Api.Common.Responses;
-using AuthForge.Application.Setup.TestEmail;
+using AuthForge.Application.Setup.Commands.TestEmail;
 using AuthForge.Domain.Enums;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
