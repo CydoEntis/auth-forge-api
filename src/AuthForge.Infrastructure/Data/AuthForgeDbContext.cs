@@ -1,14 +1,21 @@
-﻿using AuthForge.Domain.Entities;
+﻿using AuthForge.Application.Common.Interfaces;
+using AuthForge.Domain.Entities;
 using AuthForge.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using App = AuthForge.Domain.Entities.Application;
+
 namespace AuthForge.Infrastructure.Data;
 
 public class AuthForgeDbContext : DbContext
 {
-    public AuthForgeDbContext(DbContextOptions<AuthForgeDbContext> options)
+    private readonly IEncryptionService _encryptionService;
+
+    public AuthForgeDbContext(
+        DbContextOptions<AuthForgeDbContext> options,
+        IEncryptionService encryptionService) 
         : base(options)
     {
+        _encryptionService = encryptionService;
     }
 
     public DbSet<App> Applications => Set<App>();
@@ -19,7 +26,6 @@ public class AuthForgeDbContext : DbContext
     public DbSet<EndUserPasswordResetToken> EndUserPasswordResetTokens => Set<EndUserPasswordResetToken>();
     public DbSet<AuditLog> AuditLogs { get; set; } = null!;
     
-    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -27,6 +33,10 @@ public class AuthForgeDbContext : DbContext
         modelBuilder.Ignore<Email>();
         modelBuilder.Ignore<HashedPassword>();
 
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AuthForgeDbContext).Assembly);
+        modelBuilder.ApplyConfiguration(new Configurations.ApplicationConfiguration(_encryptionService));
+
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            typeof(AuthForgeDbContext).Assembly,
+            t => t != typeof(Configurations.ApplicationConfiguration));
     }
 }
