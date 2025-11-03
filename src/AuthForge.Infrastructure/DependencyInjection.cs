@@ -3,6 +3,7 @@ using AuthForge.Infrastructure.Data;
 using AuthForge.Infrastructure.EmailProviders;
 using AuthForge.Infrastructure.Extensions;
 using AuthForge.Infrastructure.Repositories;
+using AuthForge.Infrastructure.Security;
 using AuthForge.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,9 +39,12 @@ public static class DependencyInjection
         services.AddHostedService<TokenCleanupBackgroundService>();
         services.AddHostedService<EmailTokenCleanupBackgroundService>();
 
-        // Setup service 
+        // Setup services
         services.AddScoped<ISetupService, SetupService>();
 
+        // Encryption services
+        services.AddSingleton<IEncryptionService, AesEncryptionService>();
+        
         return services;
     }
 }
