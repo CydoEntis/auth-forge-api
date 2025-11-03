@@ -12,10 +12,10 @@ public static class UpdateApplicationEndpoint
     public static IEndpointRouteBuilder MapUpdateApplicationEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPut("/api/applications/{id}", Handle)
-            .RequireAuthorization("Admin") 
+            .RequireAuthorization("Admin")
             .WithName("UpdateApplication")
             .WithTags("Applications")
-            .WithDescription("Update application name and settings")
+            .WithDescription("Update application properties including name, origins, email, and OAuth settings")
             .Produces<ApiResponse<UpdateApplicationResponse>>(StatusCodes.Status200OK)
             .Produces<ApiResponse<UpdateApplicationResponse>>(StatusCodes.Status404NotFound)
             .Produces<ApiResponse<UpdateApplicationResponse>>(StatusCodes.Status403Forbidden)
@@ -34,7 +34,11 @@ public static class UpdateApplicationEndpoint
         var command = new UpdateApplicationCommand(
             id,
             request.Name,
-            request.Settings);
+            request.Description,
+            request.IsActive,
+            request.AllowedOrigins,
+            request.EmailSettings,
+            request.OAuthSettings);
 
         var result = await mediator.Send(command, cancellationToken);
 
@@ -54,5 +58,9 @@ public static class UpdateApplicationEndpoint
 }
 
 public record UpdateApplicationRequest(
-    string Name,
-    AppSettings Settings);
+    string? Name,
+    string? Description,
+    bool? IsActive,
+    List<string>? AllowedOrigins,
+    EmailSettingsRequest? EmailSettings,
+    OAuthSettingsRequest? OAuthSettings);

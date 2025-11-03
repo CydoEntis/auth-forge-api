@@ -1,6 +1,7 @@
 ﻿using AuthForge.Api.Common.Mappings;
 using AuthForge.Api.Common.Responses;
 using AuthForge.Application.Applications.Commands.CreateApplication;
+using AuthForge.Application.Applications.Models;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,10 +12,10 @@ public static class CreateApplicationEndpoint
     public static IEndpointRouteBuilder MapCreateApplicationEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/applications", Handle)
-            .RequireAuthorization("Admin") 
+            .RequireAuthorization("Admin")
             .WithName("CreateApplication")
             .WithTags("Applications")
-            .WithDescription("Create a new application")
+            .WithDescription("Create a new application with full configuration")
             .Produces<ApiResponse<CreateApplicationResponse>>(StatusCodes.Status201Created)
             .Produces<ApiResponse<CreateApplicationResponse>>(StatusCodes.Status400BadRequest)
             .WithOpenApi();
@@ -28,7 +29,12 @@ public static class CreateApplicationEndpoint
         CancellationToken cancellationToken)
     {
         var command = new CreateApplicationCommand(
-            request.Name);
+            request.Name,
+            request.Description,
+            request.AllowedOrigins,
+            request.JwtSecret,
+            request.EmailSettings,
+            request.OAuthSettings);
 
         var result = await mediator.Send(command, cancellationToken);
 
@@ -48,4 +54,9 @@ public static class CreateApplicationEndpoint
 }
 
 public record CreateApplicationRequest(
-    string Name);
+    string Name,
+    string? Description,
+    List<string> AllowedOrigins,
+    string? JwtSecret,
+    EmailSettingsRequest EmailSettings,
+    OAuthSettingsRequest? OAuthSettings);
