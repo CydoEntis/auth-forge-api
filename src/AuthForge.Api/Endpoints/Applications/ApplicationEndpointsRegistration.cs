@@ -11,10 +11,7 @@ public static class ApplicationsEndpointsRegistration
         app.MapGetApplicationsEndpoint();
         app.MapGetApplicationKeysEndpoint();
         app.MapRegenerateApplicationKeysEndpoint();
-        app.MapConfigureEmailEndpoint();
-        app.MapUpdateEmailEndpoint();
-        app.MapAddAllowedOriginEndpoint();
-        app.MapUpdateAllowedOriginEndpoint();
+        app.MapRegenerateJwtSecretEndpoint();
         return app;
     }
 }
