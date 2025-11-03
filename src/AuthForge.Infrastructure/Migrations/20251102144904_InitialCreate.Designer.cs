@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthForge.Infrastructure.Migrations
 {
     [DbContext(typeof(AuthForgeDbContext))]
-    [Migration("20251022000149_AddAuditLogging")]
-    partial class AddAuditLogging
+    [Migration("20251102144904_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,40 +20,96 @@ namespace AuthForge.Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
 
+            modelBuilder.Entity("AuthForge.Domain.Entities.Admin", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<int>("FailedLoginAttempts")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("failed_login_attempts");
+
+                    b.Property<bool>("IsEmailVerified")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("is_email_verified");
+
+                    b.Property<DateTime?>("LastLoginAtUtc")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("last_login_at_utc");
+
+                    b.Property<DateTime?>("LockedOutUntil")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("locked_out_until");
+
+                    b.Property<string>("PasswordResetToken")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("password_reset_token");
+
+                    b.Property<DateTime?>("PasswordResetTokenExpiresAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("password_reset_token_expires_at");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("updated_at_utc");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("admins", (string)null);
+                });
+
             modelBuilder.Entity("AuthForge.Domain.Entities.AdminRefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AdminId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("admin_id");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasColumnName("created_at_utc");
 
                     b.Property<DateTime>("ExpiresAtUtc")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasColumnName("expires_at_utc");
 
                     b.Property<string>("IpAddress")
                         .HasMaxLength(45)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasColumnName("ip_address");
 
                     b.Property<string>("ReplacedByToken")
                         .HasMaxLength(500)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasColumnName("replaced_by_token");
 
                     b.Property<DateTime?>("RevokedAtUtc")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasColumnName("revoked_at_utc");
 
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasColumnName("token");
 
                     b.Property<DateTime?>("UsedAtUtc")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasColumnName("used_at_utc");
 
                     b.Property<string>("UserAgent")
                         .HasMaxLength(500)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasColumnName("user_agent");
 
                     b.HasKey("Id");
 
@@ -352,6 +408,62 @@ namespace AuthForge.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("end_user_refresh_tokens", (string)null);
+                });
+
+            modelBuilder.Entity("AuthForge.Domain.Entities.Admin", b =>
+                {
+                    b.OwnsOne("AuthForge.Domain.ValueObjects.Email", "Email", b1 =>
+                        {
+                            b1.Property<Guid>("AdminId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(255)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("email");
+
+                            b1.HasKey("AdminId");
+
+                            b1.HasIndex("Value")
+                                .IsUnique();
+
+                            b1.ToTable("admins", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("AdminId");
+                        });
+
+                    b.OwnsOne("AuthForge.Domain.ValueObjects.HashedPassword", "PasswordHash", b1 =>
+                        {
+                            b1.Property<Guid>("AdminId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Hash")
+                                .IsRequired()
+                                .HasMaxLength(255)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("password_hash");
+
+                            b1.Property<string>("Salt")
+                                .IsRequired()
+                                .HasMaxLength(255)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("password_salt");
+
+                            b1.HasKey("AdminId");
+
+                            b1.ToTable("admins", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("AdminId");
+                        });
+
+                    b.Navigation("Email")
+                        .IsRequired();
+
+                    b.Navigation("PasswordHash")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AuthForge.Domain.Entities.Application", b =>

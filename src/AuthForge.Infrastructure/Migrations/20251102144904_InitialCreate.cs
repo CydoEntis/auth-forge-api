@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AuthForge.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,19 +15,42 @@ namespace AuthForge.Infrastructure.Migrations
                 name: "admin_refresh_tokens",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Token = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
-                    ExpiresAtUtc = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    RevokedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    UsedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    ReplacedByToken = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-                    IpAddress = table.Column<string>(type: "TEXT", maxLength: 45, nullable: true),
-                    UserAgent = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true)
+                    id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    admin_id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    token = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
+                    expires_at_utc = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    created_at_utc = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    revoked_at_utc = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    used_at_utc = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    replaced_by_token = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
+                    ip_address = table.Column<string>(type: "TEXT", maxLength: 45, nullable: true),
+                    user_agent = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_admin_refresh_tokens", x => x.Id);
+                    table.PrimaryKey("PK_admin_refresh_tokens", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "admins",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    email = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    password_hash = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    password_salt = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    is_email_verified = table.Column<bool>(type: "INTEGER", nullable: false),
+                    failed_login_attempts = table.Column<int>(type: "INTEGER", nullable: false),
+                    locked_out_until = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    created_at_utc = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    updated_at_utc = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    last_login_at_utc = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    password_reset_token = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
+                    password_reset_token_expires_at = table.Column<DateTime>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_admins", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -47,11 +70,35 @@ namespace AuthForge.Infrastructure.Migrations
                     lockout_duration_minutes = table.Column<int>(type: "INTEGER", nullable: false),
                     access_token_expiration_minutes = table.Column<int>(type: "INTEGER", nullable: false),
                     refresh_token_expiration_days = table.Column<int>(type: "INTEGER", nullable: false),
+                    email_provider = table.Column<int>(type: "INTEGER", nullable: true),
+                    email_api_key = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
+                    email_from_email = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
+                    email_from_name = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
+                    email_password_reset_callback_url = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
+                    email_verification_callback_url = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
                     allowed_origins = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_applications", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "audit_logs",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    application_id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    event_type = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    performed_by = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
+                    target_user_id = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
+                    details = table.Column<string>(type: "TEXT", nullable: false),
+                    ip_address = table.Column<string>(type: "TEXT", maxLength: 45, nullable: true),
+                    timestamp = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_audit_logs", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -73,7 +120,9 @@ namespace AuthForge.Infrastructure.Migrations
                     updated_at_utc = table.Column<DateTime>(type: "TEXT", nullable: true),
                     last_login_at_utc = table.Column<DateTime>(type: "TEXT", nullable: true),
                     email_verification_token = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
-                    email_verification_token_expires_at = table.Column<DateTime>(type: "TEXT", nullable: true)
+                    email_verification_token_expires_at = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    PasswordResetToken = table.Column<string>(type: "TEXT", nullable: true),
+                    PasswordResetTokenExpiresAt = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -136,9 +185,15 @@ namespace AuthForge.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_admin_refresh_tokens_Token",
+                name: "IX_admin_refresh_tokens_token",
                 table: "admin_refresh_tokens",
-                column: "Token",
+                column: "token",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_admins_email",
+                table: "admins",
+                column: "email",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -158,6 +213,26 @@ namespace AuthForge.Infrastructure.Migrations
                 table: "applications",
                 column: "slug",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_audit_logs_application_id",
+                table: "audit_logs",
+                column: "application_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_audit_logs_event_type",
+                table: "audit_logs",
+                column: "event_type");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_audit_logs_target_user_id",
+                table: "audit_logs",
+                column: "target_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_audit_logs_timestamp",
+                table: "audit_logs",
+                column: "timestamp");
 
             migrationBuilder.CreateIndex(
                 name: "IX_end_user_password_reset_tokens_token",
@@ -189,7 +264,8 @@ namespace AuthForge.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_end_users_email",
                 table: "end_users",
-                column: "email");
+                column: "email",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -197,6 +273,12 @@ namespace AuthForge.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "admin_refresh_tokens");
+
+            migrationBuilder.DropTable(
+                name: "admins");
+
+            migrationBuilder.DropTable(
+                name: "audit_logs");
 
             migrationBuilder.DropTable(
                 name: "end_user_password_reset_tokens");
