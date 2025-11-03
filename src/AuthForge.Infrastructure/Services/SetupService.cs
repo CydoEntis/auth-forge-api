@@ -5,6 +5,7 @@ using AuthForge.Domain.Entities;
 using AuthForge.Domain.Enums;
 using AuthForge.Domain.ValueObjects;
 using AuthForge.Infrastructure.Data;
+using AuthForge.Infrastructure.Security;
 using MailKit.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -58,7 +59,9 @@ public class SetupService : ISetupService
                 var optionsBuilder = new DbContextOptionsBuilder<AuthForgeDbContext>();
                 optionsBuilder.UseNpgsql(config.ConnectionString);
 
-                await using var testContext = new AuthForgeDbContext(optionsBuilder.Options);
+                await using var testContext = new AuthForgeDbContext(
+                    optionsBuilder.Options,
+                    new NoOpEncryptionService());
                 var canConnect = await testContext.Database.CanConnectAsync(cancellationToken);
 
                 if (canConnect)
@@ -216,6 +219,12 @@ public class SetupService : ISetupService
         await _configDb.SetAsync("jwt_issuer", "AuthForge");
         await _configDb.SetAsync("jwt_audience", "AuthForgeClient");
 
+        var encryptionKey = GenerateEncryptionKey();
+        var encryptionIV = GenerateEncryptionIV();
+        await _configDb.SetAsync("encryption_key", encryptionKey);
+        await _configDb.SetAsync("encryption_iv", encryptionIV);
+        _logger.LogInformation("Generated encryption keys for data protection");
+
         await InitializeDatabaseAsync(config.Database, cancellationToken);
 
         await CreateAdminAccountAsync(config.Admin, config.Database, cancellationToken);
@@ -242,7 +251,9 @@ public class SetupService : ISetupService
             optionsBuilder.UseNpgsql(config.ConnectionString);
         }
 
-        await using var context = new AuthForgeDbContext(optionsBuilder.Options);
+        await using var context = new AuthForgeDbContext(
+            optionsBuilder.Options,
+            new NoOpEncryptionService());
         await context.Database.MigrateAsync(cancellationToken);
         _logger.LogInformation("Database migrations applied");
     }
@@ -264,7 +275,9 @@ public class SetupService : ISetupService
             optionsBuilder.UseNpgsql(dbConfig.ConnectionString);
         }
 
-        await using var context = new AuthForgeDbContext(optionsBuilder.Options);
+        await using var context = new AuthForgeDbContext(
+            optionsBuilder.Options,
+            new NoOpEncryptionService());
 
         var email = Email.Create(admin.Email);
         var hashedPassword = HashedPassword.Create(admin.Password);
@@ -274,6 +287,20 @@ public class SetupService : ISetupService
         await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Admin account created with email: {Email}", admin.Email);
+    }
+
+    private static string GenerateEncryptionKey()
+    {
+        var key = new byte[32]; // 256 bits for AES-256
+        System.Security.Cryptography.RandomNumberGenerator.Fill(key);
+        return Convert.ToBase64String(key);
+    }
+
+    private static string GenerateEncryptionIV()
+    {
+        var iv = new byte[16]; // 128 bits
+        System.Security.Cryptography.RandomNumberGenerator.Fill(iv);
+        return Convert.ToBase64String(iv);
     }
 
     private static string GenerateJwtSecret()
