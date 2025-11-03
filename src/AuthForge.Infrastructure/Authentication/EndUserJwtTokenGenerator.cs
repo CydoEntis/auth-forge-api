@@ -3,10 +3,9 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using AuthForge.Application.Common.Interfaces;
-using AuthForge.Application.Common.Settings; 
 using AuthForge.Domain.Entities;
 using AuthForge.Domain.ValueObjects;
-using Microsoft.Extensions.Options;
+using AuthForge.Infrastructure.Data;
 using Microsoft.IdentityModel.Tokens;
 using App = AuthForge.Domain.Entities.Application;
 
@@ -14,17 +13,28 @@ namespace AuthForge.Infrastructure.Authentication;
 
 public sealed class EndUserJwtTokenGenerator : IEndUserJwtTokenGenerator
 {
-    private readonly AuthForgeSettings _settings;
+    private readonly ConfigurationDatabase _configDb;
     private readonly JwtSecurityTokenHandler _tokenHandler;
 
-    public EndUserJwtTokenGenerator(IOptions<AuthForgeSettings> settings)
+    public EndUserJwtTokenGenerator(ConfigurationDatabase configDb)
     {
-        _settings = settings.Value;
+        _configDb = configDb;
         _tokenHandler = new JwtSecurityTokenHandler();
     }
 
     public (string AccessToken, DateTime ExpiresAt) GenerateAccessToken(EndUser user, App application)
     {
+        // Read JWT settings from configuration database
+        var settings = _configDb.GetAllAsync().GetAwaiter().GetResult();
+        var jwtSecret = settings.GetValueOrDefault("jwt_secret");
+        var jwtIssuer = settings.GetValueOrDefault("jwt_issuer", "AuthForge");
+        var jwtAudience = settings.GetValueOrDefault("jwt_audience", "AuthForgeClient");
+
+        if (string.IsNullOrEmpty(jwtSecret))
+        {
+            throw new InvalidOperationException("JWT secret not found in configuration database");
+        }
+
         var expiresAt = DateTime.UtcNow.AddMinutes(application.Settings.AccessTokenExpirationMinutes);
 
         var claims = new[]
@@ -38,12 +48,12 @@ public sealed class EndUserJwtTokenGenerator : IEndUserJwtTokenGenerator
             new Claim("app_slug", application.Slug)
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Jwt.Secret));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: _settings.Jwt.Issuer,
-            audience: _settings.Jwt.Audience,
+            issuer: jwtIssuer,
+            audience: jwtAudience,
             claims: claims,
             expires: expiresAt,
             signingCredentials: credentials);
@@ -76,16 +86,27 @@ public sealed class EndUserJwtTokenGenerator : IEndUserJwtTokenGenerator
     {
         try
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Jwt.Secret));
+            // Read JWT settings from configuration database
+            var settings = _configDb.GetAllAsync().GetAwaiter().GetResult();
+            var jwtSecret = settings.GetValueOrDefault("jwt_secret");
+            var jwtIssuer = settings.GetValueOrDefault("jwt_issuer", "AuthForge");
+            var jwtAudience = settings.GetValueOrDefault("jwt_audience", "AuthForgeClient");
+
+            if (string.IsNullOrEmpty(jwtSecret))
+            {
+                return null;
+            }
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
 
             var validationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = key,
                 ValidateIssuer = true,
-                ValidIssuer = _settings.Jwt.Issuer,
+                ValidIssuer = jwtIssuer,
                 ValidateAudience = true,
-                ValidAudience = _settings.Jwt.Audience,
+                ValidAudience = jwtAudience,
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
             };

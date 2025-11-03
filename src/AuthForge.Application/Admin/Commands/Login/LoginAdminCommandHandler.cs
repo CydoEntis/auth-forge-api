@@ -1,13 +1,11 @@
 ﻿using AuthForge.Application.Common.Interfaces;
 using AuthForge.Application.Common.Models;
-using AuthForge.Application.Common.Settings;
 using AuthForge.Domain.Common;
 using AuthForge.Domain.Entities;
 using AuthForge.Domain.Errors;
 using AuthForge.Domain.ValueObjects;
 using Mediator;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace AuthForge.Application.Admin.Commands.Login;
 
@@ -18,22 +16,23 @@ public sealed class LoginAdminCommandHandler
     private readonly IAdminRefreshTokenRepository _refreshTokenRepository;
     private readonly IAdminJwtTokenGenerator _tokenGenerator;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly AuthForgeSettings _settings;
     private readonly ILogger<LoginAdminCommandHandler> _logger;
+
+    // Default token expiration settings (matches AdminJwtTokenGenerator)
+    private const int AccessTokenExpirationMinutes = 15;
+    private const int RefreshTokenExpirationDays = 7;
 
     public LoginAdminCommandHandler(
         IAdminRepository adminRepository,
         IAdminRefreshTokenRepository refreshTokenRepository,
         IAdminJwtTokenGenerator tokenGenerator,
         IUnitOfWork unitOfWork,
-        IOptions<AuthForgeSettings> settings,
         ILogger<LoginAdminCommandHandler> logger)
     {
         _adminRepository = adminRepository;
         _refreshTokenRepository = refreshTokenRepository;
         _tokenGenerator = tokenGenerator;
         _unitOfWork = unitOfWork;
-        _settings = settings.Value;
         _logger = logger;
     }
 
@@ -77,8 +76,8 @@ public sealed class LoginAdminCommandHandler
         var accessToken = _tokenGenerator.GenerateAccessToken(admin.Email.Value);
         var refreshTokenString = _tokenGenerator.GenerateRefreshToken();
 
-        var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(_settings.Jwt.AccessTokenExpirationMinutes);
-        var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(_settings.Jwt.RefreshTokenExpirationDays);
+        var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(AccessTokenExpirationMinutes);
+        var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(RefreshTokenExpirationDays);
 
         var tokens = new TokenPair(
             accessToken,

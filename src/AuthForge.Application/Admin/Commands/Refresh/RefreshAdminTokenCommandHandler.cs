@@ -1,11 +1,9 @@
 ﻿using AuthForge.Application.Common.Interfaces;
-using AuthForge.Application.Common.Settings;
 using AuthForge.Domain.Common;
 using AuthForge.Domain.Entities;
 using AuthForge.Domain.Errors;
 using Mediator;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace AuthForge.Application.Admin.Commands.Refresh;
 
@@ -16,22 +14,23 @@ public sealed class RefreshAdminTokenCommandHandler
     private readonly IAdminRefreshTokenRepository _refreshTokenRepository;
     private readonly IAdminJwtTokenGenerator _tokenGenerator;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly AuthForgeSettings _settings;
     private readonly ILogger<RefreshAdminTokenCommandHandler> _logger;
+
+    // Default token expiration settings (matches AdminJwtTokenGenerator)
+    private const int AccessTokenExpirationMinutes = 15;
+    private const int RefreshTokenExpirationDays = 7;
 
     public RefreshAdminTokenCommandHandler(
         IAdminRepository adminRepository,
         IAdminRefreshTokenRepository refreshTokenRepository,
         IAdminJwtTokenGenerator tokenGenerator,
         IUnitOfWork unitOfWork,
-        IOptions<AuthForgeSettings> settings,
         ILogger<RefreshAdminTokenCommandHandler> logger)
     {
         _adminRepository = adminRepository;
         _refreshTokenRepository = refreshTokenRepository;
         _tokenGenerator = tokenGenerator;
         _unitOfWork = unitOfWork;
-        _settings = settings.Value;
         _logger = logger;
     }
 
@@ -65,8 +64,7 @@ public sealed class RefreshAdminTokenCommandHandler
         var newAccessToken = _tokenGenerator.GenerateAccessToken(admin.Email.Value);
         var newRefreshTokenString = _tokenGenerator.GenerateRefreshToken();
 
-        var newRefreshTokenExpiresAt = DateTime.UtcNow
-            .AddDays(_settings.Jwt.RefreshTokenExpirationDays);
+        var newRefreshTokenExpiresAt = DateTime.UtcNow.AddDays(RefreshTokenExpirationDays);
 
         var newRefreshToken = AdminRefreshToken.Create(
             admin.Id,
@@ -84,7 +82,7 @@ public sealed class RefreshAdminTokenCommandHandler
         var response = new RefreshAdminTokenResponse(
             newAccessToken,
             newRefreshTokenString,
-            DateTime.UtcNow.AddMinutes(_settings.Jwt.AccessTokenExpirationMinutes));
+            DateTime.UtcNow.AddMinutes(AccessTokenExpirationMinutes));
 
         return Result<RefreshAdminTokenResponse>.Success(response);
     }

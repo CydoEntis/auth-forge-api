@@ -3,25 +3,35 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using AuthForge.Application.Common.Interfaces;
-using AuthForge.Application.Common.Settings;
-using Microsoft.Extensions.Options;
+using AuthForge.Infrastructure.Data;
 using Microsoft.IdentityModel.Tokens;
 
 namespace AuthForge.Infrastructure.Authentication;
 
 public class AdminJwtTokenGenerator : IAdminJwtTokenGenerator
 {
-    private readonly AuthForgeSettings _settings;
+    private readonly ConfigurationDatabase _configDb;
+    private const int DefaultAccessTokenExpirationMinutes = 15;
 
-    public AdminJwtTokenGenerator(IOptions<AuthForgeSettings> settings)
+    public AdminJwtTokenGenerator(ConfigurationDatabase configDb)
     {
-        _settings = settings.Value;
+        _configDb = configDb;
     }
 
     public string GenerateAccessToken(string email)
     {
-        var securityKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_settings.Jwt.Secret));
+        // Read JWT settings from configuration database
+        var settings = _configDb.GetAllAsync().GetAwaiter().GetResult();
+        var jwtSecret = settings.GetValueOrDefault("jwt_secret");
+        var jwtIssuer = settings.GetValueOrDefault("jwt_issuer", "AuthForge");
+        var jwtAudience = settings.GetValueOrDefault("jwt_audience", "AuthForgeClient");
+
+        if (string.IsNullOrEmpty(jwtSecret))
+        {
+            throw new InvalidOperationException("JWT secret not found in configuration database");
+        }
+
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
 
         var credentials = new SigningCredentials(
             securityKey,
@@ -31,14 +41,14 @@ public class AdminJwtTokenGenerator : IAdminJwtTokenGenerator
         {
             new Claim(ClaimTypes.Email, email),
             new Claim(ClaimTypes.Role, "Admin"),
-            new Claim("role", "Admin") 
+            new Claim("role", "Admin")
         };
 
         var token = new JwtSecurityToken(
-            issuer: _settings.Jwt.Issuer,
-            audience: _settings.Jwt.Audience,
+            issuer: jwtIssuer,
+            audience: jwtAudience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(_settings.Jwt.AccessTokenExpirationMinutes),
+            expires: DateTime.UtcNow.AddMinutes(DefaultAccessTokenExpirationMinutes),
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
