@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Text.Json;
+using AuthForge.Application.Common.Interfaces;
+using AuthForge.Infrastructure.Data.Converters;
 using App = AuthForge.Domain.Entities.Application;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
@@ -9,12 +11,19 @@ namespace AuthForge.Infrastructure.Data.Configurations;
 
 public class ApplicationConfiguration : IEntityTypeConfiguration<App>
 {
+    private readonly IEncryptionService _encryptionService;
+
+    public ApplicationConfiguration(IEncryptionService encryptionService)
+    {
+        _encryptionService = encryptionService;
+    }
+
     public void Configure(EntityTypeBuilder<App> builder)
     {
         builder.ToTable("applications");
-
+        
         builder.HasKey(a => a.Id);
-
+        
         builder.Property(a => a.Id)
             .HasColumnName("id")
             .HasConversion(
@@ -32,24 +41,32 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<App>
             .HasMaxLength(200)
             .IsRequired();
 
-        builder.HasIndex(a => a.Slug)
-            .IsUnique();
+        builder.HasIndex(a => a.Slug).IsUnique();
+
+        builder.Property(a => a.Description)
+            .HasColumnName("description")
+            .HasMaxLength(500);
 
         builder.Property(a => a.PublicKey)
             .HasColumnName("public_key")
             .HasMaxLength(100)
             .IsRequired();
 
+        builder.HasIndex(a => a.PublicKey).IsUnique();
+
+        var encryptedConverter = new EncryptedStringConverter(_encryptionService);
+        
         builder.Property(a => a.SecretKey)
             .HasColumnName("secret_key")
-            .HasMaxLength(100)
+            .HasMaxLength(500) 
+            .HasConversion(encryptedConverter)
             .IsRequired();
 
-        builder.HasIndex(a => a.PublicKey)
-            .IsUnique();
-
-        builder.HasIndex(a => a.SecretKey)
-            .IsUnique();
+        builder.Property(a => a.JwtSecret)
+            .HasColumnName("jwt_secret")
+            .HasMaxLength(500) 
+            .HasConversion(encryptedConverter)
+            .IsRequired();
 
         var allowedOriginsConverter = new ValueConverter<List<string>, string>(
             v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
@@ -102,7 +119,8 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<App>
 
             email.Property(e => e.ApiKey)
                 .HasColumnName("email_api_key")
-                .HasMaxLength(500)
+                .HasMaxLength(500) 
+                .HasConversion(encryptedConverter)
                 .IsRequired(false);
 
             email.Property(e => e.FromEmail)
@@ -126,6 +144,35 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<App>
                 .IsRequired(false);
 
             email.ToTable("applications");
+        });
+
+        builder.OwnsOne(a => a.OAuthSettings, oauth =>
+        {
+            oauth.Property(o => o.GoogleEnabled)
+                .HasColumnName("oauth_google_enabled");
+
+            oauth.Property(o => o.GoogleClientId)
+                .HasColumnName("oauth_google_client_id")
+                .HasMaxLength(255);
+
+            oauth.Property(o => o.GoogleClientSecret)
+                .HasColumnName("oauth_google_client_secret")
+                .HasMaxLength(500) 
+                .HasConversion(encryptedConverter);
+
+            oauth.Property(o => o.GithubEnabled)
+                .HasColumnName("oauth_github_enabled");
+
+            oauth.Property(o => o.GithubClientId)
+                .HasColumnName("oauth_github_client_id")
+                .HasMaxLength(255);
+
+            oauth.Property(o => o.GithubClientSecret)
+                .HasColumnName("oauth_github_client_secret")
+                .HasMaxLength(500) 
+                .HasConversion(encryptedConverter);
+
+            oauth.ToTable("applications");
         });
 
         builder.Ignore(a => a.DomainEvents);
