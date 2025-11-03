@@ -1,4 +1,5 @@
 ﻿using AuthForge.Application.Common.Interfaces;
+using AuthForge.Domain.Enums;
 using AuthForge.Domain.ValueObjects;
 using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 

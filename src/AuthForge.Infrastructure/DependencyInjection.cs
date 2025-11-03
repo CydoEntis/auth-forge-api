@@ -1,4 +1,5 @@
 ﻿using AuthForge.Application.Common.Interfaces;
+using AuthForge.Infrastructure.Data;
 using AuthForge.Infrastructure.EmailProviders;
 using AuthForge.Infrastructure.Extensions;
 using AuthForge.Infrastructure.Repositories;
@@ -14,21 +15,32 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        // Database context with dynamic configuration
         services.AddDatabaseConfiguration(configuration);
+
+        // JWT authentication with dynamic configuration
         services.AddJwtAuthentication(configuration);
+
+        // Repositories
         services.AddRepositories();
         services.AddApplicationServices();
         services.AddScoped<IAuditLogRepository, AuditLogRepository>();
-        
+
+        // Email services
         services.AddHttpClient();
         services.AddScoped<IEmailServiceFactory, EmailServiceFactory>();
         services.AddHttpClient<ISystemEmailService, SystemEmailService>();
+
+        // Current user service
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+        // Background services
         services.AddHostedService<TokenCleanupBackgroundService>();
         services.AddHostedService<EmailTokenCleanupBackgroundService>();
-        
-        services.AddScoped<IEncryptionService, EncryptionService>();
+
+        // Setup service 
         services.AddScoped<ISetupService, SetupService>();
+
         return services;
     }
 }

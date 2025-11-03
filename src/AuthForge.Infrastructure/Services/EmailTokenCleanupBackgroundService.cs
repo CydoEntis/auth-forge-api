@@ -1,4 +1,5 @@
-﻿using AuthForge.Infrastructure.Data;
+﻿using AuthForge.Application.Common.Interfaces;
+using AuthForge.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -57,6 +58,15 @@ public sealed class EmailTokenCleanupBackgroundService : BackgroundService
     {
         using var scope = _serviceScopeFactory.CreateScope();
 
+        var setupService = scope.ServiceProvider.GetRequiredService<ISetupService>();
+        var isSetupComplete = await setupService.IsSetupCompleteAsync();
+
+        if (!isSetupComplete)
+        {
+            _logger.LogDebug("Setup not complete. Skipping email token cleanup");
+            return;
+        }
+
         var context = scope.ServiceProvider.GetRequiredService<AuthForgeDbContext>();
 
         _logger.LogInformation("Starting cleanup of expired email and password reset tokens");
@@ -81,7 +91,6 @@ public sealed class EmailTokenCleanupBackgroundService : BackgroundService
         int verificationTokensCleared = 0;
         int endUserResetTokensCleared = 0;
 
-        // Clear expired tokens using entity methods
         foreach (var user in usersWithExpiredTokens)
         {
             if (user.IsEmailVerificationTokenExpired())

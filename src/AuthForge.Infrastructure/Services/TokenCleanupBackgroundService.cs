@@ -55,7 +55,16 @@ public sealed class TokenCleanupBackgroundService : BackgroundService
     private async Task CleanupExpiredTokensAsync(CancellationToken cancellationToken)
     {
         using var scope = _serviceScopeFactory.CreateScope();
-        
+
+        var setupService = scope.ServiceProvider.GetRequiredService<ISetupService>();
+        var isSetupComplete = await setupService.IsSetupCompleteAsync();
+
+        if (!isSetupComplete)
+        {
+            _logger.LogDebug("Setup not complete. Skipping token cleanup");
+            return;
+        }
+
         var adminRefreshTokenRepo = scope.ServiceProvider
             .GetRequiredService<IAdminRefreshTokenRepository>();
         var endUserRefreshTokenRepo = scope.ServiceProvider
@@ -95,7 +104,6 @@ public sealed class TokenCleanupBackgroundService : BackgroundService
                 expiredEndUserTokens.Count());
         }
 
-        // Save all changes
         if (expiredAdminTokens.Any() || expiredEndUserTokens.Any())
         {
             await unitOfWork.SaveChangesAsync(cancellationToken);

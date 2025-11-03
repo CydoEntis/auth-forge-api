@@ -18,19 +18,21 @@ public class SetupService : ISetupService
 {
     private readonly IConfiguration _configuration;
     private readonly ILogger<SetupService> _logger;
+    private readonly ConfigurationDatabase _configDb;
 
     public SetupService(
         IConfiguration configuration,
-        ILogger<SetupService> logger)
+        ILogger<SetupService> logger,
+        ConfigurationDatabase configDb)
     {
         _configuration = configuration;
         _logger = logger;
+        _configDb = configDb;
     }
 
-    public Task<bool> IsSetupCompleteAsync()
+    public async Task<bool> IsSetupCompleteAsync()
     {
-        var isComplete = _configuration.GetValue<bool>("Setup:IsComplete");
-        return Task.FromResult(isComplete);
+        return await _configDb.GetBoolAsync("setup_complete");
     }
 
     public async Task<bool> TestDatabaseConnectionAsync(
@@ -192,95 +194,35 @@ public class SetupService : ISetupService
     {
         _logger.LogInformation("Completing setup...");
 
-        await WriteConfigurationAsync(config);
+        await _configDb.SetAsync("database_type", config.Database.DatabaseType.ToString());
+
+        if (config.Database.DatabaseType == DatabaseType.PostgreSql)
+        {
+            await _configDb.SetAsync("postgres_connection_string", config.Database.ConnectionString!);
+        }
+
+        await _configDb.SetAsync("email_provider", config.Email.Provider.ToString());
+        await _configDb.SetAsync("smtp_host", config.Email.SmtpHost);
+        await _configDb.SetAsync("smtp_port", config.Email.SmtpPort?.ToString());
+        await _configDb.SetAsync("smtp_username", config.Email.SmtpUsername);
+        await _configDb.SetAsync("smtp_password", config.Email.SmtpPassword);
+        await _configDb.SetAsync("smtp_use_ssl", config.Email.SmtpUseSsl?.ToString());
+        await _configDb.SetAsync("resend_api_key", config.Email.ResendApiKey);
+        await _configDb.SetAsync("from_email", config.Email.FromEmail);
+        await _configDb.SetAsync("from_name", config.Email.FromName);
+
+        var jwtSecret = GenerateJwtSecret();
+        await _configDb.SetAsync("jwt_secret", jwtSecret);
+        await _configDb.SetAsync("jwt_issuer", "AuthForge");
+        await _configDb.SetAsync("jwt_audience", "AuthForgeClient");
 
         await InitializeDatabaseAsync(config.Database, cancellationToken);
 
         await CreateAdminAccountAsync(config.Admin, config.Database, cancellationToken);
 
+        await _configDb.SetAsync("setup_complete", "true");
+
         _logger.LogInformation("Setup completed successfully");
-    }
-
-    private async Task WriteConfigurationAsync(SetupConfiguration config)
-    {
-        var appSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
-
-        var existingJson = await File.ReadAllTextAsync(appSettingsPath);
-        using var document = JsonDocument.Parse(existingJson);
-        var root = document.RootElement;
-
-        var updatedSettings = new Dictionary<string, object>();
-
-        if (root.TryGetProperty("Serilog", out var serilog))
-            updatedSettings["Serilog"] = JsonSerializer.Deserialize<object>(serilog.GetRawText())!;
-
-        if (root.TryGetProperty("AllowedHosts", out var allowedHosts))
-            updatedSettings["AllowedHosts"] = allowedHosts.GetString()!;
-
-        if (root.TryGetProperty("Cors", out var cors))
-            updatedSettings["Cors"] = JsonSerializer.Deserialize<object>(cors.GetRawText())!;
-
-        updatedSettings["DatabaseProvider"] = config.Database.DatabaseType.ToString();
-
-        updatedSettings["ConnectionStrings"] = new Dictionary<string, string>
-        {
-            ["DefaultConnection"] = config.Database.DatabaseType == DatabaseType.Sqlite
-                ? ""
-                : config.Database.ConnectionString ?? ""
-        };
-
-        updatedSettings["Setup"] = new Dictionary<string, bool>
-        {
-            ["IsComplete"] = true
-        };
-
-        var authForgeSection = new Dictionary<string, object>
-        {
-            ["Jwt"] = new Dictionary<string, object>
-            {
-                ["Secret"] = GenerateJwtSecret(),
-                ["Issuer"] = "AuthForge",
-                ["Audience"] = "AuthForgeClient",
-                ["AccessTokenExpirationMinutes"] = 15,
-                ["RefreshTokenExpirationDays"] = 7
-            },
-            ["Email"] = new Dictionary<string, object>
-            {
-                ["Provider"] = config.Email.Provider.ToString(),
-                ["ResendApiKey"] = config.Email.ResendApiKey ?? "",
-                ["SmtpHost"] = config.Email.SmtpHost ?? "",
-                ["SmtpPort"] = config.Email.SmtpPort ?? 0,
-                ["SmtpUsername"] = config.Email.SmtpUsername ?? "",
-                ["SmtpPassword"] = config.Email.SmtpPassword ?? "",
-                ["SmtpUseSsl"] = config.Email.SmtpUseSsl ?? false,
-                ["FromEmail"] = config.Email.FromEmail,
-                ["FromName"] = config.Email.FromName,
-                ["AdminResetCallbackUrl"] = "http://localhost:5000/admin/reset-password"
-            },
-            ["OAuth"] = new Dictionary<string, object>
-            {
-                ["Google"] = new Dictionary<string, string>
-                {
-                    ["ClientId"] = "",
-                    ["ClientSecret"] = ""
-                },
-                ["GitHub"] = new Dictionary<string, string>
-                {
-                    ["ClientId"] = "",
-                    ["ClientSecret"] = ""
-                }
-            }
-        };
-
-        updatedSettings["AuthForge"] = authForgeSection;
-
-        var json = JsonSerializer.Serialize(updatedSettings, new JsonSerializerOptions
-        {
-            WriteIndented = true
-        });
-
-        await File.WriteAllTextAsync(appSettingsPath, json);
-        _logger.LogInformation("Configuration written to appsettings.json");
     }
 
     private async Task InitializeDatabaseAsync(
@@ -336,9 +278,10 @@ public class SetupService : ISetupService
 
     private static string GenerateJwtSecret()
     {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-        var random = new Random();
-        return new string(Enumerable.Repeat(chars, 64)
-            .Select(s => s[random.Next(s.Length)]).ToArray());
+        // Generate a cryptographically secure random secret (64 bytes = 512 bits)
+        var bytes = new byte[64];
+        using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
+        rng.GetBytes(bytes);
+        return Convert.ToBase64String(bytes);
     }
 }
