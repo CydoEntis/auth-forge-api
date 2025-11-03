@@ -5,42 +5,64 @@ using ApplicationId = AuthForge.Domain.ValueObjects.ApplicationId;
 
 namespace AuthForge.Domain.Entities;
 
-/**
- * Represents an application created by the admin for end-user authentication.
- * In self-hosted mode, there is only one admin who manages all applications.
- */
 public sealed class Application : AggregateRoot<ApplicationId>
 {
-    private Application()
-    {
-    }
+    private readonly List<string> _allowedOrigins = new();
 
-    private Application(ApplicationId id, string name, string slug, string publicKey, string secretKey) : base(id)
+    private Application() { } 
+
+    private Application(
+        ApplicationId id,
+        string name,
+        string slug,
+        string? description,
+        string publicKey,
+        string secretKey,
+        string jwtSecret,
+        List<string>? allowedOrigins) : base(id)
     {
         Name = name;
         Slug = slug;
+        Description = description;
         PublicKey = publicKey;
         SecretKey = secretKey;
+        JwtSecret = jwtSecret;
         IsActive = true;
         Settings = ApplicationSettings.Default();
         CreatedAtUtc = DateTime.UtcNow;
+
+        if (allowedOrigins?.Any() == true)
+        {
+            foreach (var origin in allowedOrigins)
+            {
+                AddAllowedOrigin(origin);
+            }
+        }
     }
 
     public string Name { get; private set; } = default!;
     public string Slug { get; private set; } = default!;
+    public string? Description { get; private set; }
     public string PublicKey { get; private set; } = string.Empty;
     public string SecretKey { get; private set; } = string.Empty;
+    public string JwtSecret { get; private set; } = string.Empty; // ✅ NEW
     public bool IsActive { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
     public DateTime? UpdatedAtUtc { get; private set; }
     public DateTime? DeactivatedAtUtc { get; private set; }
+    
     public ApplicationSettings Settings { get; private set; } = default!;
     public ApplicationEmailSettings? ApplicationEmailSettings { get; private set; }
+    public OAuthSettings? OAuthSettings { get; private set; } // ✅ NEW
 
-    private readonly List<string> _allowedOrigins = new();
     public IReadOnlyList<string> AllowedOrigins => _allowedOrigins.AsReadOnly();
 
-    public static Application Create(string name, string slug)
+    public static Application Create(
+        string name,
+        string slug,
+        string? description = null,
+        List<string>? allowedOrigins = null,
+        string? jwtSecret = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Application name cannot be empty", nameof(name));
@@ -48,16 +70,31 @@ public sealed class Application : AggregateRoot<ApplicationId>
         if (string.IsNullOrWhiteSpace(slug))
             throw new ArgumentException("Application slug cannot be empty", nameof(slug));
 
+        if (allowedOrigins?.Any() == true)
+        {
+            foreach (var origin in allowedOrigins)
+            {
+                if (!Uri.TryCreate(origin, UriKind.Absolute, out _))
+                    throw new ArgumentException($"Invalid origin URL: {origin}", nameof(allowedOrigins));
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(jwtSecret) && jwtSecret.Length < 32)
+            throw new ArgumentException("JWT secret must be at least 32 characters", nameof(jwtSecret));
+
         var publicKey = GeneratePublicKey();
         var secretKey = GenerateSecretKey();
-
+        var finalJwtSecret = jwtSecret ?? GenerateJwtSecret();
 
         var application = new Application(
             ApplicationId.CreateUnique(),
             name,
             slug,
+            description,
             publicKey,
-            secretKey
+            secretKey,
+            finalJwtSecret,
+            allowedOrigins
         );
 
         application.RaiseDomainEvent(new ApplicationCreatedDomainEvent(
@@ -66,6 +103,50 @@ public sealed class Application : AggregateRoot<ApplicationId>
             application.Slug));
 
         return application;
+    }
+
+    public void Update(
+        string? name = null,
+        string? description = null,
+        bool? isActive = null,
+        List<string>? allowedOrigins = null)
+    {
+        if (name != null)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Application name cannot be empty", nameof(name));
+            Name = name;
+        }
+
+        if (description != null)
+        {
+            Description = description;
+        }
+
+        if (isActive.HasValue && isActive.Value != IsActive)
+        {
+            if (isActive.Value)
+                Activate();
+            else
+                Deactivate();
+        }
+
+        if (allowedOrigins != null)
+        {
+            foreach (var origin in allowedOrigins)
+            {
+                if (!Uri.TryCreate(origin, UriKind.Absolute, out _))
+                    throw new ArgumentException($"Invalid origin URL: {origin}", nameof(allowedOrigins));
+            }
+
+            _allowedOrigins.Clear();
+            foreach (var origin in allowedOrigins)
+            {
+                _allowedOrigins.Add(origin);
+            }
+        }
+
+        UpdatedAtUtc = DateTime.UtcNow;
     }
 
     public void UpdateName(string name)
@@ -101,6 +182,7 @@ public sealed class Application : AggregateRoot<ApplicationId>
 
         IsActive = true;
         DeactivatedAtUtc = null;
+        UpdatedAtUtc = DateTime.UtcNow;
     }
 
     public void RegenerateKeys()
@@ -108,6 +190,18 @@ public sealed class Application : AggregateRoot<ApplicationId>
         PublicKey = GeneratePublicKey();
         SecretKey = GenerateSecretKey();
         UpdatedAtUtc = DateTime.UtcNow;
+
+        // TODO: Raise domain event for audit logging
+        // RaiseDomainEvent(new ApplicationKeysRegeneratedEvent(Id));
+    }
+
+    public void RegenerateJwtSecret()
+    {
+        JwtSecret = GenerateJwtSecret();
+        UpdatedAtUtc = DateTime.UtcNow;
+
+        // TODO: Raise domain event for audit logging
+        // RaiseDomainEvent(new JwtSecretRegeneratedEvent(Id));
     }
 
     public void AddAllowedOrigin(string origin)
@@ -147,7 +241,6 @@ public sealed class Application : AggregateRoot<ApplicationId>
         UpdatedAtUtc = DateTime.UtcNow;
     }
 
-
     public void RemoveAllowedOrigin(string origin)
     {
         if (_allowedOrigins.Remove(origin))
@@ -174,6 +267,18 @@ public sealed class Application : AggregateRoot<ApplicationId>
         UpdatedAtUtc = DateTime.UtcNow;
     }
 
+    public void ConfigureOAuth(OAuthSettings settings)
+    {
+        OAuthSettings = settings ?? throw new ArgumentNullException(nameof(settings));
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    public void RemoveOAuthConfiguration()
+    {
+        OAuthSettings = null;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
     private static string GeneratePublicKey()
     {
         var random = Guid.NewGuid().ToString("N");
@@ -184,5 +289,13 @@ public sealed class Application : AggregateRoot<ApplicationId>
     {
         var random = Guid.NewGuid().ToString("N");
         return $"sk_live_{random}";
+    }
+
+    private static string GenerateJwtSecret()
+    {
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        var random = new Random();
+        return new string(Enumerable.Repeat(chars, 64)
+            .Select(s => s[random.Next(s.Length)]).ToArray());
     }
 }
