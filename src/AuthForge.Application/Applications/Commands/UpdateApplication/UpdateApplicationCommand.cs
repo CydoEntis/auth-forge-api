@@ -6,5 +6,9 @@ namespace AuthForge.Application.Applications.Commands.UpdateApplication;
 
 public sealed record UpdateApplicationCommand(
     string ApplicationId,
-    string Name,
-    AppSettings Settings) : ICommand<Result<UpdateApplicationResponse>>;
+    string? Name,
+    string? Description,
+    bool? IsActive,
+    List<string>? AllowedOrigins,
+    EmailSettingsRequest? EmailSettings,
+    OAuthSettingsRequest? OAuthSettings) : ICommand<Result<UpdateApplicationResponse>>;

@@ -29,8 +29,7 @@ public sealed class UpdateApplicationCommandHandler
         UpdateApplicationCommand command,
         CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Updating application {ApplicationId} with name {ApplicationName}",
-            command.ApplicationId, command.Name);
+        _logger.LogInformation("Updating application {ApplicationId}", command.ApplicationId);
 
         if (!Guid.TryParse(command.ApplicationId, out var appGuid))
         {
@@ -39,38 +38,44 @@ public sealed class UpdateApplicationCommandHandler
         }
 
         var applicationId = ApplicationId.Create(appGuid);
-
         var application = await _applicationRepository.GetByIdAsync(applicationId, cancellationToken);
-        if (application is null)
+
+        if (application == null)
         {
             _logger.LogWarning("Application not found: {ApplicationId}", applicationId.Value);
             return Result<UpdateApplicationResponse>.Failure(ApplicationErrors.NotFound);
         }
 
-        if (!application.IsActive)
+        application.Update(
+            command.Name,
+            command.Description,
+            command.IsActive,
+            command.AllowedOrigins);
+
+        if (command.EmailSettings != null)
         {
-            _logger.LogWarning("Cannot update inactive application: {ApplicationId}", applicationId.Value);
-            return Result<UpdateApplicationResponse>.Failure(ApplicationErrors.Inactive);
+            var emailSettings = ApplicationEmailSettings.Create(
+                command.EmailSettings.Provider,
+                command.EmailSettings.ApiKey,
+                command.EmailSettings.FromEmail,
+                command.EmailSettings.FromName,
+                command.EmailSettings.PasswordResetCallbackUrl,
+                command.EmailSettings.EmailVerificationCallbackUrl);
+
+            application.ConfigureEmail(emailSettings);
         }
 
-        try
+        if (command.OAuthSettings != null)
         {
-            application.UpdateName(command.Name);
+            var oauthSettings = OAuthSettings.Create(
+                command.OAuthSettings.GoogleEnabled,
+                command.OAuthSettings.GoogleClientId,
+                command.OAuthSettings.GoogleClientSecret,
+                command.OAuthSettings.GithubEnabled,
+                command.OAuthSettings.GithubClientId,
+                command.OAuthSettings.GithubClientSecret);
 
-            var domainSettings = ApplicationSettings.Create(
-                command.Settings.MaxFailedLoginAttempts,
-                command.Settings.LockoutDurationMinutes,
-                command.Settings.AccessTokenExpirationMinutes,
-                command.Settings.RefreshTokenExpirationDays);
-
-            application.UpdateSettings(domainSettings);
-        }
-        catch (ArgumentException ex)
-        {
-            _logger.LogWarning("Invalid settings for application {ApplicationId}: {ErrorMessage}",
-                applicationId.Value, ex.Message);
-            return Result<UpdateApplicationResponse>.Failure(
-                ApplicationErrors.InvalidSettingsDetail(ex.Message));
+            application.ConfigureOAuth(oauthSettings);
         }
 
         _applicationRepository.Update(application);
@@ -83,8 +88,9 @@ public sealed class UpdateApplicationCommandHandler
             application.Id.Value.ToString(),
             application.Name,
             application.Slug,
+            application.Description,
             application.IsActive,
-            application.UpdatedAtUtc!.Value);
+            application.UpdatedAtUtc ?? DateTime.UtcNow); 
 
         return Result<UpdateApplicationResponse>.Success(response);
     }

@@ -1,6 +1,11 @@
-﻿namespace AuthForge.Application.Applications.Models;
+﻿using AuthForge.Domain.Enums;
 
-public class EmailSettingsRequest
-{
-    
-}
+namespace AuthForge.Application.Applications.Models;
+
+public record EmailSettingsRequest(
+    EmailProvider Provider,
+    string ApiKey,
+    string FromEmail,
+    string FromName,
+    string? PasswordResetCallbackUrl,
+    string? EmailVerificationCallbackUrl);

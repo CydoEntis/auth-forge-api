@@ -1,8 +1,8 @@
 ﻿using AuthForge.Application.Common.Interfaces;
 using AuthForge.Domain.Common;
+using AuthForge.Domain.ValueObjects;
 using Mediator;
 using Microsoft.Extensions.Logging;
-using App = AuthForge.Domain.Entities.Application;
 
 namespace AuthForge.Application.Applications.Commands.CreateApplication;
 
@@ -38,7 +38,38 @@ public sealed class CreateApplicationCommandHandler
             slug = $"{slug}-{Guid.NewGuid().ToString()[..8]}";
         }
 
-        var application = App.Create(command.Name, slug);
+        var application = Domain.Entities.Application.Create(
+            command.Name,
+            slug,
+            command.Description,
+            command.AllowedOrigins,
+            command.JwtSecret);
+
+        if (command.EmailSettings != null)
+        {
+            var emailSettings = ApplicationEmailSettings.Create(
+                command.EmailSettings.Provider,
+                command.EmailSettings.ApiKey,
+                command.EmailSettings.FromEmail,
+                command.EmailSettings.FromName,
+                command.EmailSettings.PasswordResetCallbackUrl,
+                command.EmailSettings.EmailVerificationCallbackUrl);
+
+            application.ConfigureEmail(emailSettings);
+        }
+
+        if (command.OAuthSettings != null)
+        {
+            var oauthSettings = OAuthSettings.Create(
+                command.OAuthSettings.GoogleEnabled,
+                command.OAuthSettings.GoogleClientId,
+                command.OAuthSettings.GoogleClientSecret,
+                command.OAuthSettings.GithubEnabled,
+                command.OAuthSettings.GithubClientId,
+                command.OAuthSettings.GithubClientSecret);
+
+            application.ConfigureOAuth(oauthSettings);
+        }
 
         await _applicationRepository.AddAsync(application, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -50,8 +81,11 @@ public sealed class CreateApplicationCommandHandler
             application.Id.Value.ToString(),
             application.Name,
             application.Slug,
+            application.Description,
             application.PublicKey,
             application.SecretKey,
+            application.JwtSecret,
+            application.AllowedOrigins.ToList(),
             application.IsActive,
             application.CreatedAtUtc);
 
@@ -61,10 +95,7 @@ public sealed class CreateApplicationCommandHandler
     private static string GenerateSlug(string name)
     {
         return System.Text.RegularExpressions.Regex.Replace(
-            name
-                .ToLowerInvariant()
-                .Trim()
-                .Replace("_", "-"),
+            name.ToLowerInvariant().Trim().Replace("_", "-"),
             @"\s+",
             "-");
     }
