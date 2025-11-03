@@ -1,4 +1,6 @@
-﻿namespace AuthForge.Domain.ValueObjects;
+﻿using AuthForge.Domain.Enums;
+
+namespace AuthForge.Domain.ValueObjects;
 
 public sealed record ApplicationEmailSettings
 {
@@ -6,8 +8,8 @@ public sealed record ApplicationEmailSettings
     public string ApiKey { get; private set; } = string.Empty;
     public string FromEmail { get; private set; } = string.Empty;
     public string FromName { get; private set; } = string.Empty;
-    public string? PasswordResetCallbackUrl { get; private set; } // ✅ NEW
-    public string? EmailVerificationCallbackUrl { get; private set; } // ✅ NEW
+    public string? PasswordResetCallbackUrl { get; private set; }
+    public string? EmailVerificationCallbackUrl { get; private set; }
 
     private ApplicationEmailSettings()
     {
@@ -63,9 +65,4 @@ public sealed record ApplicationEmailSettings
             passwordResetCallbackUrl,
             emailVerificationCallbackUrl);
     }
-}
-
-public enum EmailProvider
-{
-    Resend = 1
 }
