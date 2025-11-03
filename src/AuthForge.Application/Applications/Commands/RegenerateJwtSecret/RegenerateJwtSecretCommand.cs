@@ -1,6 +1,7 @@
-﻿namespace AuthForge.Application.Applications.Commands.RegenerateJwtSecret;
+﻿using AuthForge.Domain.Common;
+using Mediator;
 
-public class RegenerateJwtSecretCommand
-{
-    
-}
+namespace AuthForge.Application.Applications.Commands.RegenerateJwtSecret;
+
+public record RegenerateJwtSecretCommand(string ApplicationId) 
+    : ICommand<Result<RegenerateJwtSecretResponse>>;

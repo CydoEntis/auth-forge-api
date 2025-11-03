@@ -1,6 +1,6 @@
 ﻿namespace AuthForge.Application.Applications.Commands.RegenerateJwtSecret;
 
-public class RegenerateJwtSecretResponse
-{
-    
-}
+public record RegenerateJwtSecretResponse(
+    string JwtSecret,
+    DateTime RegeneratedAt,
+    string Warning);
