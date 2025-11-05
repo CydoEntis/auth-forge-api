@@ -51,7 +51,9 @@ public class LoginEndUserCommandHandlerTests
         var applicationId = Domain.ValueObjects.ApplicationId.Create(Guid.NewGuid());
         var application = Domain.Entities.Application.Create(
             "Test App",
-            "test-app");
+            "test-app",
+            null,
+            null);
 
         var endUser = EndUser.Create(
             applicationId,
@@ -151,7 +153,9 @@ public class LoginEndUserCommandHandlerTests
         var applicationId = Domain.ValueObjects.ApplicationId.Create(Guid.NewGuid());
         var application = Domain.Entities.Application.Create(
             "Test App",
-            "test-app");
+            "test-app",
+            null,
+            null);
         application.Deactivate();
 
         var command = new LoginEndUserCommand(
@@ -175,7 +179,9 @@ public class LoginEndUserCommandHandlerTests
         var applicationId = Domain.ValueObjects.ApplicationId.Create(Guid.NewGuid());
         var application = Domain.Entities.Application.Create(
             "Test App",
-            "test-app");
+            "test-app",
+            null,
+            null);
 
         var command = new LoginEndUserCommand(
             applicationId.Value.ToString(),
@@ -207,7 +213,9 @@ public class LoginEndUserCommandHandlerTests
         var applicationId = Domain.ValueObjects.ApplicationId.Create(Guid.NewGuid());
         var application = Domain.Entities.Application.Create(
             "Test App",
-            "test-app");
+            "test-app",
+            null,
+            null);
 
         var endUser = EndUser.Create(
             applicationId,
@@ -250,7 +258,9 @@ public class LoginEndUserCommandHandlerTests
         var applicationId = Domain.ValueObjects.ApplicationId.Create(Guid.NewGuid());
         var application = Domain.Entities.Application.Create(
             "Test App",
-            "test-app");
+            "test-app",
+            null,
+            null);
 
         var endUser = EndUser.Create(
             applicationId,
@@ -294,7 +304,9 @@ public class LoginEndUserCommandHandlerTests
         var applicationId = Domain.ValueObjects.ApplicationId.Create(Guid.NewGuid());
         var application = Domain.Entities.Application.Create(
             "Test App",
-            "test-app");
+            "test-app",
+            null,
+            null);
 
         var endUser = EndUser.Create(
             applicationId,

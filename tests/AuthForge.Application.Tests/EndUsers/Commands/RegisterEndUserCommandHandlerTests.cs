@@ -52,7 +52,7 @@ public class RegisterEndUserCommandHandlerTests
             "John",
             "Doe");
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var email = Email.Create("user@example.com");
         var hashedPassword = HashedPassword.Create("Password123!");
 
@@ -124,7 +124,7 @@ public class RegisterEndUserCommandHandlerTests
             "John",
             "Doe");
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         application.Deactivate();
 
         _applicationRepository.GetByIdAsync(Arg.Any<ApplicationId>(), Arg.Any<CancellationToken>())
@@ -147,7 +147,7 @@ public class RegisterEndUserCommandHandlerTests
             "John",
             "Doe");
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var emailError = new AuthForge.Domain.Errors.Error("EmailParsing", "Invalid email format");
 
         _applicationRepository.GetByIdAsync(Arg.Any<ApplicationId>(), Arg.Any<CancellationToken>())
@@ -172,7 +172,7 @@ public class RegisterEndUserCommandHandlerTests
             "John",
             "Doe");
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var email = Email.Create("user@example.com");
 
         _applicationRepository.GetByIdAsync(Arg.Any<ApplicationId>(), Arg.Any<CancellationToken>())
@@ -200,7 +200,7 @@ public class RegisterEndUserCommandHandlerTests
             "John",
             "Doe");
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var email = Email.Create("user@example.com");
         var hashedPassword = HashedPassword.Create(rawPassword);
 
@@ -230,7 +230,7 @@ public class RegisterEndUserCommandHandlerTests
             "John",
             "Doe");
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var email = Email.Create("user@example.com");
         var hashedPassword = HashedPassword.Create("Password123!");
 
@@ -267,7 +267,7 @@ public class RegisterEndUserCommandHandlerTests
             "John",
             "Doe");
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var email = Email.Create("user@example.com");
         var hashedPassword = HashedPassword.Create("Password123!");
 
@@ -296,7 +296,7 @@ public class RegisterEndUserCommandHandlerTests
             "John",
             "Doe");
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var email = Email.Create("user@example.com");
         var hashedPassword = HashedPassword.Create("Password123!");
 

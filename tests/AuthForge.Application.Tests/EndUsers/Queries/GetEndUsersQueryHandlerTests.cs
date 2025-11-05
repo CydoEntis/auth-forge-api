@@ -41,7 +41,7 @@ public class GetEndUsersQueryHandlerTests
         };
         var query = new GetEndUsersQuery(applicationId.Value.ToString(), parameters);
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var users = new List<EndUser>
         {
             EndUser.Create(applicationId, Email.Create("user1@example.com"), HashedPassword.Create("Pass123!"), "John", "Doe"),
@@ -106,7 +106,7 @@ public class GetEndUsersQueryHandlerTests
         var parameters = new EndUserFilterParameters(); 
         var query = new GetEndUsersQuery(applicationId.Value.ToString(), parameters);
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var users = new List<EndUser>();
 
         _applicationRepository.GetByIdAsync(applicationId, Arg.Any<CancellationToken>())
@@ -138,7 +138,7 @@ public class GetEndUsersQueryHandlerTests
         var parameters = new EndUserFilterParameters { PageNumber = 1, PageSize = 3 };
         var query = new GetEndUsersQuery(applicationId.Value.ToString(), parameters);
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var users = new List<EndUser>
         {
             EndUser.Create(applicationId, Email.Create("user1@example.com"), HashedPassword.Create("Pass123!"), "User", "One"),

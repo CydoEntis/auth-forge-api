@@ -31,7 +31,7 @@ public class GetEndUserByIdQueryHandlerTests
     public async Task Handle_WithValidUserAndApplication_ShouldReturnUser()
     {
         var applicationId = ApplicationId.CreateUnique();
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var user = EndUser.Create(
             applicationId,
             Email.Create("user@example.com"),
@@ -78,7 +78,7 @@ public class GetEndUserByIdQueryHandlerTests
         var applicationId = ApplicationId.CreateUnique();
         var query = new GetEndUserByIdQuery(applicationId, userId);
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
 
         _applicationRepository.GetByIdAsync(applicationId, Arg.Any<CancellationToken>())
             .Returns(application);
@@ -99,7 +99,7 @@ public class GetEndUserByIdQueryHandlerTests
         var differentApplicationId = ApplicationId.CreateUnique();
         var query = new GetEndUserByIdQuery(applicationId, userId);
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var user = EndUser.Create(
             differentApplicationId, 
             Email.Create("user@example.com"),
@@ -125,7 +125,7 @@ public class GetEndUserByIdQueryHandlerTests
         var applicationId = ApplicationId.CreateUnique();
         var query = new GetEndUserByIdQuery(applicationId, userId);
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var user = EndUser.Create(
             applicationId,
             Email.Create("user@example.com"),

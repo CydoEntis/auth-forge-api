@@ -23,9 +23,9 @@ public sealed class GetApplicationsQueryHandlerTests
     {
         var applications = new List<AuthForge.Domain.Entities.Application>
         {
-            AuthForge.Domain.Entities.Application.Create("App 1", "app-1"),
-            AuthForge.Domain.Entities.Application.Create("App 2", "app-2"),
-            AuthForge.Domain.Entities.Application.Create("App 3", "app-3")
+            AuthForge.Domain.Entities.Application.Create("App 1", "app-1", null, null),
+            AuthForge.Domain.Entities.Application.Create("App 2", "app-2", null, null),
+            AuthForge.Domain.Entities.Application.Create("App 3", "app-3", null, null)
         };
 
         _applicationRepository
@@ -62,7 +62,7 @@ public sealed class GetApplicationsQueryHandlerTests
     {
         var applications = new List<AuthForge.Domain.Entities.Application>
         {
-            AuthForge.Domain.Entities.Application.Create("Test App", "test-app")
+            AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null)
         };
 
         _applicationRepository
@@ -105,7 +105,7 @@ public sealed class GetApplicationsQueryHandlerTests
     {
         var applications = new List<AuthForge.Domain.Entities.Application>
         {
-            AuthForge.Domain.Entities.Application.Create("Active App", "active-app")
+            AuthForge.Domain.Entities.Application.Create("Active App", "active-app", null, null)
         };
 
         _applicationRepository
@@ -147,8 +147,8 @@ public sealed class GetApplicationsQueryHandlerTests
     {
         var applications = new List<AuthForge.Domain.Entities.Application>
         {
-            AuthForge.Domain.Entities.Application.Create("App A", "app-a"),
-            AuthForge.Domain.Entities.Application.Create("App B", "app-b")
+            AuthForge.Domain.Entities.Application.Create("App A", "app-a", null, null),
+            AuthForge.Domain.Entities.Application.Create("App B", "app-b", null, null)
         };
 
         _applicationRepository
@@ -191,8 +191,8 @@ public sealed class GetApplicationsQueryHandlerTests
     {
         var applications = new List<AuthForge.Domain.Entities.Application>
         {
-            AuthForge.Domain.Entities.Application.Create("App 1", "app-1"),
-            AuthForge.Domain.Entities.Application.Create("App 2", "app-2")
+            AuthForge.Domain.Entities.Application.Create("App 1", "app-1", null, null),
+            AuthForge.Domain.Entities.Application.Create("App 2", "app-2", null, null)
         };
 
         _applicationRepository
@@ -257,7 +257,7 @@ public sealed class GetApplicationsQueryHandlerTests
     [Fact]
     public async Task Handle_MapsApplicationToSummaryCorrectly()
     {
-        var application = AuthForge.Domain.Entities.Application.Create("My Application", "my-application");
+        var application = AuthForge.Domain.Entities.Application.Create("My Application", "my-application", null, null);
 
         _applicationRepository
             .GetPagedAsync(

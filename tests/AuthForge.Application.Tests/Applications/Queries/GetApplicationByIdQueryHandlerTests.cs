@@ -22,7 +22,7 @@ public class GetApplicationByIdQueryHandlerTests
     [Fact]
     public async Task Handle_WithValidRequest_ShouldReturnApplicationDetail()
     {
-        var application = Domain.Entities.Application.Create("Test App", "test-app");
+        var application = Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var query = new GetApplicationByIdQuery(application.Id.Value.ToString());
 
         _applicationRepositoryMock

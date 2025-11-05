@@ -55,7 +55,7 @@ public class RefreshEndUserTokenCommandHandlerTests
             "John",
             "Doe");
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var refreshToken = EndUserRefreshToken.Create(
             user.Id,
             refreshTokenValue,
@@ -177,7 +177,7 @@ public class RefreshEndUserTokenCommandHandlerTests
             "John",
             "Doe");
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
 
         var refreshToken = EndUserRefreshToken.Create(
             user.Id,
@@ -218,7 +218,7 @@ public class RefreshEndUserTokenCommandHandlerTests
             "Doe");
         user.Deactivate(); 
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var refreshToken = EndUserRefreshToken.Create(
             userId,
             refreshTokenValue,
@@ -254,7 +254,7 @@ public class RefreshEndUserTokenCommandHandlerTests
             "John",
             "Doe");
 
-        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app");
+        var application = AuthForge.Domain.Entities.Application.Create("Test App", "test-app", null, null);
         application.Deactivate(); 
 
         var refreshToken = EndUserRefreshToken.Create(

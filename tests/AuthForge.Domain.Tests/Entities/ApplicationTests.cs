@@ -12,7 +12,7 @@ public class ApplicationTests
         var name = "My App";
         var slug = "my-app";
 
-        var application = Application.Create(name, slug);
+        var application = Application.Create(name, slug, null, null);
 
         application.Should().NotBeNull();
         application.Name.Should().Be(name);
@@ -25,7 +25,7 @@ public class ApplicationTests
     [Fact]
     public void Create_ShouldInitializeWithDefaultSettings()
     {
-        var application = Application.Create("Test App", "test-app");
+        var application = Application.Create("Test App", "test-app", null, null);
 
         application.Settings.MaxFailedLoginAttempts.Should().Be(5);
         application.Settings.LockoutDurationMinutes.Should().Be(15);
@@ -39,7 +39,7 @@ public class ApplicationTests
     [InlineData(null)]
     public void Create_WithInvalidName_ShouldThrowException(string invalidName)
     {
-        Action act = () => Application.Create(invalidName, "valid-slug");
+        Action act = () => Application.Create(invalidName, "valid-slug", null, null);
 
         act.Should().Throw<ArgumentException>()
             .WithMessage("*name*");
@@ -51,7 +51,7 @@ public class ApplicationTests
     [InlineData(null)]
     public void Create_WithInvalidSlug_ShouldThrowException(string invalidSlug)
     {
-        Action act = () => Application.Create("Valid Name", invalidSlug);
+        Action act = () => Application.Create("Valid Name", invalidSlug, null, null);
 
         act.Should().Throw<ArgumentException>()
             .WithMessage("*slug*");
@@ -60,7 +60,7 @@ public class ApplicationTests
     [Fact]
     public void UpdateName_WithValidName_ShouldUpdateName()
     {
-        var application = Application.Create("Original Name", "original-slug");
+        var application = Application.Create("Original Name", "original-slug", null, null);
         var newName = "Updated Name";
 
         application.UpdateName(newName);
@@ -76,7 +76,7 @@ public class ApplicationTests
     [InlineData(null)]
     public void UpdateName_WithInvalidName_ShouldThrowException(string invalidName)
     {
-        var application = Application.Create("Original Name", "original-slug");
+        var application = Application.Create("Original Name", "original-slug", null, null);
 
         Action act = () => application.UpdateName(invalidName);
 
@@ -87,7 +87,7 @@ public class ApplicationTests
     [Fact]
     public void UpdateSettings_WithValidSettings_ShouldUpdateSettings()
     {
-        var application = Application.Create("Test App", "test-app");
+        var application = Application.Create("Test App", "test-app", null, null);
         var newSettings = ApplicationSettings.Create(3, 30, 60, 14);
 
         application.UpdateSettings(newSettings);
@@ -104,7 +104,7 @@ public class ApplicationTests
     [Fact]
     public void Deactivate_WhenActive_ShouldDeactivateApplication()
     {
-        var application = Application.Create("Test App", "test-app");
+        var application = Application.Create("Test App", "test-app", null, null);
 
         application.Deactivate();
 
@@ -116,7 +116,7 @@ public class ApplicationTests
     [Fact]
     public void Deactivate_WhenAlreadyInactive_ShouldThrowException()
     {
-        var application = Application.Create("Test App", "test-app");
+        var application = Application.Create("Test App", "test-app", null, null);
         application.Deactivate();
 
         Action act = () => application.Deactivate();
@@ -128,7 +128,7 @@ public class ApplicationTests
     [Fact]
     public void Activate_WhenInactive_ShouldActivateApplication()
     {
-        var application = Application.Create("Test App", "test-app");
+        var application = Application.Create("Test App", "test-app", null, null);
         application.Deactivate();
 
         application.Activate();
@@ -140,7 +140,7 @@ public class ApplicationTests
     [Fact]
     public void Activate_WhenAlreadyActive_ShouldThrowException()
     {
-        var application = Application.Create("Test App", "test-app");
+        var application = Application.Create("Test App", "test-app", null, null);
 
         Action act = () => application.Activate();
 

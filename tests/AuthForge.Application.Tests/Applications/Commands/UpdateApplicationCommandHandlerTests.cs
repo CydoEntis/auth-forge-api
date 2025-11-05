@@ -31,7 +31,7 @@ public class UpdateApplicationCommandHandlerTests
     [Fact]
     public async Task Handle_WithValidRequest_ShouldUpdateApplication()
     {
-        var application = Domain.Entities.Application.Create("Original Name", "original-slug");
+        var application = Domain.Entities.Application.Create("Original Name", "original-slug", null, null);
         var command = new UpdateApplicationCommand(
             application.Id.Value.ToString(),
             "Updated Name",
@@ -105,7 +105,7 @@ public class UpdateApplicationCommandHandlerTests
     [Fact]
     public async Task Handle_WithInactiveApplication_ShouldUpdateSuccessfully()
     {
-        var application = Domain.Entities.Application.Create("Original Name", "original-slug");
+        var application = Domain.Entities.Application.Create("Original Name", "original-slug", null, null);
         application.Deactivate();
         var command = new UpdateApplicationCommand(
             application.Id.Value.ToString(),

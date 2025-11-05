@@ -31,7 +31,7 @@ public class DeleteApplicationCommandHandlerTests
     [Fact]
     public async Task Handle_WithValidRequest_ShouldDeactivateApplication()
     {
-        var application = Domain.Entities.Application.Create("Test App", "test-app");
+        var application = Domain.Entities.Application.Create("Test App", "test-app", null, null);
         var command = new DeleteApplicationCommand(application.Id.Value.ToString());
 
         _applicationRepositoryMock
@@ -82,7 +82,7 @@ public class DeleteApplicationCommandHandlerTests
     [Fact]
     public async Task Handle_WhenAlreadyInactive_ShouldReturnSuccess()
     {
-        var application = Domain.Entities.Application.Create("Test App", "test-app");
+        var application = Domain.Entities.Application.Create("Test App", "test-app", null, null);
         application.Deactivate();
         var command = new DeleteApplicationCommand(application.Id.Value.ToString());
 
