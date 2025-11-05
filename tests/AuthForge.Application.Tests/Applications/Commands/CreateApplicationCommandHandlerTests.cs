@@ -32,7 +32,7 @@ public class CreateApplicationCommandHandlerTests
     [Fact]
     public async Task Handle_WithValidRequest_ShouldCreateApplication()
     {
-        var command = new CreateApplicationCommand("My Awesome App", null, null, null, null, null);
+        var command = new CreateApplicationCommand("My Awesome App", null, null, null, null);
 
         _applicationRepositoryMock
             .Setup(x => x.SlugExistsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -57,7 +57,7 @@ public class CreateApplicationCommandHandlerTests
     [Fact]
     public async Task Handle_WithDuplicateSlug_ShouldAppendGuidToSlug()
     {
-        var command = new CreateApplicationCommand("My App", null, null, null, null, null);
+        var command = new CreateApplicationCommand("My App", null, null, null, null);
 
         _applicationRepositoryMock
             .Setup(x => x.SlugExistsAsync("my-app", It.IsAny<CancellationToken>()))
@@ -77,7 +77,7 @@ public class CreateApplicationCommandHandlerTests
     [InlineData("App_With_Underscores", "app-with-underscores")]
     public async Task Handle_ShouldGenerateCorrectSlug(string appName, string expectedSlug)
     {
-        var command = new CreateApplicationCommand(appName, null, null, null, null, null);
+        var command = new CreateApplicationCommand(appName, null, null, null, null);
 
         _applicationRepositoryMock
             .Setup(x => x.SlugExistsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))

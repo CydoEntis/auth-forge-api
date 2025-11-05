@@ -24,9 +24,6 @@ public sealed class CreateApplicationCommandValidator : AbstractValidator<Create
         RuleFor(x => x.AllowedOrigins)
             .Must(x => x == null || x.Count <= 50).WithMessage("Maximum 50 allowed origins");
 
-        RuleFor(x => x.JwtSecret)
-            .MinimumLength(32).WithMessage("JWT Secret must be at least 32 characters")
-            .When(x => !string.IsNullOrEmpty(x.JwtSecret));
 
         When(x => x.EmailSettings != null, () =>
         {

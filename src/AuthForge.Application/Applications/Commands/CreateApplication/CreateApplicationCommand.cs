@@ -8,6 +8,5 @@ public sealed record CreateApplicationCommand(
     string Name,
     string? Description,
     List<string>? AllowedOrigins,
-    string? JwtSecret,
     EmailSettingsRequest? EmailSettings,
     OAuthSettingsRequest? OAuthSettings) : ICommand<Result<CreateApplicationResponse>>;

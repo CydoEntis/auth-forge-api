@@ -42,8 +42,8 @@ public sealed class CreateApplicationCommandHandler
             command.Name,
             slug,
             command.Description,
-            command.AllowedOrigins,
-            command.JwtSecret);
+            command.AllowedOrigins
+        );
 
         if (command.EmailSettings != null)
         {

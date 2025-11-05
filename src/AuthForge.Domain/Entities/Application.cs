@@ -9,7 +9,9 @@ public sealed class Application : AggregateRoot<ApplicationId>
 {
     private readonly List<string> _allowedOrigins = new();
 
-    private Application() { } 
+    private Application()
+    {
+    }
 
     private Application(
         ApplicationId id,
@@ -50,7 +52,7 @@ public sealed class Application : AggregateRoot<ApplicationId>
     public DateTime CreatedAtUtc { get; private set; }
     public DateTime? UpdatedAtUtc { get; private set; }
     public DateTime? DeactivatedAtUtc { get; private set; }
-    
+
     public ApplicationSettings Settings { get; private set; } = default!;
     public ApplicationEmailSettings? ApplicationEmailSettings { get; private set; }
     public OAuthSettings? OAuthSettings { get; private set; } // ✅ NEW
@@ -60,9 +62,8 @@ public sealed class Application : AggregateRoot<ApplicationId>
     public static Application Create(
         string name,
         string slug,
-        string? description = null,
-        List<string>? allowedOrigins = null,
-        string? jwtSecret = null)
+        string? description,
+        List<string>? allowedOrigins)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Application name cannot be empty", nameof(name));
@@ -79,12 +80,9 @@ public sealed class Application : AggregateRoot<ApplicationId>
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(jwtSecret) && jwtSecret.Length < 32)
-            throw new ArgumentException("JWT secret must be at least 32 characters", nameof(jwtSecret));
-
         var publicKey = GeneratePublicKey();
         var secretKey = GenerateSecretKey();
-        var finalJwtSecret = jwtSecret ?? GenerateJwtSecret();
+        var jwtSecret = GenerateJwtSecret();
 
         var application = new Application(
             ApplicationId.CreateUnique(),
@@ -93,7 +91,7 @@ public sealed class Application : AggregateRoot<ApplicationId>
             description,
             publicKey,
             secretKey,
-            finalJwtSecret,
+            jwtSecret,
             allowedOrigins
         );
 
@@ -191,8 +189,7 @@ public sealed class Application : AggregateRoot<ApplicationId>
         SecretKey = GenerateSecretKey();
         UpdatedAtUtc = DateTime.UtcNow;
 
-        // TODO: Raise domain event for audit logging
-        // RaiseDomainEvent(new ApplicationKeysRegeneratedEvent(Id));
+        RaiseDomainEvent(new ApplicationKeysRegeneratedDomainEvent(Id, DateTime.UtcNow));
     }
 
     public void RegenerateJwtSecret()
@@ -200,8 +197,7 @@ public sealed class Application : AggregateRoot<ApplicationId>
         JwtSecret = GenerateJwtSecret();
         UpdatedAtUtc = DateTime.UtcNow;
 
-        // TODO: Raise domain event for audit logging
-        // RaiseDomainEvent(new JwtSecretRegeneratedEvent(Id));
+        RaiseDomainEvent(new JwtSecretRegeneratedDomainEvent(Id, DateTime.UtcNow));
     }
 
     public void AddAllowedOrigin(string origin)
@@ -293,9 +289,9 @@ public sealed class Application : AggregateRoot<ApplicationId>
 
     private static string GenerateJwtSecret()
     {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        var random = new Random();
-        return new string(Enumerable.Repeat(chars, 64)
-            .Select(s => s[random.Next(s.Length)]).ToArray());
+        var bytes = new byte[64]; // 512 bits
+        using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
+        rng.GetBytes(bytes);
+        return Convert.ToBase64String(bytes);
     }
 }

@@ -32,7 +32,6 @@ public static class CreateApplicationEndpoint
             request.Name,
             request.Description,
             request.AllowedOrigins,
-            request.JwtSecret,
             request.EmailSettings,
             request.OAuthSettings);
 
@@ -57,6 +56,5 @@ public record CreateApplicationRequest(
     string Name,
     string? Description,
     List<string> AllowedOrigins,
-    string? JwtSecret,
     EmailSettingsRequest EmailSettings,
     OAuthSettingsRequest? OAuthSettings);
