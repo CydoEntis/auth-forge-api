@@ -1,3 +1,4 @@
+using AuthForge.Domain.Enums;
 using AuthForge.Domain.ValueObjects;
 using FluentAssertions;
 using Xunit;

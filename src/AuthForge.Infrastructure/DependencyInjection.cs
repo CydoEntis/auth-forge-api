@@ -7,6 +7,7 @@ using AuthForge.Infrastructure.Security;
 using AuthForge.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace AuthForge.Infrastructure;
 
@@ -43,8 +44,21 @@ public static class DependencyInjection
         services.AddScoped<ISetupService, SetupService>();
 
         // Encryption services
-        services.AddSingleton<IEncryptionService, AesEncryptionService>();
-        
+        services.AddSingleton<IEncryptionService>(sp =>
+        {
+            var configDb = sp.GetRequiredService<ConfigurationDatabase>();
+            var logger = sp.GetRequiredService<ILogger<AesEncryptionService>>();
+
+            var isSetupComplete = configDb.GetBoolAsync("setup_complete").GetAwaiter().GetResult();
+
+            if (!isSetupComplete)
+            {
+                return new NoOpEncryptionService();
+            }
+
+            return new AesEncryptionService(configDb, logger);
+        });
+
         return services;
     }
 }

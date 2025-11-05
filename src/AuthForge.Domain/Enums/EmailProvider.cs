@@ -5,6 +5,6 @@ namespace AuthForge.Domain.Enums;
 [JsonConverter(typeof(JsonStringEnumConverter))] 
 public enum EmailProvider
 {
-    Smtp = 0,
-    Resend = 1
+    Smtp,
+    Resend
 }
