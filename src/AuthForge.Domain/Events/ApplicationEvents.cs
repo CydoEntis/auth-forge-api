@@ -12,3 +12,13 @@ public sealed record ApplicationCreatedDomainEvent(
 
 public sealed record ApplicationDeactivatedDomainEvent(
     ApplicationId ApplicationId) : IDomainEvent;
+
+public sealed record ApplicationKeysRegeneratedDomainEvent(
+    ApplicationId ApplicationId,
+    DateTime RegeneratedAt
+) : IDomainEvent;
+
+public sealed record JwtSecretRegeneratedDomainEvent(
+    ApplicationId ApplicationId,
+    DateTime RegeneratedAt
+) : IDomainEvent;
