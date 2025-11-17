@@ -20,7 +20,6 @@ public class AdminJwtTokenGenerator : IAdminJwtTokenGenerator
 
     public string GenerateAccessToken(string email)
     {
-        // Read JWT settings from configuration database
         var settings = _configDb.GetAllAsync().GetAwaiter().GetResult();
         var jwtSecret = settings.GetValueOrDefault("jwt_secret");
         var jwtIssuer = settings.GetValueOrDefault("jwt_issuer", "AuthForge");

@@ -16,8 +16,7 @@ public sealed class RefreshAdminTokenCommandHandler
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<RefreshAdminTokenCommandHandler> _logger;
 
-    // Default token expiration settings (matches AdminJwtTokenGenerator)
-    private const int AccessTokenExpirationMinutes = 15;
+    private const int AccessTokenExpirationMinutes = 2;
     private const int RefreshTokenExpirationDays = 7;
 
     public RefreshAdminTokenCommandHandler(
