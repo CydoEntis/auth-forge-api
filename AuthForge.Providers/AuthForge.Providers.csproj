@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Database -->
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite"/>
+
+        <!-- Email -->
+        <PackageReference Include="MailKit"/>
+        <PackageReference Include="Resend"/>
+        <PackageReference Include="Microsoft.Extensions.Http"/>
+    </ItemGroup>
+</Project>
