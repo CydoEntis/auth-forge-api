@@ -70,11 +70,6 @@ public class JwtService : IJwtService
         );
     }
 
-    public async Task<TokenPair> RefreshAdminTokenAsync(string refreshToken)
-    {
-        throw new NotImplementedException("Refresh token endpoint not yet implemented");
-    }
-
     private string GenerateJwtToken(List<Claim> claims, string secret, DateTime expiresAt)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));

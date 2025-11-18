@@ -57,6 +57,8 @@ app.UseCors("ReactCorsPolicy");
 app.UseMiddleware<ApiExceptionMiddleware>();
 app.UseMiddleware<SetupCheckMiddleware>();
 
+app.UseMiddleware<JwtValidationMiddleware>();
+
 app.UseAuthentication(); 
 app.UseAuthorization();
 
