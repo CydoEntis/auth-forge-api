@@ -42,4 +42,8 @@
     <ItemGroup>
         <ProjectReference Include="..\AuthForge.Providers\AuthForge.Providers.csproj"/>
     </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Data\Databases\" />
+    </ItemGroup>
 </Project>
