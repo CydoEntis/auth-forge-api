@@ -2,6 +2,7 @@
 using AuthForge.Api.Common.Services;
 using AuthForge.Api.Entities;
 using AuthForge.Api.Features.Admin;
+using AuthForge.Api.Features.Applications;
 using AuthForge.Api.Features.Setup;
 using FluentValidation;
 using Microsoft.AspNetCore.DataProtection;
@@ -38,7 +39,7 @@ public static class AppServicesExtensions
         // Password Hashers
         services.AddSingleton<PasswordHasher<Admin>>();
         services.AddSingleton<PasswordHasher<User>>();
-        services.AddSingleton<PasswordHasher<object>>();
+        services.AddSingleton<PasswordHasher<object>>(); // Remove? Idr why this is here
 
         // Fluent Validation
         services.AddValidatorsFromAssemblyContaining<Program>();
@@ -46,6 +47,7 @@ public static class AppServicesExtensions
         // Modules
         services.AddSetupServices();
         services.AddAdminServices();
+        services.AddApplicationServices();
 
         return services;
     }

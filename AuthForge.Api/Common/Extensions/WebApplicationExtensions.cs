@@ -1,4 +1,5 @@
 ﻿using AuthForge.Api.Features.Admin;
+using AuthForge.Api.Features.Applications;
 using AuthForge.Api.Features.Setup;
 
 namespace AuthForge.Api.Common.Extensions;
@@ -23,7 +24,9 @@ public static class WebApplicationExtensions
     public static WebApplication MapFeatureEndpoints(this WebApplication app, string prefix = "/api/v1")
     {
         app.MapSetupEndpoints(prefix);
-        app.MapAdminEndpoints(prefix);
+        AdminModule.MapAdminEndpoints(app, prefix);
+        ApplicationModule.MapApplicationEndpoints(app, prefix);
+
 
         return app;
     }
