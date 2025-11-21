@@ -11,7 +11,8 @@ namespace AuthForge.Api.Features.Admin;
 
 public sealed record AdminChangePasswordRequest(
     string CurrentPassword,
-    string NewPassword);
+    string NewPassword,
+    string ConfirmNewPassword);
 
 public sealed record AdminChangePasswordResponse(string Message);
 
