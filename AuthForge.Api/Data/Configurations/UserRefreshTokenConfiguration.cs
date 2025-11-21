@@ -8,19 +8,16 @@ public class UserRefreshTokenConfiguration : IEntityTypeConfiguration<UserRefres
 {
     public void Configure(EntityTypeBuilder<UserRefreshToken> entity)
     {
-        entity.ToTable("end_user_refresh_tokens");
-        entity.HasKey(t => t.Id);
-
-        entity.Property(t => t.Token).HasMaxLength(500).IsRequired();
-        entity.HasIndex(t => t.Token).IsUnique();
-
-        entity.Property(t => t.ExpiresAt).IsRequired();
-        entity.Property(t => t.IsRevoked).IsRequired();
-        entity.Property(t => t.CreatedAtUtc).IsRequired();
-
-        entity.HasOne(t => t.User)
-            .WithMany()
-            .HasForeignKey(t => t.EndUserId)
+        entity.ToTable("user_refresh_tokens");
+        entity.HasKey(rt => rt.Id);
+        entity.Property(rt => rt.Token).HasMaxLength(200).IsRequired();
+        entity.HasIndex(rt => rt.Token).IsUnique();
+        entity.Property(rt => rt.ExpiresAt).IsRequired();
+        entity.Property(rt => rt.IsRevoked).HasDefaultValue(false);
+        entity.Property(rt => rt.CreatedAtUtc).IsRequired();
+        entity.HasOne(rt => rt.User)
+            .WithMany(u => u.RefreshTokens)
+            .HasForeignKey(rt => rt.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
