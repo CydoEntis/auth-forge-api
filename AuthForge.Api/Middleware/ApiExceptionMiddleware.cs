@@ -29,12 +29,15 @@ public class ApiExceptionMiddleware
 
             var fieldErrors = vex.Errors.Select(e => new FieldError
             {
-                Field = e.PropertyName,
+                Field = char.ToLowerInvariant(e.PropertyName[0]) + e.PropertyName.Substring(1),
                 Code = e.ErrorCode ?? ErrorCodes.ValidationFailed,
                 Message = e.ErrorMessage
             }).ToList();
 
             var response = ApiResponse<object>.Fail(ErrorCodes.ValidationFailed, "Validation failed", fieldErrors);
+
+            _logger.LogWarning("Validation failed: {Errors}",
+                string.Join(", ", fieldErrors.Select(e => $"{e.Field}: {e.Message}")));
 
             await context.Response.WriteAsJsonAsync(response);
         }

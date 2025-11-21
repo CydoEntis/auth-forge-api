@@ -20,6 +20,7 @@ public static class AdminModule
         services.AddScoped<AdminUpdateDomainHandler>();
         services.AddScoped<AdminUpdateEmailProviderHandler>();
         services.AddScoped<AdminTestEmailProviderHandler>();
+        services.AddScoped<AdminGetSettingsHandler>();
 
         // Security
         services.AddScoped<AdminRevokeAllSessionsHandler>();
@@ -49,6 +50,7 @@ public static class AdminModule
         AdminUpdateDomain.MapEndpoints(app, prefix);
         AdminUpdateEmailProvider.MapEndpoints(app, prefix);
         AdminTestEmailProvider.MapEndpoints(app, prefix);
+        AdminGetSettings.MapEndpoints(app, prefix);
 
         // Security
         AdminRevokeAllSessions.MapEndpoints(app, prefix);
