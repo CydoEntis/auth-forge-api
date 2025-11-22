@@ -18,18 +18,8 @@ public sealed record UserRegisterRequest(
 );
 
 public sealed record UserRegisterResponse(
-    UserDto? User,
     TokenPair? Tokens,
     string Message
-);
-
-public sealed record UserDto(
-    Guid Id,
-    string Email,
-    string? FirstName,
-    string? LastName,
-    bool EmailVerified,
-    DateTime CreatedAtUtc
 );
 
 public sealed class UserRegisterValidator : AbstractValidator<UserRegisterRequest>
@@ -99,14 +89,15 @@ public sealed class UserRegisterHandler
         }
 
         var existingUser = await _context.Users
-            .AnyAsync(u => u.ApplicationId == applicationId && u.Email == request.Email, ct);
+            .FirstOrDefaultAsync(u => u.ApplicationId == applicationId && u.Email == request.Email, ct);
 
-        if (existingUser)
+        if (existingUser != null)
         {
             _logger.LogWarning(
                 "Registration attempt with existing email {Email} for app {AppId}",
                 request.Email,
                 applicationId);
+
             throw new ConflictException("An account with this email already exists");
         }
 
@@ -158,7 +149,6 @@ public sealed class UserRegisterHandler
                 app.AccessTokenExpirationMinutes,
                 app.RefreshTokenExpirationDays);
 
-            // Store refresh token
             var refreshToken = new Entities.UserRefreshToken
             {
                 Id = Guid.NewGuid(),
@@ -180,7 +170,6 @@ public sealed class UserRegisterHandler
         }
 
         return new UserRegisterResponse(
-            User: MapToDto(user),
             Tokens: tokens,
             Message: message
         );
@@ -242,16 +231,6 @@ public sealed class UserRegisterHandler
             throw new InvalidOperationException("Failed to send verification email");
         }
     }
-
-    private static UserDto MapToDto(Entities.User user) =>
-        new(
-            Id: user.Id,
-            Email: user.Email,
-            FirstName: user.FirstName,
-            LastName: user.LastName,
-            EmailVerified: user.EmailVerified,
-            CreatedAtUtc: user.CreatedAtUtc
-        );
 }
 
 public static class UserRegister

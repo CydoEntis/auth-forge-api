@@ -14,10 +14,7 @@ public sealed record UserLoginRequest(
     string Password
 );
 
-public sealed record UserLoginResponse(
-    UserDto User,
-    TokenPair Tokens
-);
+public sealed record UserLoginResponse(TokenPair Tokens);
 
 public sealed class UserLoginValidator : AbstractValidator<UserLoginRequest>
 {
@@ -164,21 +161,8 @@ public sealed class UserLoginHandler
             user.Id,
             applicationId);
 
-        return new UserLoginResponse(
-            User: MapToDto(user),
-            Tokens: tokens
-        );
+        return new UserLoginResponse(Tokens: tokens);
     }
-
-    private static UserDto MapToDto(Entities.User user) =>
-        new(
-            Id: user.Id,
-            Email: user.Email,
-            FirstName: user.FirstName,
-            LastName: user.LastName,
-            EmailVerified: user.EmailVerified,
-            CreatedAtUtc: user.CreatedAtUtc
-        );
 }
 
 public static class UserLogin
