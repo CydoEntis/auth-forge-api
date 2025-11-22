@@ -20,4 +20,9 @@ public interface IEmailTemplateService
         string toEmail,
         string fromEmail,
         string? fromName = null);
+
+    Task<EmailMessage> CreateAccountAlreadyExistsEmailAsync(
+        string toEmail,
+        string toName,
+        string appName);
 }
