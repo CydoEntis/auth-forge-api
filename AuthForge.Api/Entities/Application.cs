@@ -12,9 +12,6 @@ public class Application
     public string JwtSecretEncrypted { get; set; } = null!;
     
 
-    public List<string> RedirectUris { get; set; } = new();
-    public List<string> PostLogoutRedirectUris { get; set; } = new();
-    
     public List<string> AllowedOrigins { get; set; } = new();
     public bool IsActive { get; set; }
 
@@ -31,7 +28,8 @@ public class Application
     public string? FromName { get; set; }
     public string? PasswordResetCallbackUrl { get; set; }
     public string? EmailVerificationCallbackUrl { get; set; }
-
+    public string? MagicLinkCallbackUrl { get; set; }
+    public bool RequireEmailVerification { get; set; } = false;
     public bool GoogleEnabled { get; set; }
     public string? GoogleClientId { get; set; }
     public string? GoogleClientSecretEncrypted { get; set; }
@@ -39,9 +37,10 @@ public class Application
     public bool GithubEnabled { get; set; }
     public string? GithubClientId { get; set; }
     public string? GithubClientSecretEncrypted { get; set; }
-
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAtUtc { get; set; }
     public DateTime CreatedAtUtc { get; set; }
     public DateTime? UpdatedAtUtc { get; set; }
-    
+
     public ICollection<User> Users { get; set; } = new List<User>();
 }

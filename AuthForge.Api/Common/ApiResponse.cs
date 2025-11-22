@@ -1,6 +1,5 @@
 ﻿namespace AuthForge.Api.Common;
 
-// Standard API response for operations that return data.
 public class ApiResponse<T>
 {
     public bool Success { get; init; }

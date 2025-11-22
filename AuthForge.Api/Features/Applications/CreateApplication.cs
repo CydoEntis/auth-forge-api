@@ -12,7 +12,10 @@ public sealed record CreateApplicationRequest(
     string Name,
     string? Description,
     List<string>? AllowedOrigins,
-    List<string>? RedirectUris);
+    string? PasswordResetCallbackUrl,
+    string? EmailVerificationCallbackUrl,
+    string? MagicLinkCallbackUrl
+);
 
 public sealed record CreateApplicationResponse(
     Guid Id,
@@ -20,7 +23,8 @@ public sealed record CreateApplicationResponse(
     string Slug,
     string ClientId,
     string ClientSecret,
-    DateTime CreatedAtUtc);
+    DateTime CreatedAtUtc
+);
 
 public class CreateApplicationRequestValidator : AbstractValidator<CreateApplicationRequest>
 {
@@ -40,14 +44,30 @@ public class CreateApplicationRequestValidator : AbstractValidator<CreateApplica
                 .MustBeValidUrl();
 
             RuleFor(x => x.AllowedOrigins)
-                .Must(x => x.Count <= 5)
-                .WithMessage("Maximum 5 allowed origins");
+                .Must(x => x!.Count <= 10)
+                .WithMessage("Maximum 10 allowed origins");
         });
 
-        // Todo: Possibly add OAuth configuration settings
-        // Todo: Possibly add Email configuration overrides
-        // Currently Applications inherit the default email config
-        // used during authforge setup.
+        When(x => !string.IsNullOrEmpty(x.PasswordResetCallbackUrl), () =>
+        {
+            RuleFor(x => x.PasswordResetCallbackUrl)
+                .MustBeValidUrl()
+                .WithMessage("Password reset callback URL must be a valid URL");
+        });
+
+        When(x => !string.IsNullOrEmpty(x.EmailVerificationCallbackUrl), () =>
+        {
+            RuleFor(x => x.EmailVerificationCallbackUrl)
+                .MustBeValidUrl()
+                .WithMessage("Email verification callback URL must be a valid URL");
+        });
+
+        When(x => !string.IsNullOrEmpty(x.MagicLinkCallbackUrl), () =>
+        {
+            RuleFor(x => x.MagicLinkCallbackUrl)
+                .MustBeValidUrl()
+                .WithMessage("Magic link callback URL must be a valid URL");
+        });
     }
 }
 
@@ -57,7 +77,9 @@ public class CreateApplicationHandler
     private readonly IEncryptionService _encryptionService;
     private readonly ILogger<CreateApplicationHandler> _logger;
 
-    public CreateApplicationHandler(AppDbContext context, IEncryptionService encryptionService,
+    public CreateApplicationHandler(
+        AppDbContext context, 
+        IEncryptionService encryptionService,
         ILogger<CreateApplicationHandler> logger)
     {
         _context = context;
@@ -65,7 +87,9 @@ public class CreateApplicationHandler
         _logger = logger;
     }
 
-    public async Task<CreateApplicationResponse> HandleAsync(CreateApplicationRequest request, CancellationToken ct)
+    public async Task<CreateApplicationResponse> HandleAsync(
+        CreateApplicationRequest request, 
+        CancellationToken ct)
     {
         var slug = GenerateAppSlug(request.Name);
         var clientId = GenerateClientId();
@@ -79,14 +103,15 @@ public class CreateApplicationHandler
             Slug = slug,
             Description = request.Description,
             ClientId = clientId,
-            ClientSecretEncrypted = _encryptionService.Encrypt(clientSecret), // Make sure this is always encrypted
-            JwtSecretEncrypted = _encryptionService.Encrypt(jwtSecret), // Make sure this is always encrypted
-            RedirectUris = request.RedirectUris ?? new List<string>(),
-            PostLogoutRedirectUris = new List<string>(),
+            ClientSecretEncrypted = _encryptionService.Encrypt(clientSecret),
+            JwtSecretEncrypted = _encryptionService.Encrypt(jwtSecret),
             AllowedOrigins = request.AllowedOrigins ?? new List<string>(),
+            PasswordResetCallbackUrl = request.PasswordResetCallbackUrl,
+            EmailVerificationCallbackUrl = request.EmailVerificationCallbackUrl,
+            MagicLinkCallbackUrl = request.MagicLinkCallbackUrl,
             IsActive = true,
             MaxFailedLoginAttempts = 5,
-            LockoutDurationMinutes = 15, // Maybe add to application entity
+            LockoutDurationMinutes = 15,
             AccessTokenExpirationMinutes = 15,
             RefreshTokenExpirationDays = 7,
             UseGlobalEmailSettings = true,
@@ -97,7 +122,7 @@ public class CreateApplicationHandler
         await _context.SaveChangesAsync(ct);
 
         _logger.LogInformation(
-            "Application {application.Name} with app id {application.Id} and client id {application.ClientId}",
+            "Application created: {Name} with ID {Id} and ClientId {ClientId}",
             application.Name, application.Id, application.ClientId);
 
         return new CreateApplicationResponse(
@@ -106,17 +131,15 @@ public class CreateApplicationHandler
             application.Slug,
             application.ClientId,
             clientSecret,
-            application.CreatedAtUtc);
+            application.CreatedAtUtc
+        );
     }
-
 
     private static string GenerateAppSlug(string applicationName)
     {
         var slug = applicationName.ToLowerInvariant().Replace(" ", "-").Replace("_", "-");
         slug = new string(slug.Where(c => char.IsLetterOrDigit(c) || c == '-').ToArray());
-
-        var suffix = Guid.NewGuid().ToString("N").Substring(0, 8);
-
+        var suffix = Guid.NewGuid().ToString("N")[..8];
         return $"{slug}-{suffix}";
     }
 
@@ -130,8 +153,7 @@ public class CreateApplicationHandler
         var bytes = new byte[32];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(bytes);
-        // remove +, / and = from client secrets
-        return Convert.ToBase64String(bytes).Replace("+", "-").Replace("/", "_").Trim('=');
+        return Convert.ToBase64String(bytes).Replace("+", "-").Replace("/", "_").TrimEnd('=');
     }
 
     private static string GeneratedJwtSecret()
@@ -147,7 +169,7 @@ public static class CreateApplication
 {
     public static void MapEndpoints(WebApplication app, string prefix = "/api/v1")
     {
-        app.MapPost($"{prefix}/application", async (
+        app.MapPost($"{prefix}/applications", async (
                 CreateApplicationRequest request,
                 CreateApplicationHandler handler,
                 CancellationToken ct) =>
@@ -162,7 +184,7 @@ public static class CreateApplication
                 return Results.Ok(ApiResponse<CreateApplicationResponse>.Ok(response));
             })
             .WithName("CreateApplication")
-            .WithTags("Application")
+            .WithTags("Applications")
             .RequireAuthorization();
     }
 }

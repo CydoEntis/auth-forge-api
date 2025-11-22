@@ -3,7 +3,7 @@
 namespace AuthForge.Api.Features.Shared.Enums;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum SortBy
+public enum SortOrder
 {
     Asc,
     Desc
