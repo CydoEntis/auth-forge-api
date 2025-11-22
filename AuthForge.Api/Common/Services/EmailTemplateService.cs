@@ -9,30 +9,32 @@ public class EmailTemplateService : IEmailTemplateService
     private static readonly string PasswordResetTemplate;
     private static readonly string EmailVerificationTemplate;
     private static readonly string TestEmailTemplate;
+    private static readonly string AccountAlreadyExistsTemplate;
 
     static EmailTemplateService()
     {
         PasswordResetTemplate = LoadEmbeddedTemplate("DefaultPasswordResetTemplate.html");
         EmailVerificationTemplate = LoadEmbeddedTemplate("DefaultEmailVerificationTemplate.html");
         TestEmailTemplate = LoadEmbeddedTemplate("TestEmailTemplate.html");
+        AccountAlreadyExistsTemplate = LoadEmbeddedTemplate("AccountAlreadyExistsTemplate.html");
     }
 
     public Task<EmailMessage> CreatePasswordResetEmailAsync(
         string toEmail,
         string toName,
-        string resetUrl,  
+        string resetUrl,
         string appName)
     {
         var html = PasswordResetTemplate
             .Replace("{{userName}}", toName)
-            .Replace("{{resetUrl}}", resetUrl)  
+            .Replace("{{resetUrl}}", resetUrl)
             .Replace("{{appName}}", appName);
 
         var message = new EmailMessage(
             To: toEmail,
             Subject: $"Reset your {appName} password",
             Body: html,
-            From: null, 
+            From: null,
             FromName: appName,
             IsHtml: true
         );
@@ -43,19 +45,19 @@ public class EmailTemplateService : IEmailTemplateService
     public Task<EmailMessage> CreateEmailVerificationEmailAsync(
         string toEmail,
         string toName,
-        string verificationUrl,  
+        string verificationUrl,
         string appName)
     {
         var html = EmailVerificationTemplate
             .Replace("{{userName}}", toName)
-            .Replace("{{verificationUrl}}", verificationUrl)  
+            .Replace("{{verificationUrl}}", verificationUrl)
             .Replace("{{appName}}", appName);
 
         var message = new EmailMessage(
             To: toEmail,
             Subject: $"Welcome to {appName}! Verify your email",
             Body: html,
-            From: null,  
+            From: null,
             FromName: appName,
             IsHtml: true
         );
@@ -83,11 +85,32 @@ public class EmailTemplateService : IEmailTemplateService
         return Task.FromResult(message);
     }
 
+    public Task<EmailMessage> CreateAccountAlreadyExistsEmailAsync(
+        string toEmail,
+        string toName,
+        string appName)
+    {
+        var html = AccountAlreadyExistsTemplate
+            .Replace("{{userName}}", toName)
+            .Replace("{{appName}}", appName);
+
+        var message = new EmailMessage(
+            To: toEmail,
+            Subject: $"Account Registration Attempt - {appName}",
+            Body: html,
+            From: null,
+            FromName: appName,
+            IsHtml: true
+        );
+
+        return Task.FromResult(message);
+    }
+
     private static string LoadEmbeddedTemplate(string templateName)
     {
         var assembly = Assembly.GetExecutingAssembly();
         var resourceName = $"AuthForge.Api.Common.Templates.{templateName}";
-        
+
         using var stream = assembly.GetManifestResourceStream(resourceName);
         if (stream == null)
         {
