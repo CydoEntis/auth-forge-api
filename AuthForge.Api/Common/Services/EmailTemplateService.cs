@@ -16,7 +16,7 @@ public class EmailTemplateService : IEmailTemplateService
         PasswordResetTemplate = LoadEmbeddedTemplate("DefaultPasswordResetTemplate.html");
         EmailVerificationTemplate = LoadEmbeddedTemplate("DefaultEmailVerificationTemplate.html");
         TestEmailTemplate = LoadEmbeddedTemplate("TestEmailTemplate.html");
-        AccountAlreadyExistsTemplate = LoadEmbeddedTemplate("AccountAlreadyExistsTemplate.html");
+        AccountAlreadyExistsTemplate = LoadEmbeddedTemplate("DefaultEmailAlreadyExistsTemplate.html");
     }
 
     public Task<EmailMessage> CreatePasswordResetEmailAsync(
