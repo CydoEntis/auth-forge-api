@@ -36,6 +36,8 @@ public static class AppServicesExtensions
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IJwtService, JwtService>();
         services.AddSingleton<IEncryptionService, EncryptionService>();
+        services.AddHttpClient();
+        services.AddScoped<IOAuthService, OAuthService>();
 
         // Password Hashers
         services.AddSingleton<PasswordHasher<Admin>>();
