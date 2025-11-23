@@ -4,6 +4,7 @@ using AuthForge.Api.Common.Interfaces;
 using AuthForge.Api.Data;
 using AuthForge.Api.Features.Shared.Enums;
 using AuthForge.Api.Features.Shared.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthForge.Api.Features.Admin;
@@ -78,7 +79,7 @@ public static class AdminGetSettings
     public static void MapEndpoints(WebApplication app, string prefix = "/api/v1")
     {
         app.MapGet($"{prefix}/admin/settings", async (
-                AdminGetSettingsHandler handler,
+                [FromServices] AdminGetSettingsHandler handler,
                 CancellationToken ct) =>
             {
                 var response = await handler.HandleAsync(ct);

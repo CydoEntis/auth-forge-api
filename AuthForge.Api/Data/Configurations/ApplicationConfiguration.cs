@@ -45,6 +45,7 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<Application>
         entity.Property(a => a.GithubClientId).HasMaxLength(200);
         entity.Property(a => a.GithubClientSecretEncrypted).HasMaxLength(500);
         entity.Property(a => a.IsDeleted).HasDefaultValue(false);
+        entity.Property(a => a.DeletedAtUtc);
         entity.HasQueryFilter(a => !a.IsDeleted);
         entity.Property(a => a.CreatedAtUtc).IsRequired();
     }
