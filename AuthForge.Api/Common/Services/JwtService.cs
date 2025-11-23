@@ -92,8 +92,8 @@ public class JwtService : IJwtService
             new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
             new Claim(ClaimTypes.Email, email),
             new Claim(ClaimTypes.Role, "user"),
-            new Claim("user_type", "user"), 
-            new Claim("application_id", applicationId.ToString()), 
+            new Claim("user_type", "user"),
+            new Claim("application_id", applicationId.ToString()),
             new Claim("token_type", "access")
         };
 
