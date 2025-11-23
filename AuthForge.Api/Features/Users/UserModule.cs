@@ -26,6 +26,12 @@ public static class UserModule
         // Token Introspection
         services.AddScoped<IntrospectTokenHandler>();
 
+        // OAuth
+        services.AddScoped<GoogleAuthorizeHandler>();
+        services.AddScoped<GoogleCallbackHandler>();
+        services.AddScoped<GithubAuthorizeHandler>();
+        services.AddScoped<GithubCallbackHandler>();
+
         return services;
     }
 
@@ -53,6 +59,12 @@ public static class UserModule
         // Token Introspection
         UserTokenIntrospection.MapEndpoints(app, prefix);
 
+        // OAuth
+        GoogleAuthorize.MapEndpoints(app, prefix);
+        GoogleCallback.MapEndpoints(app, prefix);
+        GithubAuthorize.MapEndpoints(app, prefix);
+        GithubCallback.MapEndpoints(app, prefix);
+        
         return app;
     }
 }
