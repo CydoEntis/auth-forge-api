@@ -16,7 +16,9 @@ public class AppDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<UserRefreshToken> UserRefreshTokens => Set<UserRefreshToken>();
     public DbSet<UserPasswordResetToken> UserPasswordResetTokens => Set<UserPasswordResetToken>();
+    public DbSet<UserOAuthIdentity> UserOAuthIdentities => Set<UserOAuthIdentity>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
