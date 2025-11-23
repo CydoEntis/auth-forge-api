@@ -50,7 +50,6 @@ public class CompleteSetupValidator : AbstractValidator<CompleteSetupRequest>
             .Must(BeValidUrl)
             .WithMessage("Must be a valid URL (e.g., https://auth.mycompany.com)");
 
-
         RuleFor(x => x.DatabaseType)
             .IsInEnum()
             .WithMessage("Invalid database type");
@@ -80,16 +79,20 @@ public class CompleteSetupHandler
     private readonly ILogger<CompleteSetupHandler> _logger;
     private readonly IEncryptionService _encryptionService;
     private readonly PasswordHasher<Entities.Admin> _passwordHasher;
+    private readonly IWebHostEnvironment _environment;
 
     public CompleteSetupHandler(
         ConfigDbContext configDb,
         ILogger<CompleteSetupHandler> logger,
-        IEncryptionService encryptionService, PasswordHasher<Entities.Admin> passwordHasher)
+        IEncryptionService encryptionService,
+        PasswordHasher<Entities.Admin> passwordHasher,
+        IWebHostEnvironment environment)
     {
         _configDb = configDb;
         _logger = logger;
         _encryptionService = encryptionService;
         _passwordHasher = passwordHasher;
+        _environment = environment;
     }
 
     public async Task<CompleteSetupResponse> HandleAsync(CompleteSetupRequest request, CancellationToken ct)
@@ -121,14 +124,21 @@ public class CompleteSetupHandler
             string connectionString;
             if (request.DatabaseType == DatabaseType.Sqlite)
             {
-                var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Databases", "authforge.db");
+                var dbPath = Path.Combine(_environment.ContentRootPath, "Data", "Databases", "authforge.db");
+                
+                var directory = Path.GetDirectoryName(dbPath);
+                if (!string.IsNullOrEmpty(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+                
                 connectionString = $"Data Source={dbPath}";
+                _logger.LogInformation("SQLite database will be created at: {Path}", dbPath);
             }
             else
             {
                 connectionString = request.ConnectionString;
             }
-
 
             var jwtSecret = GenerateSecureSecret(64);
             _logger.LogInformation("Generated new JWT secret for admin authentication");
@@ -173,10 +183,15 @@ public class CompleteSetupHandler
 
         if (request.DatabaseType == DatabaseType.Sqlite)
         {
-            var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Databases", "authforge.db");
-            Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
+            var dbPath = Path.Combine(_environment.ContentRootPath, "Data", "Databases", "authforge.db");
+            
+            var directory = Path.GetDirectoryName(dbPath);
+            if (!string.IsNullOrEmpty(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+            
             connectionString = $"Data Source={dbPath}";
-
             _logger.LogInformation("Using SQLite database at: {Path}", dbPath);
         }
         else
