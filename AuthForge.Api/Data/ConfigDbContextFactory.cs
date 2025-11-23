@@ -3,17 +3,24 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace AuthForge.Api.Data;
 
-/// Design-time factory for creating ConfigDbContext during migrations.
-/// This is ONLY used by EF Core tooling (dotnet ef migrations).
-/// At runtime, the real registration in DatabaseExtensions is used.
 public class ConfigDbContextFactory : IDesignTimeDbContextFactory<ConfigDbContext>
 {
     public ConfigDbContext CreateDbContext(string[] args)
     {
-        var optionsBuilder = new DbContextOptionsBuilder<ConfigDbContext>();
+        var projectRoot = Directory.GetCurrentDirectory();
         
-        // This is ONLY for generating migrations, not runtime
-        optionsBuilder.UseSqlite("Data Source=config.db");
+        var dbPath = Path.Combine(projectRoot, "Data", "Databases", "config.db");
+        
+        var directory = Path.GetDirectoryName(dbPath);
+        if (!string.IsNullOrEmpty(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+        
+        Console.WriteLine($"[EF Design-Time] Using config database at: {dbPath}");
+        
+        var optionsBuilder = new DbContextOptionsBuilder<ConfigDbContext>();
+        optionsBuilder.UseSqlite($"Data Source={dbPath}");
 
         return new ConfigDbContext(optionsBuilder.Options);
     }

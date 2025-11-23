@@ -7,11 +7,21 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
     public AppDbContext CreateDbContext(string[] args)
     {
-        var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+        var projectRoot = Directory.GetCurrentDirectory();
         
-
-        optionsBuilder.UseSqlite("Data Source=authforge.db");
-
+        var dbPath = Path.Combine(projectRoot, "Data", "Databases", "authforge.db");
+        
+        var directory = Path.GetDirectoryName(dbPath);
+        if (!string.IsNullOrEmpty(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+        
+        Console.WriteLine($"[EF Design-Time] Using database at: {dbPath}");
+        
+        var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+        optionsBuilder.UseSqlite($"Data Source={dbPath}");
+        
         return new AppDbContext(optionsBuilder.Options);
     }
 }
