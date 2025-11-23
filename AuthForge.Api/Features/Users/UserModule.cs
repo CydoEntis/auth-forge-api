@@ -10,11 +10,21 @@ public static class UserModule
         services.AddScoped<UserRefreshTokenHandler>();
         services.AddScoped<UserLogoutHandler>();
 
-        // TODO: Password Management 
-        // services.AddScoped<UserForgotPasswordHandler>();
-        // services.AddScoped<UserResetPasswordHandler>();
-        // services.AddScoped<UserVerifyEmailHandler>();
-        // services.AddScoped<UserResendVerificationHandler>();
+        // Password Management
+        services.AddScoped<UserForgotPasswordHandler>();
+        services.AddScoped<UserResetPasswordHandler>();
+        services.AddScoped<UserVerifyPasswordResetTokenHandler>();
+        services.AddScoped<UserChangePasswordHandler>();
+
+        // Email Verification
+        services.AddScoped<UserVerifyEmailHandler>();
+        services.AddScoped<UserResendVerificationEmailHandler>();
+
+        // Profile
+        services.AddScoped<GetCurrentUserHandler>();
+
+        // Token Introspection
+        services.AddScoped<IntrospectTokenHandler>();
 
         return services;
     }
@@ -27,11 +37,21 @@ public static class UserModule
         UserRefreshToken.MapEndpoints(app, prefix);
         UserLogout.MapEndpoints(app, prefix);
 
-        // TODO: Password Management 
-        // UserForgotPassword.MapEndpoints(app, prefix);
-        // UserResetPassword.MapEndpoints(app, prefix);
-        // UserVerifyEmail.MapEndpoints(app, prefix);
-        // UserResendVerification.MapEndpoints(app, prefix);
+        // Password Management
+        UserForgotPassword.MapEndpoints(app, prefix);
+        UserResetPassword.MapEndpoints(app, prefix);
+        UserVerifyPasswordResetToken.MapEndpoints(app, prefix);
+        UserChangePassword.MapEndpoints(app, prefix);
+
+        // Email Verification
+        UserVerifyEmail.MapEndpoints(app, prefix);
+        UserResendVerificationEmail.MapEndpoints(app, prefix);
+
+        // Profile
+        GetCurrentUser.MapEndpoints(app, prefix);
+
+        // Token Introspection
+        UserTokenIntrospection.MapEndpoints(app, prefix);
 
         return app;
     }
