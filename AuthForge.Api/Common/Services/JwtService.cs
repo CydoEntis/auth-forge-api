@@ -13,7 +13,7 @@ public class JwtService : IJwtService
     private readonly IConfigurationService _configService;
     private readonly IEncryptionService _encryptionService;
     private readonly ILogger<JwtService> _logger;
-    private string? _cachedAdminSecret;
+    private string? _cachedAdminSecret;  
 
     private const int DefaultAccessTokenExpirationMinutes = 15;
     private const int DefaultRefreshTokenExpirationDays = 7;
@@ -41,13 +41,13 @@ public class JwtService : IJwtService
             throw new InvalidOperationException("JWT secret not configured. Please complete setup.");
         }
 
-        _cachedAdminSecret = config.JwtSecretEncrypted;
+        _cachedAdminSecret = _encryptionService.Decrypt(config.JwtSecretEncrypted);
         return _cachedAdminSecret;
     }
 
     public async Task<TokenPair> GenerateAdminTokenPairAsync(Guid adminId, string email)
     {
-        var secret = await GetAdminJwtSecretAsync();
+        var secret = await GetAdminJwtSecretAsync();  
 
         var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(DefaultAccessTokenExpirationMinutes);
         var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(DefaultRefreshTokenExpirationDays);
