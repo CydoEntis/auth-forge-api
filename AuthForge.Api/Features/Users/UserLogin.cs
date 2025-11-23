@@ -58,9 +58,7 @@ public sealed class UserLoginHandler
 
         if (app == null || !app.IsActive)
         {
-            _logger.LogWarning(
-                "Login attempt for invalid application: {AppId}",
-                applicationId);
+            _logger.LogWarning("Login attempt for invalid application: {AppId}", applicationId);
             throw new UnauthorizedException("Invalid email or password");
         }
 
@@ -81,13 +79,8 @@ public sealed class UserLoginHandler
         if (user.LockedOutUntil.HasValue && user.LockedOutUntil > DateTime.UtcNow)
         {
             var minutesRemaining = (int)(user.LockedOutUntil.Value - DateTime.UtcNow).TotalMinutes;
-            _logger.LogWarning(
-                "Login attempt for locked account {UserId}. Locked until {LockedUntil}",
-                user.Id,
-                user.LockedOutUntil);
-
             throw new UnauthorizedException(
-                $"Account is locked due to multiple failed login attempts. Please try again in {minutesRemaining} minute(s).");
+                $"Account locked. Try again in {minutesRemaining} minute(s).");
         }
 
         var verificationResult = _passwordHasher.VerifyHashedPassword(
@@ -102,20 +95,10 @@ public sealed class UserLoginHandler
             if (user.FailedLoginAttempts >= app.MaxFailedLoginAttempts)
             {
                 user.LockedOutUntil = DateTime.UtcNow.AddMinutes(app.LockoutDurationMinutes);
-
                 _logger.LogWarning(
-                    "User {UserId} locked out after {Attempts} failed attempts. Locked until {LockedUntil}",
+                    "User {UserId} locked out after {Attempts} failed attempts",
                     user.Id,
-                    user.FailedLoginAttempts,
-                    user.LockedOutUntil);
-            }
-            else
-            {
-                _logger.LogWarning(
-                    "Failed login attempt {Attempts}/{Max} for user {UserId}",
-                    user.FailedLoginAttempts,
-                    app.MaxFailedLoginAttempts,
-                    user.Id);
+                    user.FailedLoginAttempts);
             }
 
             await _context.SaveChangesAsync(ct);
@@ -124,11 +107,8 @@ public sealed class UserLoginHandler
 
         if (app.RequireEmailVerification && !user.EmailVerified)
         {
-            _logger.LogWarning(
-                "Login attempt with unverified email for user {UserId}",
-                user.Id);
             throw new UnauthorizedException(
-                "Please verify your email address before logging in. Check your inbox for the verification email.");
+                "Please verify your email before logging in.");
         }
 
         user.FailedLoginAttempts = 0;
@@ -157,7 +137,7 @@ public sealed class UserLoginHandler
         await _context.SaveChangesAsync(ct);
 
         _logger.LogInformation(
-            "User {UserId} logged in successfully to application {AppId}",
+            "User {UserId} logged in to application {AppId}",
             user.Id,
             applicationId);
 

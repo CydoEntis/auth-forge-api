@@ -47,9 +47,7 @@ public sealed class UserRefreshTokenHandler
 
         if (app == null || !app.IsActive)
         {
-            _logger.LogWarning(
-                "Refresh token attempt for invalid application: {AppId}",
-                applicationId);
+            _logger.LogWarning("Refresh attempt for invalid application: {AppId}", applicationId);
             throw new UnauthorizedException("Invalid refresh token");
         }
 
@@ -61,34 +59,25 @@ public sealed class UserRefreshTokenHandler
 
         if (storedToken == null)
         {
-            _logger.LogWarning(
-                "Invalid refresh token attempt for application {AppId}",
-                applicationId);
+            _logger.LogWarning("Invalid refresh token for app {AppId}", applicationId);
             throw new UnauthorizedException("Invalid refresh token");
         }
 
         if (storedToken.ExpiresAt < DateTime.UtcNow)
         {
-            _logger.LogWarning(
-                "Expired refresh token used for user {UserId}. Expired at {ExpiredAt}",
-                storedToken.UserId,
-                storedToken.ExpiresAt);
-            throw new UnauthorizedException("Refresh token has expired. Please log in again.");
+            throw new UnauthorizedException("Refresh token expired. Please log in again.");
         }
 
         if (storedToken.IsRevoked)
         {
-            _logger.LogWarning(
-                "Revoked refresh token used for user {UserId}",
-                storedToken.UserId);
-            throw new UnauthorizedException("Refresh token has been revoked. Please log in again.");
+            throw new UnauthorizedException("Refresh token revoked. Please log in again.");
         }
 
         var user = storedToken.User;
         if (user.ApplicationId != applicationId)
         {
             _logger.LogError(
-                "Token application mismatch. Token app: {TokenApp}, Request app: {RequestApp}",
+                "Token application mismatch. Token: {TokenApp}, Request: {RequestApp}",
                 user.ApplicationId,
                 applicationId);
             throw new UnauthorizedException("Invalid refresh token");
@@ -118,7 +107,7 @@ public sealed class UserRefreshTokenHandler
         await _context.SaveChangesAsync(ct);
 
         _logger.LogInformation(
-            "Refresh token rotated for user {UserId} in application {AppId}",
+            "Refresh token rotated for user {UserId} in app {AppId}",
             user.Id,
             applicationId);
 
