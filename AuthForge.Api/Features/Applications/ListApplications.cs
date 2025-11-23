@@ -2,6 +2,7 @@
 using AuthForge.Api.Data;
 using AuthForge.Api.Features.Applications.Shared.Models;
 using AuthForge.Api.Features.Shared.Enums;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthForge.Api.Features.Applications;
@@ -156,7 +157,7 @@ public static class ListApplications
     {
         app.MapGet($"{prefix}/applications", async (
                 [AsParameters] ListApplicationsRequest request,
-                ListApplicationsHandler handler,
+                [FromServices] ListApplicationsHandler handler,
                 CancellationToken ct) =>
             {
                 var response = await handler.HandleAsync(request, ct);

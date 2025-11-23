@@ -2,6 +2,7 @@
 using AuthForge.Api.Common.Exceptions.Http;
 using AuthForge.Api.Common.Interfaces;
 using AuthForge.Api.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthForge.Api.Features.Admin;
@@ -62,7 +63,7 @@ public static class GetAdmin
     public static void MapEndpoints(WebApplication app, string prefix = "/api/v1")
     {
         app.MapGet($"{prefix}/admin/me", async (
-                GetAdminHandler handler,
+                [FromServices] GetAdminHandler handler,
                 CancellationToken ct) =>
             {
                 var response = await handler.HandleAsync(ct);

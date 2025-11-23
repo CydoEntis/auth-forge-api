@@ -1,6 +1,7 @@
 ﻿using AuthForge.Api.Common;
 using AuthForge.Api.Common.Exceptions.Http;
 using AuthForge.Api.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthForge.Api.Features.Applications;
@@ -63,7 +64,7 @@ public static class GetApplication
     {
         app.MapGet($"{prefix}/applications/{{id:guid}}", async (
                 Guid id,
-                GetApplicationHandler handler,
+                [FromServices] GetApplicationHandler handler,
                 CancellationToken ct) =>
             {
                 var response = await handler.HandleAsync(id, ct);

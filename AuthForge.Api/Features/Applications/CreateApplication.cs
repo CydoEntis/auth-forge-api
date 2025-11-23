@@ -14,7 +14,8 @@ public sealed record CreateApplicationRequest(
     List<string>? AllowedOrigins,
     string? PasswordResetCallbackUrl,
     string? EmailVerificationCallbackUrl,
-    string? MagicLinkCallbackUrl
+    string? MagicLinkCallbackUrl,
+    bool RequireEmailVerification = true
 );
 
 public sealed record CreateApplicationResponse(
@@ -78,7 +79,7 @@ public class CreateApplicationHandler
     private readonly ILogger<CreateApplicationHandler> _logger;
 
     public CreateApplicationHandler(
-        AppDbContext context, 
+        AppDbContext context,
         IEncryptionService encryptionService,
         ILogger<CreateApplicationHandler> logger)
     {
@@ -88,7 +89,7 @@ public class CreateApplicationHandler
     }
 
     public async Task<CreateApplicationResponse> HandleAsync(
-        CreateApplicationRequest request, 
+        CreateApplicationRequest request,
         CancellationToken ct)
     {
         var slug = GenerateAppSlug(request.Name);
@@ -116,6 +117,7 @@ public class CreateApplicationHandler
             RefreshTokenExpirationDays = 7,
             UseGlobalEmailSettings = true,
             CreatedAtUtc = DateTime.UtcNow,
+            RequireEmailVerification = request.RequireEmailVerification
         };
 
         _context.Applications.Add(application);

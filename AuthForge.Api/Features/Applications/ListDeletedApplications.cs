@@ -1,5 +1,6 @@
 ﻿using AuthForge.Api.Common;
 using AuthForge.Api.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthForge.Api.Features.Applications;
@@ -53,7 +54,7 @@ public static class ListDeletedApplications
     public static void MapEndpoints(WebApplication app, string prefix = "/api/v1")
     {
         app.MapGet($"{prefix}/applications/deleted", async (
-                ListDeletedApplicationsHandler handler,
+                [FromServices] ListDeletedApplicationsHandler handler,
                 CancellationToken ct) =>
             {
                 var response = await handler.HandleAsync(ct);

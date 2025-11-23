@@ -3,6 +3,7 @@ using AuthForge.Api.Common.Exceptions.Http;
 using AuthForge.Api.Common.Interfaces;
 using AuthForge.Api.Data;
 using AuthForge.Api.Features.Users.Shared.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthForge.Api.Features.Users;
@@ -77,7 +78,7 @@ public static class GetCurrentUser
     {
         app.MapGet($"{prefix}/apps/{{appId:guid}}/auth/me", async (
                 Guid appId,
-                GetCurrentUserHandler handler,
+                [FromServices] GetCurrentUserHandler handler,
                 CancellationToken ct) =>
             {
                 var response = await handler.HandleAsync(appId, ct);

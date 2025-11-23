@@ -1,6 +1,7 @@
 ﻿using AuthForge.Api.Common;
 using AuthForge.Api.Common.Exceptions.Http;
 using AuthForge.Api.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthForge.Api.Features.Applications;
@@ -60,7 +61,7 @@ public static class HardDeleteApplication
     {
         app.MapDelete($"{prefix}/applications/{{id:guid}}/permanent", async (
                 Guid id,
-                HardDeleteApplicationHandler handler,
+                [FromServices] HardDeleteApplicationHandler handler,
                 CancellationToken ct) =>
             {
                 var response = await handler.HandleAsync(id, ct);

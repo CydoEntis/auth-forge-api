@@ -1,6 +1,7 @@
 ﻿using AuthForge.Api.Common;
 using AuthForge.Api.Common.Exceptions.Http;
 using AuthForge.Api.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthForge.Api.Features.Applications;
@@ -60,7 +61,7 @@ public static class RestoreApplicationFeature
     {
         app.MapPost($"{prefix}/applications/{{id:guid}}/restore", async (
                 Guid id,
-                RestoreApplicationHandler handler,
+                [FromServices] RestoreApplicationHandler handler,
                 CancellationToken ct) =>
             {
                 var response = await handler.HandleAsync(id, ct);
