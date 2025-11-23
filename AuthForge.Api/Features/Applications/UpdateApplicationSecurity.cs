@@ -2,6 +2,7 @@
 using AuthForge.Api.Common.Exceptions.Http;
 using AuthForge.Api.Data;
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthForge.Api.Features.Applications;
@@ -99,7 +100,7 @@ public static class UpdateApplicationSecurity
         app.MapPut($"{prefix}/applications/{{id:guid}}/security", async (
                 Guid id,
                 UpdateApplicationSecurityRequest request,
-                UpdateApplicationSecurityHandler handler,
+                [FromServices] UpdateApplicationSecurityHandler handler,
                 CancellationToken ct) =>
             {
                 var validator = new UpdateApplicationSecurityValidator();

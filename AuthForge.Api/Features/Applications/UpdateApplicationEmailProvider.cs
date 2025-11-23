@@ -4,6 +4,7 @@ using AuthForge.Api.Common.Interfaces;
 using AuthForge.Api.Data;
 using AuthForge.Api.Features.Applications.Shared.Validators;
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthForge.Api.Features.Applications;
@@ -130,7 +131,7 @@ public static class UpdateApplicationEmailProvider
         app.MapPut($"{prefix}/applications/{{id:guid}}/email", async (
                 Guid id,
                 UpdateApplicationEmailProviderRequest providerRequest,
-                UpdateApplicationEmailProviderHandler providerHandler,
+                [FromServices] UpdateApplicationEmailProviderHandler providerHandler,
                 CancellationToken ct) =>
             {
                 var validator = new UpdateApplicationEmailValidator();
