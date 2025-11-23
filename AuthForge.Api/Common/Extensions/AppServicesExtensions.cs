@@ -4,6 +4,7 @@ using AuthForge.Api.Entities;
 using AuthForge.Api.Features.Admin;
 using AuthForge.Api.Features.Applications;
 using AuthForge.Api.Features.Setup;
+using AuthForge.Api.Features.Users;
 using FluentValidation;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
@@ -48,7 +49,7 @@ public static class AppServicesExtensions
         services.AddSetupServices();
         services.AddAdminServices();
         services.AddApplicationServices();
-
+        services.AddUserServices();
         return services;
     }
 }
