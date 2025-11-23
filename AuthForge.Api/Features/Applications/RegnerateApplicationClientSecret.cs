@@ -3,6 +3,7 @@ using AuthForge.Api.Common;
 using AuthForge.Api.Common.Exceptions.Http;
 using AuthForge.Api.Common.Interfaces;
 using AuthForge.Api.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthForge.Api.Features.Applications;
@@ -79,7 +80,7 @@ public static class RegenerateApplicationClientSecret
     {
         app.MapPost($"{prefix}/applications/{{id:guid}}/regenerate-secret", async (
                 Guid id,
-                RegenerateApplicationClientSecretHandler handler,
+                [FromServices] RegenerateApplicationClientSecretHandler handler,
                 CancellationToken ct) =>
             {
                 var response = await handler.HandleAsync(id, ct);

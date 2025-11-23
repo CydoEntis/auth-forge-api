@@ -3,6 +3,7 @@ using AuthForge.Api.Common;
 using AuthForge.Api.Common.Exceptions.Http;
 using AuthForge.Api.Common.Interfaces;
 using AuthForge.Api.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthForge.Api.Features.Applications;
@@ -85,7 +86,7 @@ public static class RegenerateJwtSecretFeature
     {
         app.MapPost($"{prefix}/applications/{{id:guid}}/regenerate-jwt-secret", async (
                 Guid id,
-                RegenerateApplicationJwtSecretHandler handler,
+                [FromServices] RegenerateApplicationJwtSecretHandler handler,
                 CancellationToken ct) =>
             {
                 var response = await handler.HandleAsync(id, ct);
