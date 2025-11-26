@@ -6,9 +6,8 @@ public static class SetupModule
     {
         services.AddScoped<CompleteSetupHandler>();
         services.AddScoped<TestDatabaseConnectionHandler>();
-        services.AddScoped<TestEmailConfigHandler>();
         services.AddScoped<GetSetupStatusHandler>();
-        
+
         return services;
     }
 
@@ -16,9 +15,8 @@ public static class SetupModule
     {
         CompleteSetupFeature.MapEndpoints(app, prefix);
         TestDatabaseConnectionFeature.MapEndpoints(app, prefix);
-        TestEmailConfigFeature.MapEndpoints(app, prefix);
         GetSetupStatusFeature.MapEndpoints(app, prefix);
-        
+
         return app;
     }
 }

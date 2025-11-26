@@ -3,6 +3,9 @@ using AuthForge.Api.Common.Exceptions.Http;
 using AuthForge.Api.Common.Interfaces;
 using AuthForge.Api.Data;
 using AuthForge.Api.Features.Applications.Shared.Validators;
+using AuthForge.Api.Features.Shared.Enums;
+using AuthForge.Api.Features.Shared.Models;
+using AuthForge.Api.Features.Shared.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +14,7 @@ namespace AuthForge.Api.Features.Applications;
 
 public sealed record UpdateApplicationEmailProviderRequest(
     bool UseGlobalEmailSettings,
-    string? EmailProvider,
-    string? FromEmail,
-    string? FromName,
-    string? EmailApiKey,
+    EmailProviderConfig? EmailProviderConfig,
     string? PasswordResetCallbackUrl,
     string? EmailVerificationCallbackUrl
 );
@@ -33,24 +33,22 @@ public class UpdateApplicationEmailValidator : AbstractValidator<UpdateApplicati
     {
         When(x => !x.UseGlobalEmailSettings, () =>
         {
-            RuleFor(x => x.EmailProvider)
-                .NotEmpty().WithMessage("Email provider is required when not using global settings");
+            RuleFor(x => x.EmailProviderConfig)
+                .NotNull()
+                .WithMessage("Email provider configuration is required when not using global settings")
+                .SetValidator(new EmailProviderConfigValidator()!);
+        });
 
-            RuleFor(x => x.FromEmail)
-                .NotEmpty().WithMessage("From email is required when not using global settings")
-                .EmailAddress().WithMessage("Must be a valid email address");
+        When(x => !string.IsNullOrEmpty(x.PasswordResetCallbackUrl), () =>
+        {
+            RuleFor(x => x.PasswordResetCallbackUrl)
+                .MustBeValidUrl();
+        });
 
-            When(x => !string.IsNullOrEmpty(x.PasswordResetCallbackUrl), () =>
-            {
-                RuleFor(x => x.PasswordResetCallbackUrl)
-                    .MustBeValidUrl();
-            });
-
-            When(x => !string.IsNullOrEmpty(x.EmailVerificationCallbackUrl), () =>
-            {
-                RuleFor(x => x.EmailVerificationCallbackUrl)
-                    .MustBeValidUrl();
-            });
+        When(x => !string.IsNullOrEmpty(x.EmailVerificationCallbackUrl), () =>
+        {
+            RuleFor(x => x.EmailVerificationCallbackUrl)
+                .MustBeValidUrl();
         });
     }
 }
@@ -73,20 +71,20 @@ public class UpdateApplicationEmailProviderHandler
 
     public async Task<UpdateApplicationEmailProviderResponse> HandleAsync(
         Guid id,
-        UpdateApplicationEmailProviderRequest providerRequest,
+        UpdateApplicationEmailProviderRequest request,
         CancellationToken ct)
     {
         var application = await _context.Applications
-            .FirstOrDefaultAsync(a => a.Id == id, ct);
+            .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted, ct);
 
         if (application == null)
         {
             throw new NotFoundException($"Application with ID {id} not found");
         }
 
-        application.UseGlobalEmailSettings = providerRequest.UseGlobalEmailSettings;
+        application.UseGlobalEmailSettings = request.UseGlobalEmailSettings;
 
-        if (providerRequest.UseGlobalEmailSettings)
+        if (request.UseGlobalEmailSettings)
         {
             application.EmailProvider = null;
             application.FromEmail = null;
@@ -95,24 +93,36 @@ public class UpdateApplicationEmailProviderHandler
         }
         else
         {
-            application.EmailProvider = providerRequest.EmailProvider;
-            application.FromEmail = providerRequest.FromEmail;
-            application.FromName = providerRequest.FromName;
+            var config = request.EmailProviderConfig!;
 
-            if (!string.IsNullOrEmpty(providerRequest.EmailApiKey))
+            application.EmailProvider = config.EmailProvider.ToString();
+            application.FromEmail = config.FromEmail;
+            application.FromName = config.FromName;
+
+            if (config.EmailProvider == EmailProvider.Smtp)
             {
-                application.EmailApiKeyEncrypted = _encryptionService.Encrypt(providerRequest.EmailApiKey);
+                if (!string.IsNullOrEmpty(config.SmtpPassword))
+                {
+                    application.EmailApiKeyEncrypted = _encryptionService.Encrypt(config.SmtpPassword);
+                }
+            }
+            else if (config.EmailProvider == EmailProvider.Resend)
+            {
+                if (!string.IsNullOrEmpty(config.ResendApiKey))
+                {
+                    application.EmailApiKeyEncrypted = _encryptionService.Encrypt(config.ResendApiKey);
+                }
             }
         }
 
-        application.PasswordResetCallbackUrl = providerRequest.PasswordResetCallbackUrl;
-        application.EmailVerificationCallbackUrl = providerRequest.EmailVerificationCallbackUrl;
+        application.PasswordResetCallbackUrl = request.PasswordResetCallbackUrl;
+        application.EmailVerificationCallbackUrl = request.EmailVerificationCallbackUrl;
         application.UpdatedAtUtc = DateTime.UtcNow;
 
         await _context.SaveChangesAsync(ct);
 
-        _logger.LogInformation("Updated email settings for application: {Name} ({Id})", application.Name,
-            application.Id);
+        _logger.LogInformation("Updated email settings for application: {Name} ({Id})",
+            application.Name, application.Id);
 
         return new UpdateApplicationEmailProviderResponse(
             application.Id,
@@ -130,17 +140,17 @@ public static class UpdateApplicationEmailProvider
     {
         app.MapPut($"{prefix}/applications/{{id:guid}}/email", async (
                 Guid id,
-                UpdateApplicationEmailProviderRequest providerRequest,
-                [FromServices] UpdateApplicationEmailProviderHandler providerHandler,
+                UpdateApplicationEmailProviderRequest request,
+                [FromServices] UpdateApplicationEmailProviderHandler handler,
                 CancellationToken ct) =>
             {
                 var validator = new UpdateApplicationEmailValidator();
-                var validationResult = await validator.ValidateAsync(providerRequest, ct);
+                var validationResult = await validator.ValidateAsync(request, ct);
 
                 if (!validationResult.IsValid)
-                    throw new FluentValidation.ValidationException(validationResult.Errors);
+                    throw new ValidationException(validationResult.Errors);
 
-                var response = await providerHandler.HandleAsync(id, providerRequest, ct);
+                var response = await handler.HandleAsync(id, request, ct);
                 return Results.Ok(ApiResponse<UpdateApplicationEmailProviderResponse>.Ok(response));
             })
             .WithName("UpdateApplicationEmail")

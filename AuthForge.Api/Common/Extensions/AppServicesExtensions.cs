@@ -3,6 +3,7 @@ using AuthForge.Api.Common.Services;
 using AuthForge.Api.Entities;
 using AuthForge.Api.Features.Admin;
 using AuthForge.Api.Features.Applications;
+using AuthForge.Api.Features.Email;
 using AuthForge.Api.Features.Setup;
 using AuthForge.Api.Features.Users;
 using FluentValidation;
@@ -48,6 +49,7 @@ public static class AppServicesExtensions
         services.AddValidatorsFromAssemblyContaining<Program>();
 
         // Modules
+        services.AddEmailServices();
         services.AddSetupServices();
         services.AddAdminServices();
         services.AddApplicationServices();

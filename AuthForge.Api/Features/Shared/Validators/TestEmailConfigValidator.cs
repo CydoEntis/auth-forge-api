@@ -1,9 +1,10 @@
-﻿using FluentValidation;
+﻿using AuthForge.Api.Features.Email;
+using FluentValidation;
 using AuthForge.Api.Features.Shared.Models;
 
 namespace AuthForge.Api.Features.Shared.Validators;
 
-public class TestEmailConfigValidator : AbstractValidator<TestEmailConfigRequest>
+public class TestEmailConfigValidator : AbstractValidator<TestEmailProviderRequest>
 {
     public TestEmailConfigValidator()
     {

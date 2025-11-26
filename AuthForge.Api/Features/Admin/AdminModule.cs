@@ -19,7 +19,6 @@ public static class AdminModule
         services.AddScoped<AdminUpdateEmailHandler>();
         services.AddScoped<AdminUpdateDomainHandler>();
         services.AddScoped<AdminUpdateEmailProviderHandler>();
-        services.AddScoped<AdminTestEmailProviderHandler>();
         services.AddScoped<AdminGetSettingsHandler>();
 
         // Security
@@ -49,7 +48,6 @@ public static class AdminModule
         AdminUpdateEmail.MapEndpoints(app, prefix);
         AdminUpdateDomain.MapEndpoints(app, prefix);
         AdminUpdateEmailProvider.MapEndpoints(app, prefix);
-        AdminTestEmailProvider.MapEndpoints(app, prefix);
         AdminGetSettings.MapEndpoints(app, prefix);
 
         // Security

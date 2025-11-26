@@ -13,7 +13,7 @@ public class SetupCheckMiddleware
         "/api/v1/health", 
         "/api/v1/setup/status", 
         "/api/v1/setup/test-database", 
-        "/api/v1/setup/test-email", 
+        "/api/v1/email/test",
         "/api/v1/setup/complete", 
         "/openapi", 
         "/docs" 
