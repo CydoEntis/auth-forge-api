@@ -13,4 +13,7 @@ public interface IJwtService
         string appJwtSecretEncrypted,
         int accessTokenExpirationMinutes,
         int refreshTokenExpirationDays);
+
+    string GenerateSecureToken(int bytes = 64);
+    string GenerateUrlSafeToken(int bytes = 32);
 }

@@ -13,7 +13,7 @@ public class JwtService : IJwtService
     private readonly IConfigurationService _configService;
     private readonly IEncryptionService _encryptionService;
     private readonly ILogger<JwtService> _logger;
-    private string? _cachedAdminSecret;  
+    private string? _cachedAdminSecret;
 
     private const int DefaultAccessTokenExpirationMinutes = 15;
     private const int DefaultRefreshTokenExpirationDays = 7;
@@ -34,7 +34,6 @@ public class JwtService : IJwtService
             return _cachedAdminSecret;
 
         var config = await _configService.GetAsync();
-
         if (config?.JwtSecretEncrypted == null)
         {
             _logger.LogError("JWT secret not found in configuration");
@@ -47,8 +46,7 @@ public class JwtService : IJwtService
 
     public async Task<TokenPair> GenerateAdminTokenPairAsync(Guid adminId, string email)
     {
-        var secret = await GetAdminJwtSecretAsync();  
-
+        var secret = await GetAdminJwtSecretAsync();
         var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(DefaultAccessTokenExpirationMinutes);
         var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(DefaultRefreshTokenExpirationDays);
 
@@ -62,7 +60,7 @@ public class JwtService : IJwtService
         };
 
         var accessToken = GenerateJwtToken(claims, secret, accessTokenExpiresAt);
-        var refreshToken = GenerateRefreshToken();
+        var refreshToken = GenerateSecureToken(64);
 
         _logger.LogInformation("Generated token pair for admin {AdminId}", adminId);
 
@@ -83,7 +81,6 @@ public class JwtService : IJwtService
         int refreshTokenExpirationDays)
     {
         var secret = _encryptionService.Decrypt(appJwtSecretEncrypted);
-
         var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(accessTokenExpirationMinutes);
         var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(refreshTokenExpirationDays);
 
@@ -98,7 +95,7 @@ public class JwtService : IJwtService
         };
 
         var accessToken = GenerateJwtToken(claims, secret, accessTokenExpiresAt);
-        var refreshToken = GenerateRefreshToken();
+        var refreshToken = GenerateSecureToken(64);
 
         _logger.LogInformation(
             "Generated token pair for user {UserId} in application {ApplicationId}",
@@ -111,6 +108,25 @@ public class JwtService : IJwtService
             AccessTokenExpiresAt: accessTokenExpiresAt,
             RefreshTokenExpiresAt: refreshTokenExpiresAt
         ));
+    }
+
+    public string GenerateSecureToken(int bytes = 64)
+    {
+        var randomBytes = new byte[bytes];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomBytes);
+        return Convert.ToBase64String(randomBytes);
+    }
+
+    public string GenerateUrlSafeToken(int bytes = 32)
+    {
+        var randomBytes = new byte[bytes];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomBytes);
+        return Convert.ToBase64String(randomBytes)
+            .Replace("+", "-")
+            .Replace("/", "_")
+            .Replace("=", "");
     }
 
     private string GenerateJwtToken(List<Claim> claims, string secret, DateTime expiresAt)
@@ -127,13 +143,5 @@ public class JwtService : IJwtService
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
-    }
-
-    private static string GenerateRefreshToken()
-    {
-        var randomBytes = new byte[64];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(randomBytes);
-        return Convert.ToBase64String(randomBytes);
     }
 }
