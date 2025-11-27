@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography;
-using AuthForge.Api.Common;
+﻿using AuthForge.Api.Common;
 using AuthForge.Api.Common.Exceptions.Http;
 using AuthForge.Api.Common.Interfaces;
 using AuthForge.Api.Data;
@@ -19,15 +18,18 @@ public class RegenerateApplicationJwtSecretHandler
 {
     private readonly AppDbContext _context;
     private readonly IEncryptionService _encryptionService;
+    private readonly IJwtService _jwtService;
     private readonly ILogger<RegenerateApplicationJwtSecretHandler> _logger;
 
     public RegenerateApplicationJwtSecretHandler(
         AppDbContext context,
         IEncryptionService encryptionService,
+        IJwtService jwtService,
         ILogger<RegenerateApplicationJwtSecretHandler> logger)
     {
         _context = context;
         _encryptionService = encryptionService;
+        _jwtService = jwtService;
         _logger = logger;
     }
 
@@ -43,7 +45,7 @@ public class RegenerateApplicationJwtSecretHandler
             throw new NotFoundException($"Application with ID {id} not found");
         }
 
-        var newJwtSecret = GenerateJwtSecret();
+        var newJwtSecret = _jwtService.GenerateSecureToken(64);
         var regeneratedAt = DateTime.UtcNow;
 
         application.JwtSecretEncrypted = _encryptionService.Encrypt(newJwtSecret);
@@ -69,14 +71,6 @@ public class RegenerateApplicationJwtSecretHandler
             regeneratedAt,
             "JWT secret regenerated. All existing user sessions have been invalidated. Users will need to log in again"
         );
-    }
-
-    private static string GenerateJwtSecret()
-    {
-        var bytes = new byte[64];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(bytes);
-        return Convert.ToBase64String(bytes);
     }
 }
 

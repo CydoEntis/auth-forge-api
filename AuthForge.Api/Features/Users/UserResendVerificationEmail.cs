@@ -4,7 +4,6 @@ using AuthForge.Api.Common.Interfaces;
 using AuthForge.Api.Data;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
 
 namespace AuthForge.Api.Features.Users;
 
@@ -27,17 +26,20 @@ public sealed class UserResendVerificationEmailHandler
     private readonly AppDbContext _context;
     private readonly IEmailTemplateService _emailTemplateService;
     private readonly IEmailServiceFactory _emailServiceFactory;
+    private readonly IJwtService _jwtService;
     private readonly ILogger<UserResendVerificationEmailHandler> _logger;
 
     public UserResendVerificationEmailHandler(
         AppDbContext context,
         IEmailTemplateService emailTemplateService,
         IEmailServiceFactory emailServiceFactory,
+        IJwtService jwtService,
         ILogger<UserResendVerificationEmailHandler> logger)
     {
         _context = context;
         _emailTemplateService = emailTemplateService;
         _emailServiceFactory = emailServiceFactory;
+        _jwtService = jwtService;
         _logger = logger;
     }
 
@@ -47,6 +49,7 @@ public sealed class UserResendVerificationEmailHandler
         CancellationToken ct)
     {
         var app = await _context.Applications
+            .Include(a => a.EmailSettings)
             .FirstOrDefaultAsync(a => a.Id == applicationId && !a.IsDeleted, ct);
 
         if (app == null || !app.IsActive)
@@ -81,7 +84,7 @@ public sealed class UserResendVerificationEmailHandler
                 "If an account exists with that email, a verification email has been sent.");
         }
 
-        var verificationToken = GenerateVerificationToken();
+        var verificationToken = _jwtService.GenerateUrlSafeToken(32);
         user.EmailVerificationToken = verificationToken;
         user.EmailVerificationTokenExpiresAt = DateTime.UtcNow.AddHours(24);
         user.UpdatedAtUtc = DateTime.UtcNow;
@@ -105,18 +108,6 @@ public sealed class UserResendVerificationEmailHandler
             "If an account exists with that email, a verification email has been sent.");
     }
 
-    private static string GenerateVerificationToken()
-    {
-        var randomBytes = new byte[32];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(randomBytes);
-
-        return Convert.ToBase64String(randomBytes)
-            .Replace("+", "-")
-            .Replace("/", "_")
-            .Replace("=", "");
-    }
-
     private async Task SendVerificationEmailAsync(
         Entities.User user,
         Entities.Application app,
@@ -132,19 +123,7 @@ public sealed class UserResendVerificationEmailHandler
             appName: app.Name
         );
 
-        string fromAddress;
-        string? fromName;
-
-        if (app.UseGlobalEmailSettings)
-        {
-            fromAddress = await _emailServiceFactory.GetFromAddressAsync(ct);
-            fromName = await _emailServiceFactory.GetFromNameAsync(ct);
-        }
-        else
-        {
-            fromAddress = app.FromEmail ?? throw new InvalidOperationException("Application email not configured");
-            fromName = app.FromName;
-        }
+        var (fromAddress, fromName) = await _emailServiceFactory.GetFromDetailsForApplicationAsync(app, ct);
 
         var finalMessage = emailMessage with
         {
@@ -152,7 +131,7 @@ public sealed class UserResendVerificationEmailHandler
             FromName = fromName ?? app.Name
         };
 
-        var emailService = await _emailServiceFactory.CreateAsync(ct);
+        var emailService = await _emailServiceFactory.CreateForApplicationAsync(app, ct);
         var result = await emailService.SendAsync(finalMessage, ct);
 
         if (!result.Success)
@@ -177,7 +156,7 @@ public static class UserResendVerificationEmail
                 var validationResult = await validator.ValidateAsync(emailRequest, ct);
 
                 if (!validationResult.IsValid)
-                    throw new FluentValidation.ValidationException(validationResult.Errors);
+                    throw new ValidationException(validationResult.Errors);
 
                 var response = await emailHandler.HandleAsync(appId, emailRequest, ct);
                 return Results.Ok(ApiResponse<UserResendVerificationEmailResponse>.Ok(response));

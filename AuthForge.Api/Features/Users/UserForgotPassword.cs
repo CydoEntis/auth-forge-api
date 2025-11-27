@@ -4,7 +4,6 @@ using AuthForge.Api.Common.Interfaces;
 using AuthForge.Api.Data;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
 
 namespace AuthForge.Api.Features.Users;
 
@@ -27,17 +26,20 @@ public sealed class UserForgotPasswordHandler
     private readonly AppDbContext _context;
     private readonly IEmailTemplateService _emailTemplateService;
     private readonly IEmailServiceFactory _emailServiceFactory;
+    private readonly IJwtService _jwtService;
     private readonly ILogger<UserForgotPasswordHandler> _logger;
 
     public UserForgotPasswordHandler(
         AppDbContext context,
         IEmailTemplateService emailTemplateService,
         IEmailServiceFactory emailServiceFactory,
+        IJwtService jwtService,
         ILogger<UserForgotPasswordHandler> logger)
     {
         _context = context;
         _emailTemplateService = emailTemplateService;
         _emailServiceFactory = emailServiceFactory;
+        _jwtService = jwtService;
         _logger = logger;
     }
 
@@ -47,6 +49,7 @@ public sealed class UserForgotPasswordHandler
         CancellationToken ct)
     {
         var app = await _context.Applications
+            .Include(a => a.EmailSettings)
             .FirstOrDefaultAsync(a => a.Id == applicationId && !a.IsDeleted, ct);
 
         if (app == null || !app.IsActive)
@@ -72,7 +75,7 @@ public sealed class UserForgotPasswordHandler
                 "If an account exists with that email, a password reset link has been sent.");
         }
 
-        var resetToken = GenerateResetToken();
+        var resetToken = _jwtService.GenerateUrlSafeToken(32);
         var expiresAt = DateTime.UtcNow.AddHours(1);
 
         var existingToken = await _context.UserPasswordResetTokens
@@ -117,18 +120,6 @@ public sealed class UserForgotPasswordHandler
             "If an account exists with that email, a password reset link has been sent.");
     }
 
-    private static string GenerateResetToken()
-    {
-        var randomBytes = new byte[32];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(randomBytes);
-
-        return Convert.ToBase64String(randomBytes)
-            .Replace("+", "-")
-            .Replace("/", "_")
-            .Replace("=", "");
-    }
-
     private async Task SendResetEmailAsync(
         Entities.User user,
         Entities.Application app,
@@ -144,19 +135,7 @@ public sealed class UserForgotPasswordHandler
             appName: app.Name
         );
 
-        string fromAddress;
-        string? fromName;
-
-        if (app.UseGlobalEmailSettings)
-        {
-            fromAddress = await _emailServiceFactory.GetFromAddressAsync(ct);
-            fromName = await _emailServiceFactory.GetFromNameAsync(ct);
-        }
-        else
-        {
-            fromAddress = app.FromEmail ?? throw new InvalidOperationException("Application email not configured");
-            fromName = app.FromName;
-        }
+        var (fromAddress, fromName) = await _emailServiceFactory.GetFromDetailsForApplicationAsync(app, ct);
 
         var finalMessage = emailMessage with
         {
@@ -164,7 +143,7 @@ public sealed class UserForgotPasswordHandler
             FromName = fromName ?? app.Name
         };
 
-        var emailService = await _emailServiceFactory.CreateAsync(ct);
+        var emailService = await _emailServiceFactory.CreateForApplicationAsync(app, ct);
         var result = await emailService.SendAsync(finalMessage, ct);
 
         if (!result.Success)

@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography;
-using AuthForge.Api.Common;
+﻿using AuthForge.Api.Common;
 using AuthForge.Api.Common.Interfaces;
 using AuthForge.Api.Data;
 using FluentValidation;
@@ -8,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace AuthForge.Api.Features.Admin;
 
 public sealed record AdminForgotPasswordRequest(string Email);
+
 public sealed record AdminForgotPasswordResponse(string Message);
 
 public sealed class AdminForgotPasswordValidator : AbstractValidator<AdminForgotPasswordRequest>
@@ -26,6 +26,7 @@ public class AdminForgotPasswordHandler
     private readonly ConfigDbContext _configDb;
     private readonly IEmailTemplateService _emailTemplateService;
     private readonly IEmailServiceFactory _emailServiceFactory;
+    private readonly IJwtService _jwtService;
     private readonly ILogger<AdminForgotPasswordHandler> _logger;
 
     public AdminForgotPasswordHandler(
@@ -33,12 +34,14 @@ public class AdminForgotPasswordHandler
         ConfigDbContext configDb,
         IEmailTemplateService emailTemplateService,
         IEmailServiceFactory emailServiceFactory,
+        IJwtService jwtService,
         ILogger<AdminForgotPasswordHandler> logger)
     {
         _context = context;
         _configDb = configDb;
         _emailTemplateService = emailTemplateService;
         _emailServiceFactory = emailServiceFactory;
+        _jwtService = jwtService;
         _logger = logger;
     }
 
@@ -56,7 +59,7 @@ public class AdminForgotPasswordHandler
                 "If an account exists with that email, a password reset link has been sent.");
         }
 
-        var resetToken = GenerateResetToken();
+        var resetToken = _jwtService.GenerateUrlSafeToken(32);
         var expiresAt = DateTime.UtcNow.AddHours(1);
 
         var existingToken = await _context.AdminPasswordResetTokens
@@ -92,18 +95,6 @@ public class AdminForgotPasswordHandler
             "If an account exists with that email, a password reset link has been sent.");
     }
 
-    private static string GenerateResetToken()
-    {
-        var randomBytes = new byte[32];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(randomBytes);
-
-        return Convert.ToBase64String(randomBytes)
-            .Replace("+", "-")
-            .Replace("/", "_")
-            .Replace("=", "");
-    }
-
     private async Task SendResetEmailAsync(string email, string resetToken, CancellationToken ct)
     {
         var config = await _configDb.Configuration.FirstOrDefaultAsync(ct);
@@ -119,15 +110,15 @@ public class AdminForgotPasswordHandler
         var emailMessage = await _emailTemplateService.CreatePasswordResetEmailAsync(
             toEmail: email,
             toName: "Admin",
-            resetUrl: resetUrl,  
+            resetUrl: resetUrl,
             appName: "AuthForge"
         );
 
         var fromAddress = await _emailServiceFactory.GetFromAddressAsync(ct);
         var fromName = await _emailServiceFactory.GetFromNameAsync(ct);
 
-        var finalMessage = emailMessage with 
-        { 
+        var finalMessage = emailMessage with
+        {
             From = fromAddress,
             FromName = fromName ?? "AuthForge"
         };
