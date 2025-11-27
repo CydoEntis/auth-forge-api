@@ -55,6 +55,8 @@ public class GetApplicationSettingsHandler
     public async Task<GetApplicationSettingsResponse> HandleAsync(Guid id, CancellationToken ct)
     {
         var application = await _context.Applications
+            .Include(a => a.EmailSettings)
+            .Include(a => a.OAuthSettings)
             .Where(a => a.Id == id)
             .Select(a => new GetApplicationSettingsResponse(
                 a.Id,
@@ -69,16 +71,16 @@ public class GetApplicationSettingsHandler
                     a.RefreshTokenExpirationDays
                 ),
                 new ApplicationOAuthSettings(
-                    a.GoogleEnabled,
-                    a.GoogleClientId,
-                    a.GithubEnabled,
-                    a.GithubClientId
+                    a.OAuthSettings != null && a.OAuthSettings.GoogleEnabled,
+                    a.OAuthSettings != null ? a.OAuthSettings.GoogleClientId : null,
+                    a.OAuthSettings != null && a.OAuthSettings.GithubEnabled,
+                    a.OAuthSettings != null ? a.OAuthSettings.GithubClientId : null
                 ),
                 new ApplicationEmailSettings(
-                    a.UseGlobalEmailSettings,
-                    a.EmailProvider,
-                    a.FromEmail,
-                    a.FromName,
+                    a.EmailSettings != null && a.EmailSettings.UseGlobalSettings,
+                    a.EmailSettings != null ? a.EmailSettings.Provider : null,
+                    a.EmailSettings != null ? a.EmailSettings.FromEmail : null,
+                    a.EmailSettings != null ? a.EmailSettings.FromName : null,
                     a.PasswordResetCallbackUrl,
                     a.EmailVerificationCallbackUrl,
                     a.MagicLinkCallbackUrl

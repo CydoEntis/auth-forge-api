@@ -6,11 +6,10 @@ public class Application
     public string Name { get; set; } = null!;
     public string Slug { get; set; } = null!;
     public string? Description { get; set; }
-    
+
     public string ClientId { get; set; } = null!;
     public string ClientSecretEncrypted { get; set; } = null!;
     public string JwtSecretEncrypted { get; set; } = null!;
-    
 
     public List<string> AllowedOrigins { get; set; } = new();
     public bool IsActive { get; set; }
@@ -20,27 +19,17 @@ public class Application
     public int AccessTokenExpirationMinutes { get; set; }
     public int RefreshTokenExpirationDays { get; set; }
 
-    public bool UseGlobalEmailSettings { get; set; } = true;
-    public string? EmailProvider { get; set; }
-    public string? EmailApiKeyEncrypted { get; set; }
-    
-    public string? FromEmail { get; set; }
-    public string? FromName { get; set; }
     public string? PasswordResetCallbackUrl { get; set; }
     public string? EmailVerificationCallbackUrl { get; set; }
     public string? MagicLinkCallbackUrl { get; set; }
     public bool RequireEmailVerification { get; set; } = false;
-    public bool GoogleEnabled { get; set; }
-    public string? GoogleClientId { get; set; }
-    public string? GoogleClientSecretEncrypted { get; set; }
-    
-    public bool GithubEnabled { get; set; }
-    public string? GithubClientId { get; set; }
-    public string? GithubClientSecretEncrypted { get; set; }
+
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAtUtc { get; set; }
     public DateTime CreatedAtUtc { get; set; }
     public DateTime? UpdatedAtUtc { get; set; }
 
+    public ApplicationEmailSettings? EmailSettings { get; set; }
+    public ApplicationOAuthSettings? OAuthSettings { get; set; }
     public ICollection<User> Users { get; set; } = new List<User>();
 }

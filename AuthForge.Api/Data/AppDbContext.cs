@@ -10,6 +10,8 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<Application> Applications => Set<Application>();
+    public DbSet<ApplicationEmailSettings> ApplicationEmailSettings => Set<ApplicationEmailSettings>();
+    public DbSet<ApplicationOAuthSettings> ApplicationOAuthSettings => Set<ApplicationOAuthSettings>();
     public DbSet<Admin> Admins => Set<Admin>();
     public DbSet<AdminRefreshToken> AdminRefreshTokens => Set<AdminRefreshToken>();
     public DbSet<AdminPasswordResetToken> AdminPasswordResetTokens => Set<AdminPasswordResetToken>();
@@ -18,7 +20,6 @@ public class AppDbContext : DbContext
     public DbSet<UserPasswordResetToken> UserPasswordResetTokens => Set<UserPasswordResetToken>();
     public DbSet<UserOAuthIdentity> UserOAuthIdentities => Set<UserOAuthIdentity>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
-
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

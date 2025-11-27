@@ -31,6 +31,7 @@ public sealed class GithubAuthorizeHandler
         CancellationToken ct)
     {
         var application = await _context.Applications
+            .Include(a => a.OAuthSettings) 
             .FirstOrDefaultAsync(a => a.Id == applicationId && !a.IsDeleted, ct);
 
         if (application == null || !application.IsActive)
@@ -38,7 +39,8 @@ public sealed class GithubAuthorizeHandler
             throw new NotFoundException($"Application {applicationId} not found or inactive");
         }
 
-        if (!application.GithubEnabled || string.IsNullOrEmpty(application.GithubClientId))
+        if (application.OAuthSettings?.GithubEnabled != true ||
+            string.IsNullOrEmpty(application.OAuthSettings.GithubClientId))
         {
             throw new BadRequestException("GitHub OAuth is not enabled for this application");
         }
@@ -51,7 +53,7 @@ public sealed class GithubAuthorizeHandler
 
         var authUrl = _oauthService.GetAuthorizationUrl(
             provider: "github",
-            clientId: application.GithubClientId,
+            clientId: application.OAuthSettings.GithubClientId,
             redirectUri: redirectUri,
             state: $"{state}:{applicationId}"
         );

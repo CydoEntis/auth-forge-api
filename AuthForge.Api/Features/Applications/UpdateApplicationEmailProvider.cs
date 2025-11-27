@@ -75,6 +75,7 @@ public class UpdateApplicationEmailProviderHandler
         CancellationToken ct)
     {
         var application = await _context.Applications
+            .Include(a => a.EmailSettings)
             .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted, ct);
 
         if (application == null)
@@ -82,39 +83,64 @@ public class UpdateApplicationEmailProviderHandler
             throw new NotFoundException($"Application with ID {id} not found");
         }
 
-        application.UseGlobalEmailSettings = request.UseGlobalEmailSettings;
+        if (application.EmailSettings == null)
+        {
+            application.EmailSettings = new Entities.ApplicationEmailSettings
+            {
+                Id = Guid.NewGuid(),
+                ApplicationId = application.Id,
+                CreatedAtUtc = DateTime.UtcNow
+            };
+            _context.ApplicationEmailSettings.Add(application.EmailSettings);
+        }
+
+        application.EmailSettings.UseGlobalSettings = request.UseGlobalEmailSettings;
 
         if (request.UseGlobalEmailSettings)
         {
-            application.EmailProvider = null;
-            application.FromEmail = null;
-            application.FromName = null;
-            application.EmailApiKeyEncrypted = null;
+            application.EmailSettings.Provider = null;
+            application.EmailSettings.FromEmail = null;
+            application.EmailSettings.FromName = null;
+            application.EmailSettings.SmtpHost = null;
+            application.EmailSettings.SmtpPort = null;
+            application.EmailSettings.SmtpUsername = null;
+            application.EmailSettings.SmtpPasswordEncrypted = null;
+            application.EmailSettings.SmtpUseSsl = true;
+            application.EmailSettings.ResendApiKeyEncrypted = null;
         }
         else
         {
             var config = request.EmailProviderConfig!;
 
-            application.EmailProvider = config.EmailProvider.ToString();
-            application.FromEmail = config.FromEmail;
-            application.FromName = config.FromName;
+            application.EmailSettings.Provider = config.EmailProvider.ToString();
+            application.EmailSettings.FromEmail = config.FromEmail;
+            application.EmailSettings.FromName = config.FromName;
 
             if (config.EmailProvider == EmailProvider.Smtp)
             {
-                if (!string.IsNullOrEmpty(config.SmtpPassword))
-                {
-                    application.EmailApiKeyEncrypted = _encryptionService.Encrypt(config.SmtpPassword);
-                }
+                application.EmailSettings.SmtpHost = config.SmtpHost;
+                application.EmailSettings.SmtpPort = config.SmtpPort;
+                application.EmailSettings.SmtpUsername = config.SmtpUsername;
+                application.EmailSettings.SmtpPasswordEncrypted = !string.IsNullOrEmpty(config.SmtpPassword)
+                    ? _encryptionService.Encrypt(config.SmtpPassword)
+                    : null;
+                application.EmailSettings.SmtpUseSsl = config.UseSsl;
+                application.EmailSettings.ResendApiKeyEncrypted = null;
             }
             else if (config.EmailProvider == EmailProvider.Resend)
             {
-                if (!string.IsNullOrEmpty(config.ResendApiKey))
-                {
-                    application.EmailApiKeyEncrypted = _encryptionService.Encrypt(config.ResendApiKey);
-                }
+                application.EmailSettings.ResendApiKeyEncrypted = !string.IsNullOrEmpty(config.ResendApiKey)
+                    ? _encryptionService.Encrypt(config.ResendApiKey)
+                    : null;
+                application.EmailSettings.SmtpHost = null;
+                application.EmailSettings.SmtpPort = null;
+                application.EmailSettings.SmtpUsername = null;
+                application.EmailSettings.SmtpPasswordEncrypted = null;
+                application.EmailSettings.SmtpUseSsl = true;
             }
         }
 
+        application.EmailSettings.UpdatedAtUtc = DateTime.UtcNow;
         application.PasswordResetCallbackUrl = request.PasswordResetCallbackUrl;
         application.EmailVerificationCallbackUrl = request.EmailVerificationCallbackUrl;
         application.UpdatedAtUtc = DateTime.UtcNow;
@@ -127,8 +153,8 @@ public class UpdateApplicationEmailProviderHandler
         return new UpdateApplicationEmailProviderResponse(
             application.Id,
             application.Name,
-            application.UseGlobalEmailSettings,
-            application.FromEmail,
+            application.EmailSettings.UseGlobalSettings,
+            application.EmailSettings.FromEmail,
             application.UpdatedAtUtc.Value
         );
     }

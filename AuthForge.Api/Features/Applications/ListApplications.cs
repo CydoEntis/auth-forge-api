@@ -58,7 +58,9 @@ public class ListApplicationsHandler
         ListApplicationsRequest request,
         CancellationToken ct)
     {
-        var query = _context.Applications.AsQueryable();
+        var query = _context.Applications
+            .Include(a => a.OAuthSettings)
+            .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
@@ -95,8 +97,8 @@ public class ListApplicationsHandler
                 a.Users.Count,
                 new ApplicationAuthMethods(
                     true,
-                    a.GoogleEnabled,
-                    a.GithubEnabled,
+                    a.OAuthSettings != null && a.OAuthSettings.GoogleEnabled,
+                    a.OAuthSettings != null && a.OAuthSettings.GithubEnabled,
                     false
                 ),
                 a.CreatedAtUtc,

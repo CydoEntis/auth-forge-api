@@ -71,6 +71,7 @@ public class UpdateApplicationOAuthHandler
         CancellationToken ct)
     {
         var application = await _context.Applications
+            .Include(a => a.OAuthSettings)
             .FirstOrDefaultAsync(a => a.Id == id, ct);
 
         if (application == null)
@@ -78,36 +79,50 @@ public class UpdateApplicationOAuthHandler
             throw new NotFoundException($"Application with ID {id} not found");
         }
 
-        application.GoogleEnabled = request.GoogleEnabled;
+        if (application.OAuthSettings == null)
+        {
+            application.OAuthSettings = new Entities.ApplicationOAuthSettings
+            {
+                Id = Guid.NewGuid(),
+                ApplicationId = application.Id,
+                CreatedAtUtc = DateTime.UtcNow
+            };
+            _context.ApplicationOAuthSettings.Add(application.OAuthSettings);
+        }
+
+        application.OAuthSettings.GoogleEnabled = request.GoogleEnabled;
         if (request.GoogleEnabled)
         {
-            application.GoogleClientId = request.GoogleClientId;
+            application.OAuthSettings.GoogleClientId = request.GoogleClientId;
             if (!string.IsNullOrEmpty(request.GoogleClientSecret))
             {
-                application.GoogleClientSecretEncrypted = _encryptionService.Encrypt(request.GoogleClientSecret);
+                application.OAuthSettings.GoogleClientSecretEncrypted =
+                    _encryptionService.Encrypt(request.GoogleClientSecret);
             }
         }
         else
         {
-            application.GoogleClientId = null;
-            application.GoogleClientSecretEncrypted = null;
+            application.OAuthSettings.GoogleClientId = null;
+            application.OAuthSettings.GoogleClientSecretEncrypted = null;
         }
 
-        application.GithubEnabled = request.GithubEnabled;
+        application.OAuthSettings.GithubEnabled = request.GithubEnabled;
         if (request.GithubEnabled)
         {
-            application.GithubClientId = request.GithubClientId;
+            application.OAuthSettings.GithubClientId = request.GithubClientId;
             if (!string.IsNullOrEmpty(request.GithubClientSecret))
             {
-                application.GithubClientSecretEncrypted = _encryptionService.Encrypt(request.GithubClientSecret);
+                application.OAuthSettings.GithubClientSecretEncrypted =
+                    _encryptionService.Encrypt(request.GithubClientSecret);
             }
         }
         else
         {
-            application.GithubClientId = null;
-            application.GithubClientSecretEncrypted = null;
+            application.OAuthSettings.GithubClientId = null;
+            application.OAuthSettings.GithubClientSecretEncrypted = null;
         }
 
+        application.OAuthSettings.UpdatedAtUtc = DateTime.UtcNow;
         application.UpdatedAtUtc = DateTime.UtcNow;
 
         await _context.SaveChangesAsync(ct);
@@ -118,10 +133,10 @@ public class UpdateApplicationOAuthHandler
         return new UpdateApplicationOAuthResponse(
             application.Id,
             application.Name,
-            application.GoogleEnabled,
-            application.GoogleClientId,
-            application.GithubEnabled,
-            application.GithubClientId,
+            application.OAuthSettings.GoogleEnabled,
+            application.OAuthSettings.GoogleClientId,
+            application.OAuthSettings.GithubEnabled,
+            application.OAuthSettings.GithubClientId,
             application.UpdatedAtUtc.Value
         );
     }

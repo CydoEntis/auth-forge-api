@@ -34,6 +34,7 @@ public sealed class GoogleAuthorizeHandler
         CancellationToken ct)
     {
         var application = await _context.Applications
+            .Include(a => a.OAuthSettings)
             .FirstOrDefaultAsync(a => a.Id == applicationId && !a.IsDeleted, ct);
 
         if (application == null || !application.IsActive)
@@ -41,7 +42,8 @@ public sealed class GoogleAuthorizeHandler
             throw new NotFoundException($"Application {applicationId} not found or inactive");
         }
 
-        if (!application.GoogleEnabled || string.IsNullOrEmpty(application.GoogleClientId))
+        if (application.OAuthSettings?.GoogleEnabled != true ||
+            string.IsNullOrEmpty(application.OAuthSettings.GoogleClientId))
         {
             throw new BadRequestException("Google OAuth is not enabled for this application");
         }
@@ -54,9 +56,9 @@ public sealed class GoogleAuthorizeHandler
 
         var authUrl = _oauthService.GetAuthorizationUrl(
             provider: "google",
-            clientId: application.GoogleClientId,
+            clientId: application.OAuthSettings.GoogleClientId,
             redirectUri: redirectUri,
-            state: $"{state}:{applicationId}" 
+            state: $"{state}:{applicationId}"
         );
 
         _logger.LogInformation(

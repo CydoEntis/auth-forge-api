@@ -45,7 +45,6 @@ public sealed class GithubCallbackHandler
         string redirectUri,
         CancellationToken ct)
     {
-        // Validate state
         var stateParts = state.Split(':');
         if (stateParts.Length != 2 || !Guid.TryParse(stateParts[1], out var stateAppId) || stateAppId != applicationId)
         {
@@ -53,6 +52,7 @@ public sealed class GithubCallbackHandler
         }
 
         var application = await _context.Applications
+            .Include(a => a.OAuthSettings) // ✅ ADDED
             .FirstOrDefaultAsync(a => a.Id == applicationId && !a.IsDeleted, ct);
 
         if (application == null || !application.IsActive)
@@ -60,24 +60,24 @@ public sealed class GithubCallbackHandler
             throw new NotFoundException($"Application {applicationId} not found or inactive");
         }
 
-        if (!application.GithubEnabled ||
-            string.IsNullOrEmpty(application.GithubClientId) ||
-            string.IsNullOrEmpty(application.GithubClientSecretEncrypted))
+        if (application.OAuthSettings?.GithubEnabled != true ||
+            string.IsNullOrEmpty(application.OAuthSettings.GithubClientId) ||
+            string.IsNullOrEmpty(application.OAuthSettings.GithubClientSecretEncrypted))
         {
             throw new BadRequestException("GitHub OAuth is not enabled for this application");
         }
 
-        var clientSecret = _encryptionService.Decrypt(application.GithubClientSecretEncrypted);
+        var clientSecret =
+            _encryptionService.Decrypt(application.OAuthSettings.GithubClientSecretEncrypted);
 
         var tokenResponse = await _oauthService.ExchangeCodeForTokenAsync(
             provider: "github",
             code: code,
-            clientId: application.GithubClientId,
+            clientId: application.OAuthSettings.GithubClientId,
             clientSecret: clientSecret,
             redirectUri: redirectUri,
             ct: ct);
 
-        // Get user info from GitHub
         var userInfo = await _oauthService.GetUserInfoAsync(
             provider: "github",
             accessToken: tokenResponse.AccessToken,

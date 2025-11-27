@@ -52,6 +52,7 @@ public sealed class GoogleCallbackHandler
         }
 
         var application = await _context.Applications
+            .Include(a => a.OAuthSettings)
             .FirstOrDefaultAsync(a => a.Id == applicationId && !a.IsDeleted, ct);
 
         if (application == null || !application.IsActive)
@@ -59,19 +60,20 @@ public sealed class GoogleCallbackHandler
             throw new NotFoundException($"Application {applicationId} not found or inactive");
         }
 
-        if (!application.GoogleEnabled ||
-            string.IsNullOrEmpty(application.GoogleClientId) ||
-            string.IsNullOrEmpty(application.GoogleClientSecretEncrypted))
+        if (application.OAuthSettings?.GoogleEnabled != true ||
+            string.IsNullOrEmpty(application.OAuthSettings.GoogleClientId) ||
+            string.IsNullOrEmpty(application.OAuthSettings.GoogleClientSecretEncrypted))
         {
             throw new BadRequestException("Google OAuth is not enabled for this application");
         }
 
-        var clientSecret = _encryptionService.Decrypt(application.GoogleClientSecretEncrypted);
+        var clientSecret =
+            _encryptionService.Decrypt(application.OAuthSettings.GoogleClientSecretEncrypted);
 
         var tokenResponse = await _oauthService.ExchangeCodeForTokenAsync(
             provider: "google",
             code: code,
-            clientId: application.GoogleClientId,
+            clientId: application.OAuthSettings.GoogleClientId,
             clientSecret: clientSecret,
             redirectUri: redirectUri,
             ct: ct);
@@ -154,7 +156,7 @@ public sealed class GoogleCallbackHandler
                     Id = Guid.NewGuid(),
                     ApplicationId = applicationId,
                     Email = userInfo.Email,
-                    PasswordHash = _passwordHasher.HashPassword(null!, Guid.NewGuid().ToString()), // Random password
+                    PasswordHash = _passwordHasher.HashPassword(null!, Guid.NewGuid().ToString()),
                     FirstName = userInfo.FirstName,
                     LastName = userInfo.LastName,
                     EmailVerified = userInfo.EmailVerified,

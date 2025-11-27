@@ -1,9 +1,10 @@
-﻿using System.Security.Cryptography;
-using AuthForge.Api.Common;
+﻿using AuthForge.Api.Common;
 using AuthForge.Api.Common.Interfaces;
 using AuthForge.Api.Data;
 using AuthForge.Api.Entities;
 using AuthForge.Api.Features.Applications.Shared.Validators;
+using AuthForge.Api.Features.Shared.Models;
+using AuthForge.Api.Features.Shared.Validators;
 using FluentValidation;
 
 namespace AuthForge.Api.Features.Applications;
@@ -15,7 +16,19 @@ public sealed record CreateApplicationRequest(
     string? PasswordResetCallbackUrl,
     string? EmailVerificationCallbackUrl,
     string? MagicLinkCallbackUrl,
-    bool RequireEmailVerification = true
+    bool RequireEmailVerification = true,
+    bool UseGlobalEmailSettings = true,
+    EmailProviderConfig? EmailProviderConfig = null,
+    OAuthSettings? OAuthSettings = null
+);
+
+public sealed record OAuthSettings(
+    bool GoogleEnabled = false,
+    string? GoogleClientId = null,
+    string? GoogleClientSecret = null,
+    bool GithubEnabled = false,
+    string? GithubClientId = null,
+    string? GithubClientSecret = null
 );
 
 public sealed record CreateApplicationResponse(
@@ -69,6 +82,36 @@ public class CreateApplicationRequestValidator : AbstractValidator<CreateApplica
                 .MustBeValidUrl()
                 .WithMessage("Magic link callback URL must be a valid URL");
         });
+
+        When(x => !x.UseGlobalEmailSettings, () =>
+        {
+            RuleFor(x => x.EmailProviderConfig)
+                .NotNull()
+                .WithMessage("Email provider configuration is required when not using global settings")
+                .SetValidator(new EmailProviderConfigValidator()!);
+        });
+
+        When(x => x.OAuthSettings != null && x.OAuthSettings.GoogleEnabled, () =>
+        {
+            RuleFor(x => x.OAuthSettings!.GoogleClientId)
+                .NotEmpty()
+                .WithMessage("Google Client ID is required");
+
+            RuleFor(x => x.OAuthSettings!.GoogleClientSecret)
+                .NotEmpty()
+                .WithMessage("Google Client Secret is required");
+        });
+
+        When(x => x.OAuthSettings != null && x.OAuthSettings.GithubEnabled, () =>
+        {
+            RuleFor(x => x.OAuthSettings!.GithubClientId)
+                .NotEmpty()
+                .WithMessage("GitHub Client ID is required");
+
+            RuleFor(x => x.OAuthSettings!.GithubClientSecret)
+                .NotEmpty()
+                .WithMessage("GitHub Client Secret is required");
+        });
     }
 }
 
@@ -76,15 +119,18 @@ public class CreateApplicationHandler
 {
     private readonly AppDbContext _context;
     private readonly IEncryptionService _encryptionService;
+    private readonly IJwtService _jwtService;
     private readonly ILogger<CreateApplicationHandler> _logger;
 
     public CreateApplicationHandler(
         AppDbContext context,
         IEncryptionService encryptionService,
+        IJwtService jwtService,
         ILogger<CreateApplicationHandler> logger)
     {
         _context = context;
         _encryptionService = encryptionService;
+        _jwtService = jwtService;
         _logger = logger;
     }
 
@@ -94,8 +140,8 @@ public class CreateApplicationHandler
     {
         var slug = GenerateAppSlug(request.Name);
         var clientId = GenerateClientId();
-        var clientSecret = GeneratedClientSecret();
-        var jwtSecret = GeneratedJwtSecret();
+        var clientSecret = _jwtService.GenerateUrlSafeToken(32);
+        var jwtSecret = _jwtService.GenerateSecureToken(64);
 
         var application = new Application
         {
@@ -115,10 +161,64 @@ public class CreateApplicationHandler
             LockoutDurationMinutes = 15,
             AccessTokenExpirationMinutes = 15,
             RefreshTokenExpirationDays = 7,
-            UseGlobalEmailSettings = true,
             CreatedAtUtc = DateTime.UtcNow,
             RequireEmailVerification = request.RequireEmailVerification
         };
+
+        if (!request.UseGlobalEmailSettings && request.EmailProviderConfig != null)
+        {
+            application.EmailSettings = new Entities.ApplicationEmailSettings
+            {
+                Id = Guid.NewGuid(),
+                ApplicationId = application.Id,
+                UseGlobalSettings = false,
+                Provider = request.EmailProviderConfig.EmailProvider.ToString(),
+                FromEmail = request.EmailProviderConfig.FromEmail,
+                FromName = request.EmailProviderConfig.FromName,
+                SmtpHost = request.EmailProviderConfig.SmtpHost,
+                SmtpPort = request.EmailProviderConfig.SmtpPort,
+                SmtpUsername = request.EmailProviderConfig.SmtpUsername,
+                SmtpPasswordEncrypted = !string.IsNullOrEmpty(request.EmailProviderConfig.SmtpPassword)
+                    ? _encryptionService.Encrypt(request.EmailProviderConfig.SmtpPassword)
+                    : null,
+                SmtpUseSsl = request.EmailProviderConfig.UseSsl,
+                ResendApiKeyEncrypted = !string.IsNullOrEmpty(request.EmailProviderConfig.ResendApiKey)
+                    ? _encryptionService.Encrypt(request.EmailProviderConfig.ResendApiKey)
+                    : null,
+                CreatedAtUtc = DateTime.UtcNow
+            };
+        }
+        else
+        {
+            application.EmailSettings = new Entities.ApplicationEmailSettings
+            {
+                Id = Guid.NewGuid(),
+                ApplicationId = application.Id,
+                UseGlobalSettings = true,
+                CreatedAtUtc = DateTime.UtcNow
+            };
+        }
+
+        if (request.OAuthSettings != null &&
+            (request.OAuthSettings.GoogleEnabled || request.OAuthSettings.GithubEnabled))
+        {
+            application.OAuthSettings = new Entities.ApplicationOAuthSettings
+            {
+                Id = Guid.NewGuid(),
+                ApplicationId = application.Id,
+                GoogleEnabled = request.OAuthSettings.GoogleEnabled,
+                GoogleClientId = request.OAuthSettings.GoogleClientId,
+                GoogleClientSecretEncrypted = !string.IsNullOrEmpty(request.OAuthSettings.GoogleClientSecret)
+                    ? _encryptionService.Encrypt(request.OAuthSettings.GoogleClientSecret)
+                    : null,
+                GithubEnabled = request.OAuthSettings.GithubEnabled,
+                GithubClientId = request.OAuthSettings.GithubClientId,
+                GithubClientSecretEncrypted = !string.IsNullOrEmpty(request.OAuthSettings.GithubClientSecret)
+                    ? _encryptionService.Encrypt(request.OAuthSettings.GithubClientSecret)
+                    : null,
+                CreatedAtUtc = DateTime.UtcNow
+            };
+        }
 
         _context.Applications.Add(application);
         await _context.SaveChangesAsync(ct);
@@ -148,22 +248,6 @@ public class CreateApplicationHandler
     private static string GenerateClientId()
     {
         return $"af_{Guid.NewGuid():N}";
-    }
-
-    private static string GeneratedClientSecret()
-    {
-        var bytes = new byte[32];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(bytes);
-        return Convert.ToBase64String(bytes).Replace("+", "-").Replace("/", "_").TrimEnd('=');
-    }
-
-    private static string GeneratedJwtSecret()
-    {
-        var randomBytes = new byte[64];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(randomBytes);
-        return Convert.ToBase64String(randomBytes);
     }
 }
 
