@@ -59,7 +59,7 @@ app.UseMiddleware<SetupCheckMiddleware>();
 
 app.UseMiddleware<JwtValidationMiddleware>();
 
-app.UseAuthentication(); 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseHttpsRedirection();
@@ -78,7 +78,7 @@ if (app.Environment.IsDevelopment())
 
 
 app.MapHealthChecks("/api/v1");
-app.MapFeatureEndpoints("/api/v1");
+app.MapFeatureEndpoints();
 
 
 app.Run();

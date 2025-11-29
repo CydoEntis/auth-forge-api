@@ -35,7 +35,7 @@ public static class GetSetupStatusFeature
 {
     public static void MapEndpoints(WebApplication app, string prefix = "/api/v1")
     {
-        app.MapGet($"{prefix}/setup/status", async (GetSetupStatusHandler handler, CancellationToken ct) =>
+        app.MapGet($"{prefix}/status", async (GetSetupStatusHandler handler, CancellationToken ct) =>
             {
                 var response = await handler.HandleAsync(ct);
                 return Results.Ok(ApiResponse<GetSetupStatusResponse>.Ok(response));

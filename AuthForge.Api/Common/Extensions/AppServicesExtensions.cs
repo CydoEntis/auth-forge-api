@@ -1,9 +1,11 @@
 ﻿using AuthForge.Api.Common.Interfaces;
 using AuthForge.Api.Common.Services;
 using AuthForge.Api.Entities;
-using AuthForge.Api.Features.Admin;
+using AuthForge.Api.Features.Account;
 using AuthForge.Api.Features.Applications;
+using AuthForge.Api.Features.Auth;
 using AuthForge.Api.Features.Email;
+using AuthForge.Api.Features.Settings;
 using AuthForge.Api.Features.Setup;
 using AuthForge.Api.Features.Users;
 using FluentValidation;
@@ -43,7 +45,6 @@ public static class AppServicesExtensions
         // Password Hashers
         services.AddSingleton<PasswordHasher<Admin>>();
         services.AddSingleton<PasswordHasher<User>>();
-        services.AddSingleton<PasswordHasher<object>>(); // Remove? Idr why this is here
 
         // Fluent Validation
         services.AddValidatorsFromAssemblyContaining<Program>();
@@ -51,7 +52,9 @@ public static class AppServicesExtensions
         // Modules
         services.AddEmailServices();
         services.AddSetupServices();
-        services.AddAdminServices();
+        services.AddAuthServices();
+        services.AddAccountServices();
+        services.AddSettingsServices();
         services.AddApplicationServices();
         services.AddUserServices();
         return services;

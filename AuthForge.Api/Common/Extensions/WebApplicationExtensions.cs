@@ -1,6 +1,8 @@
-﻿using AuthForge.Api.Features.Admin;
+﻿using AuthForge.Api.Features.Account;
 using AuthForge.Api.Features.Applications;
+using AuthForge.Api.Features.Auth;
 using AuthForge.Api.Features.Email;
+using AuthForge.Api.Features.Settings;
 using AuthForge.Api.Features.Setup;
 using AuthForge.Api.Features.Users;
 
@@ -23,13 +25,15 @@ public static class WebApplicationExtensions
         return app;
     }
 
-    public static WebApplication MapFeatureEndpoints(this WebApplication app, string prefix = "/api/v1")
+    public static WebApplication MapFeatureEndpoints(this WebApplication app)
     {
-        app.MapEmailEndpoints(prefix);
-        app.MapSetupEndpoints(prefix);
-        app.MapAdminEndpoints(prefix);
-        app.MapApplicationEndpoints(prefix);
-        app.MapUserEndpoints(prefix);
+        app.MapEmailEndpoints();
+        app.MapSetupEndpoints();
+        app.MapAuthEndpoints();
+        app.MapAccountEndpoints();
+        app.MapSettingsEndpoints();
+        app.MapApplicationEndpoints();
+        app.MapUserEndpoints();
 
         return app;
     }
