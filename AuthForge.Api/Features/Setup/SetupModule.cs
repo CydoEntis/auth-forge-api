@@ -11,7 +11,7 @@ public static class SetupModule
         return services;
     }
 
-    public static WebApplication MapSetupEndpoints(this WebApplication app, string prefix = "/api/v1")
+    public static WebApplication MapSetupEndpoints(this WebApplication app, string prefix = "/api/v1/setup")
     {
         CompleteSetupFeature.MapEndpoints(app, prefix);
         TestDatabaseConnectionFeature.MapEndpoints(app, prefix);

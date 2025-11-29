@@ -262,7 +262,7 @@ public static class CompleteSetupFeature
 {
     public static void MapEndpoints(WebApplication app, string prefix = "/api/v1")
     {
-        app.MapPost($"{prefix}/setup/complete", async (
+        app.MapPost($"{prefix}/complete", async (
                 CompleteSetupRequest request,
                 CompleteSetupHandler handler,
                 CancellationToken ct) =>
