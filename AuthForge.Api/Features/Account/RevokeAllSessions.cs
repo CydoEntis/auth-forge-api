@@ -4,24 +4,24 @@ using AuthForge.Api.Common.Interfaces;
 using AuthForge.Api.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace AuthForge.Api.Features.Admin;
+namespace AuthForge.Api.Features.Account;
 
-public sealed record AdminRevokeAllSessionsResponse(string Message, int SessionsRevoked);
+public sealed record RevokeAllSessionsResponse(string Message, int SessionsRevoked);
 
-public class AdminRevokeAllSessionsHandler
+public class RevokeAllSessionsHandler
 {
     private readonly AppDbContext _context;
     private readonly ICurrentUserService _currentUser;
-    private readonly ILogger<AdminRevokeAllSessionsHandler> _logger;
+    private readonly ILogger<RevokeAllSessionsHandler> _logger;
 
-    public AdminRevokeAllSessionsHandler(AppDbContext context, ICurrentUserService currentUser, ILogger<AdminRevokeAllSessionsHandler> logger)
+    public RevokeAllSessionsHandler(AppDbContext context, ICurrentUserService currentUser, ILogger<RevokeAllSessionsHandler> logger)
     {
         _context = context;
         _currentUser = currentUser;
         _logger = logger;
     }
 
-    public async Task<AdminRevokeAllSessionsResponse> HandleAsync(CancellationToken ct)
+    public async Task<RevokeAllSessionsResponse> HandleAsync(CancellationToken ct)
     {
         if (!Guid.TryParse(_currentUser.UserId, out var adminId))
             throw new UnauthorizedException("Invalid user ID");
@@ -37,27 +37,27 @@ public class AdminRevokeAllSessionsHandler
 
         await _context.SaveChangesAsync(ct);
 
-        _logger.LogWarning("Admin {AdminId} revoked all sessions ({Count} tokens)", adminId, tokens.Count);
+        _logger.LogWarning("Account {AdminId} revoked all sessions ({Count} tokens)", adminId, tokens.Count);
 
-        return new AdminRevokeAllSessionsResponse(
+        return new RevokeAllSessionsResponse(
             "All sessions revoked. You will need to log in again.",
             tokens.Count);
     }
 }
 
-public static class AdminRevokeAllSessions
+public static class RevokeAllSessions
 {
     public static void MapEndpoints(WebApplication app, string prefix = "/api/v1")
     {
-        app.MapPost($"{prefix}/admin/sessions/revoke-all", async (
-                AdminRevokeAllSessionsHandler handler,
+        app.MapPost($"{prefix}/sessions/revoke-all", async (
+                RevokeAllSessionsHandler handler,
                 CancellationToken ct) =>
             {
                 var response = await handler.HandleAsync(ct);
-                return Results.Ok(ApiResponse<AdminRevokeAllSessionsResponse>.Ok(response));
+                return Results.Ok(ApiResponse<RevokeAllSessionsResponse>.Ok(response));
             })
-            .WithName("AdminRevokeAllSessions")
-            .WithTags("Admin")
+            .WithName("RevokeAllSessions")
+            .WithTags("Account")
             .RequireAuthorization();
     }
 }

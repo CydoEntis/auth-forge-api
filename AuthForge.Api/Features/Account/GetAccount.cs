@@ -5,35 +5,35 @@ using AuthForge.Api.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace AuthForge.Api.Features.Admin;
+namespace AuthForge.Api.Features.Account;
 
-public sealed record GetAdminResponse(
+public sealed record GetAccountResponse(
     Guid Id,
     string Email,
     DateTime CreatedAtUtc,
     DateTime? UpdatedAtUtc
 );
 
-public class GetAdminHandler
+public class GetAccountHandler
 {
     private readonly AppDbContext _context;
     private readonly ICurrentUserService _currentUserService;
-    private readonly ILogger<GetAdminHandler> _logger;
+    private readonly ILogger<GetAccountHandler> _logger;
 
-    public GetAdminHandler(
+    public GetAccountHandler(
         AppDbContext context,
         ICurrentUserService currentUserService,
-        ILogger<GetAdminHandler> logger)
+        ILogger<GetAccountHandler> logger)
     {
         _context = context;
         _currentUserService = currentUserService;
         _logger = logger;
     }
 
-    public async Task<GetAdminResponse> HandleAsync(CancellationToken ct)
+    public async Task<GetAccountResponse> HandleAsync(CancellationToken ct)
     {
         var currentUserId = _currentUserService.UserId;
-        
+
         if (!Guid.TryParse(currentUserId, out var adminId))
         {
             throw new UnauthorizedException("Invalid user ID in token.");
@@ -45,11 +45,11 @@ public class GetAdminHandler
 
         if (admin == null)
         {
-            _logger.LogWarning("Admin not found: {AdminId}", adminId);
-            throw new NotFoundException("Admin not found.");
+            _logger.LogWarning("Account not found: {AdminId}", adminId);
+            throw new NotFoundException("Account not found.");
         }
 
-        return new GetAdminResponse(
+        return new GetAccountResponse(
             Id: admin.Id,
             Email: admin.Email,
             CreatedAtUtc: admin.CreatedAtUtc,
@@ -58,19 +58,19 @@ public class GetAdminHandler
     }
 }
 
-public static class GetAdmin
+public static class GetAccount
 {
     public static void MapEndpoints(WebApplication app, string prefix = "/api/v1")
     {
-        app.MapGet($"{prefix}/admin/me", async (
-                [FromServices] GetAdminHandler handler,
+        app.MapGet($"{prefix}/me", async (
+                [FromServices] GetAccountHandler handler,
                 CancellationToken ct) =>
             {
                 var response = await handler.HandleAsync(ct);
-                return Results.Ok(ApiResponse<GetAdminResponse>.Ok(response));
+                return Results.Ok(ApiResponse<GetAccountResponse>.Ok(response));
             })
-            .WithName("GetGetAdmin")
-            .WithTags("Admin")
-            .RequireAuthorization("Admin"); 
+            .WithName("GetAccount")
+            .WithTags("Account")
+            .RequireAuthorization("Admin");
     }
 }

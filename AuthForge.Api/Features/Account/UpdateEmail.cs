@@ -5,15 +5,15 @@ using AuthForge.Api.Data;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
-namespace AuthForge.Api.Features.Admin;
+namespace AuthForge.Api.Features.Account;
 
-public sealed record AdminUpdateEmailRequest(string Email);
+public sealed record UpdateEmailRequest(string Email);
 
-public sealed record AdminUpdateEmailResponse(string Message);
+public sealed record UpdateEmailResponse(string Message);
 
-public class AdminUpdateEmailValidator : AbstractValidator<AdminUpdateEmailRequest>
+public class UpdateEmailValidator : AbstractValidator<UpdateEmailRequest>
 {
-    public AdminUpdateEmailValidator()
+    public UpdateEmailValidator()
     {
         RuleFor(x => x.Email)
             .NotEmpty()
@@ -23,24 +23,24 @@ public class AdminUpdateEmailValidator : AbstractValidator<AdminUpdateEmailReque
     }
 }
 
-public class AdminUpdateEmailHandler
+public class UpdateEmailHandler
 {
     private readonly AppDbContext _context;
     private readonly ICurrentUserService _currentUser;
-    private readonly ILogger<AdminUpdateEmailHandler> _logger;
+    private readonly ILogger<UpdateEmailHandler> _logger;
 
-    public AdminUpdateEmailHandler(
+    public UpdateEmailHandler(
         AppDbContext context,
         ICurrentUserService currentUser,
-        ILogger<AdminUpdateEmailHandler> logger)
+        ILogger<UpdateEmailHandler> logger)
     {
         _context = context;
         _currentUser = currentUser;
         _logger = logger;
     }
 
-    public async Task<AdminUpdateEmailResponse> HandleAsync(
-        AdminUpdateEmailRequest request,
+    public async Task<UpdateEmailResponse> HandleAsync(
+        UpdateEmailRequest request,
         CancellationToken ct)
     {
         if (!Guid.TryParse(_currentUser.UserId, out var adminId))
@@ -51,7 +51,7 @@ public class AdminUpdateEmailHandler
         var admin = await _context.Admins.FindAsync(new object[] { adminId }, ct);
 
         if (admin == null)
-            throw new NotFoundException("Admin not found");
+            throw new NotFoundException("Account not found");
 
         var emailExists = await _context.Admins
             .AnyAsync(a => a.Email == request.Email && a.Id != adminId, ct);
@@ -64,32 +64,32 @@ public class AdminUpdateEmailHandler
 
         await _context.SaveChangesAsync(ct);
 
-        _logger.LogInformation("Admin email updated: {AdminId}", adminId);
+        _logger.LogInformation("Account email updated: {AdminId}", adminId);
 
-        return new AdminUpdateEmailResponse("Email updated successfully");
+        return new UpdateEmailResponse("Email updated successfully");
     }
 }
 
-public static class AdminUpdateEmail
+public static class UpdateEmail
 {
     public static void MapEndpoints(WebApplication app, string prefix = "/api/v1")
     {
-        app.MapPut($"{prefix}/admin/email", async (
-                AdminUpdateEmailRequest request,
-                AdminUpdateEmailHandler handler,
+        app.MapPut($"{prefix}/email", async (
+                UpdateEmailRequest request,
+                UpdateEmailHandler handler,
                 CancellationToken ct) =>
             {
-                var validator = new AdminUpdateEmailValidator();
+                var validator = new UpdateEmailValidator();
                 var validationResult = await validator.ValidateAsync(request, ct);
 
                 if (!validationResult.IsValid)
                     throw new ValidationException(validationResult.Errors);
 
                 var response = await handler.HandleAsync(request, ct);
-                return Results.Ok(ApiResponse<AdminUpdateEmailResponse>.Ok(response));
+                return Results.Ok(ApiResponse<UpdateEmailResponse>.Ok(response));
             })
-            .WithName("AdminUpdateEmail")
-            .WithTags("Admin")
+            .WithName("UpdateEmail")
+            .WithTags("Account")
             .RequireAuthorization();
     }
 }

@@ -2,24 +2,23 @@
 using AuthForge.Api.Common.Exceptions.Http;
 using AuthForge.Api.Common.Interfaces;
 using AuthForge.Api.Data;
-using AuthForge.Api.Features.Setup;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace AuthForge.Api.Features.Admin;
+namespace AuthForge.Api.Features.Account;
 
-public sealed record AdminChangePasswordRequest(
+public sealed record ChangePasswordRequest(
     string CurrentPassword,
     string NewPassword,
     string ConfirmNewPassword);
 
-public sealed record AdminChangePasswordResponse(string Message);
+public sealed record ChangePasswordResponse(string Message);
 
-public sealed class AdminChangePasswordRequestValidator
-    : AbstractValidator<AdminChangePasswordRequest>
+public sealed class ChangePasswordRequestValidator
+    : AbstractValidator<ChangePasswordRequest>
 {
-    public AdminChangePasswordRequestValidator()
+    public ChangePasswordRequestValidator()
     {
         RuleFor(x => x.CurrentPassword)
             .NotEmpty()
@@ -45,14 +44,14 @@ public sealed class AdminChangePasswordRequestValidator
     }
 }
 
-public class AdminChangePasswordHandler
+public class ChangePasswordHandler
 {
     private readonly AppDbContext _context;
-    private readonly ILogger<AdminChangePasswordHandler> _logger;
+    private readonly ILogger<ChangePasswordHandler> _logger;
     private readonly PasswordHasher<Entities.Admin> _passwordHasher;
     private readonly ICurrentUserService _currentUserService;
 
-    public AdminChangePasswordHandler(AppDbContext context, ILogger<AdminChangePasswordHandler> logger,
+    public ChangePasswordHandler(AppDbContext context, ILogger<ChangePasswordHandler> logger,
         PasswordHasher<Entities.Admin> passwordHasher, ICurrentUserService currentUserService)
     {
         _context = context;
@@ -61,12 +60,12 @@ public class AdminChangePasswordHandler
         _currentUserService = currentUserService;
     }
 
-    public async Task<AdminChangePasswordResponse> HandleAsync(AdminChangePasswordRequest request, CancellationToken ct)
+    public async Task<ChangePasswordResponse> HandleAsync(ChangePasswordRequest request, CancellationToken ct)
     {
         var currentUserId = _currentUserService.UserId;
         if (!Guid.TryParse(currentUserId, out var userGuid))
         {
-            _logger.LogInformation("Password change attempt for admin with {currentUserId} failed", currentUserId);
+            _logger.LogInformation("Password change attempt for account with {currentUserId} failed", currentUserId);
             throw new InvalidOperationException("Invalid user ID in token.");
         }
 
@@ -91,31 +90,31 @@ public class AdminChangePasswordHandler
 
         await _context.SaveChangesAsync(ct);
 
-        _logger.LogInformation("Admin {AdminId} changed password successfully", userGuid);
-        return new AdminChangePasswordResponse("Password changed successfully.");
+        _logger.LogInformation("Account {AdminId} changed password successfully", userGuid);
+        return new ChangePasswordResponse("Password changed successfully.");
     }
 }
 
-public static class AdminChangePassword
+public static class ChangePassword
 {
     public static void MapEndpoints(WebApplication app, string prefix = "/api/v1")
     {
-        app.MapPost($"{prefix}/admin/change-password", async (
-                AdminChangePasswordRequest request,
-                AdminChangePasswordHandler handler,
+        app.MapPost($"{prefix}/change-password", async (
+                ChangePasswordRequest request,
+                ChangePasswordHandler handler,
                 CancellationToken ct) =>
             {
-                var validator = new AdminChangePasswordRequestValidator();
+                var validator = new ChangePasswordRequestValidator();
                 var validationResult = await validator.ValidateAsync(request, ct);
 
                 if (!validationResult.IsValid)
-                    throw new FluentValidation.ValidationException(validationResult.Errors);
+                    throw new ValidationException(validationResult.Errors);
 
                 var response = await handler.HandleAsync(request, ct);
-                return Results.Ok(ApiResponse<AdminChangePasswordResponse>.Ok(response));
+                return Results.Ok(ApiResponse<ChangePasswordResponse>.Ok(response));
             })
-            .WithName("AdminChangePassword")
-            .WithTags("Admin")
+            .WithName("ChangePassword")
+            .WithTags("Account")
             .AllowAnonymous()
             .RequireAuthorization("Admin");
     }
