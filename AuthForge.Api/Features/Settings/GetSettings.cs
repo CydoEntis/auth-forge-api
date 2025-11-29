@@ -7,26 +7,26 @@ using AuthForge.Api.Features.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace AuthForge.Api.Features.Admin;
+namespace AuthForge.Api.Features.Settings;
 
-public sealed record AdminSettingsResponse(
+public sealed record SettingsResponse(
     string Email,
     string AuthForgeDomain,
     EmailProviderConfig EmailProvider
 );
 
-public class AdminGetSettingsHandler
+public class GetSettingsHandler
 {
     private readonly AppDbContext _appDb;
     private readonly ConfigDbContext _configDb;
     private readonly ICurrentUserService _currentUser;
-    private readonly ILogger<AdminGetSettingsHandler> _logger;
+    private readonly ILogger<GetSettingsHandler> _logger;
 
-    public AdminGetSettingsHandler(
+    public GetSettingsHandler(
         AppDbContext appDb,
         ConfigDbContext configDb,
         ICurrentUserService currentUser,
-        ILogger<AdminGetSettingsHandler> logger)
+        ILogger<GetSettingsHandler> logger)
     {
         _appDb = appDb;
         _configDb = configDb;
@@ -34,7 +34,7 @@ public class AdminGetSettingsHandler
         _logger = logger;
     }
 
-    public async Task<AdminSettingsResponse> HandleAsync(CancellationToken ct)
+    public async Task<SettingsResponse> HandleAsync(CancellationToken ct)
     {
         if (!Guid.TryParse(_currentUser.UserId, out var adminId))
             throw new UnauthorizedException("Invalid user ID");
@@ -43,19 +43,19 @@ public class AdminGetSettingsHandler
             .FirstOrDefaultAsync(a => a.Id == adminId, ct);
 
         if (admin == null)
-            throw new NotFoundException("Admin not found");
+            throw new NotFoundException("Account not found");
 
         var config = await _configDb.Configuration.FirstOrDefaultAsync(ct);
         if (config == null)
             throw new NotFoundException("Configuration not found");
 
-        _logger.LogInformation("Retrieved settings for admin {AdminId}", adminId);
+        _logger.LogInformation("Retrieved settings");
 
         var emailProvider = Enum.TryParse<EmailProvider>(config.EmailProvider, out var provider)
             ? provider
             : EmailProvider.Smtp;
 
-        return new AdminSettingsResponse(
+        return new SettingsResponse(
             Email: admin.Email,
             AuthForgeDomain: config.AuthForgeDomain ?? "http://localhost:3000",
             EmailProvider: new EmailProviderConfig
@@ -74,19 +74,19 @@ public class AdminGetSettingsHandler
     }
 }
 
-public static class AdminGetSettings
+public static class GetSettings
 {
     public static void MapEndpoints(WebApplication app, string prefix = "/api/v1")
     {
-        app.MapGet($"{prefix}/admin/settings", async (
-                [FromServices] AdminGetSettingsHandler handler,
+        app.MapGet($"{prefix}", async (
+                [FromServices] GetSettingsHandler handler,
                 CancellationToken ct) =>
             {
                 var response = await handler.HandleAsync(ct);
-                return Results.Ok(ApiResponse<AdminSettingsResponse>.Ok(response));
+                return Results.Ok(ApiResponse<SettingsResponse>.Ok(response));
             })
-            .WithName("AdminGetSettings")
-            .WithTags("Admin")
+            .WithName("GetSettings")
+            .WithTags("Settings")
             .RequireAuthorization();
     }
 }

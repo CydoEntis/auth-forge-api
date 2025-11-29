@@ -8,27 +8,27 @@ using AuthForge.Api.Features.Shared.Validators;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
-namespace AuthForge.Api.Features.Admin;
+namespace AuthForge.Api.Features.Settings;
 
-public sealed record AdminUpdateEmailProviderRequest(
+public sealed record UpdateEmailProviderRequest(
     EmailProviderConfig EmailProviderConfig
 );
 
-public sealed record AdminUpdateEmailProviderResponse(string Message);
+public sealed record UpdateEmailProviderResponse(string Message);
 
-public class AdminUpdateEmailProviderHandler
+public class UpdateEmailProviderHandler
 {
     private readonly ConfigDbContext _configDb;
     private readonly IEncryptionService _encryptionService;
 
-    public AdminUpdateEmailProviderHandler(ConfigDbContext configDb, IEncryptionService encryptionService)
+    public UpdateEmailProviderHandler(ConfigDbContext configDb, IEncryptionService encryptionService)
     {
         _configDb = configDb;
         _encryptionService = encryptionService;
     }
 
-    public async Task<AdminUpdateEmailProviderResponse> HandleAsync(
-        AdminUpdateEmailProviderRequest request,
+    public async Task<UpdateEmailProviderResponse> HandleAsync(
+        UpdateEmailProviderRequest request,
         CancellationToken ct)
     {
         var config = await _configDb.Configuration.FirstOrDefaultAsync(ct);
@@ -70,17 +70,17 @@ public class AdminUpdateEmailProviderHandler
 
         await _configDb.SaveChangesAsync(ct);
 
-        return new AdminUpdateEmailProviderResponse("Email provider updated successfully");
+        return new UpdateEmailProviderResponse("Email provider updated successfully");
     }
 }
 
-public static class AdminUpdateEmailProvider
+public static class UpdateEmailProvider
 {
     public static void MapEndpoints(WebApplication app, string prefix = "/api/v1")
     {
-        app.MapPut($"{prefix}/admin/email-provider", async (
-                AdminUpdateEmailProviderRequest request,
-                AdminUpdateEmailProviderHandler handler,
+        app.MapPut($"{prefix}/email-provider", async (
+                UpdateEmailProviderRequest request,
+                UpdateEmailProviderHandler handler,
                 CancellationToken ct) =>
             {
                 var validator = new EmailProviderConfigValidator();
@@ -90,10 +90,10 @@ public static class AdminUpdateEmailProvider
                     throw new ValidationException(validationResult.Errors);
 
                 var response = await handler.HandleAsync(request, ct);
-                return Results.Ok(ApiResponse<AdminUpdateEmailProviderResponse>.Ok(response));
+                return Results.Ok(ApiResponse<UpdateEmailProviderResponse>.Ok(response));
             })
-            .WithName("AdminUpdateEmailProvider")
-            .WithTags("Admin")
+            .WithName("UpdateEmailProvider")
+            .WithTags("Settings")
             .RequireAuthorization();
     }
 }

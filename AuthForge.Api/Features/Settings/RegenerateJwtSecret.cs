@@ -3,24 +3,24 @@ using AuthForge.Api.Common.Interfaces;
 using AuthForge.Api.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace AuthForge.Api.Features.Admin;
+namespace AuthForge.Api.Features.Settings;
 
-public sealed record AdminRegenerateJwtSecretResponse(string Message);
+public sealed record RegenerateJwtSecretResponse(string Message);
 
-public class AdminRegenerateJwtSecretHandler
+public class RegenerateJwtSecretHandler
 {
     private readonly ConfigDbContext _configDb;
     private readonly AppDbContext _appDb;
     private readonly IEncryptionService _encryptionService;
     private readonly IJwtService _jwtService;
-    private readonly ILogger<AdminRegenerateJwtSecretHandler> _logger;
+    private readonly ILogger<RegenerateJwtSecretHandler> _logger;
 
-    public AdminRegenerateJwtSecretHandler(
+    public RegenerateJwtSecretHandler(
         ConfigDbContext configDb,
         AppDbContext appDb,
         IEncryptionService encryptionService,
         IJwtService jwtService,
-        ILogger<AdminRegenerateJwtSecretHandler> logger)
+        ILogger<RegenerateJwtSecretHandler> logger)
     {
         _configDb = configDb;
         _appDb = appDb;
@@ -29,7 +29,7 @@ public class AdminRegenerateJwtSecretHandler
         _logger = logger;
     }
 
-    public async Task<AdminRegenerateJwtSecretResponse> HandleAsync(CancellationToken ct)
+    public async Task<RegenerateJwtSecretResponse> HandleAsync(CancellationToken ct)
     {
         var newSecret = _jwtService.GenerateSecureToken(64);
 
@@ -49,26 +49,26 @@ public class AdminRegenerateJwtSecretHandler
         await _configDb.SaveChangesAsync(ct);
         await _appDb.SaveChangesAsync(ct);
 
-        _logger.LogWarning("JWT secret regenerated - all admin sessions revoked");
+        _logger.LogWarning("JWT secret regenerated - all sessions revoked");
 
-        return new AdminRegenerateJwtSecretResponse(
-            "JWT secret regenerated successfully. All admins must log in again.");
+        return new RegenerateJwtSecretResponse(
+            "JWT secret regenerated successfully. All accounts must log in again.");
     }
 }
 
-public static class AdminRegenerateJwtSecret
+public static class RegenerateJwtSecret
 {
     public static void MapEndpoints(WebApplication app, string prefix = "/api/v1")
     {
-        app.MapPost($"{prefix}/admin/jwt/regenerate", async (
-                AdminRegenerateJwtSecretHandler handler,
+        app.MapPost($"{prefix}/jwt/regenerate", async (
+                RegenerateJwtSecretHandler handler,
                 CancellationToken ct) =>
             {
                 var response = await handler.HandleAsync(ct);
-                return Results.Ok(ApiResponse<AdminRegenerateJwtSecretResponse>.Ok(response));
+                return Results.Ok(ApiResponse<RegenerateJwtSecretResponse>.Ok(response));
             })
-            .WithName("AdminRegenerateJwtSecret")
-            .WithTags("Admin")
+            .WithName("RegenerateJwtSecret")
+            .WithTags("Settings")
             .RequireAuthorization();
     }
 }
