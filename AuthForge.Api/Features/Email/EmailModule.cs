@@ -10,7 +10,7 @@ public static class EmailModule
         return services;
     }
 
-    public static WebApplication MapEmailEndpoints(this WebApplication app, string prefix = "/api/v1")
+    public static WebApplication MapEmailEndpoints(this WebApplication app, string prefix = "/api/v1/email")
     {
         TestEmailProvider.MapEndpoints(app, prefix);
         return app;

@@ -127,7 +127,7 @@ public static class TestEmailProvider
 {
     public static void MapEndpoints(WebApplication app, string prefix = "/api/v1")
     {
-        app.MapPost($"{prefix}/email/test", async (
+        app.MapPost($"{prefix}/test", async (
                 TestEmailProviderRequest request,
                 TestEmailProviderHandler handler,
                 CancellationToken ct) =>
