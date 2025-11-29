@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 namespace AuthForge.Api.Features.Settings;
 
 public sealed record SettingsResponse(
-    string Email,
     string AuthForgeDomain,
     EmailProviderConfig EmailProvider
 );
@@ -56,7 +55,6 @@ public class GetSettingsHandler
             : EmailProvider.Smtp;
 
         return new SettingsResponse(
-            Email: admin.Email,
             AuthForgeDomain: config.AuthForgeDomain ?? "http://localhost:3000",
             EmailProvider: new EmailProviderConfig
             {

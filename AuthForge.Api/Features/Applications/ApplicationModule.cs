@@ -28,7 +28,7 @@ public static class ApplicationModule
         return services;
     }
 
-    public static WebApplication MapApplicationEndpoints(this WebApplication app, string prefix = "/api/v1")
+    public static WebApplication MapApplicationEndpoints(this WebApplication app, string prefix = "/api/v1/applications")
     {
         CreateApplication.MapEndpoints(app, prefix);
         GetApplication.MapEndpoints(app, prefix);

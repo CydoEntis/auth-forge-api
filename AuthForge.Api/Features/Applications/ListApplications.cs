@@ -35,13 +35,6 @@ public sealed record ApplicationAuthMethods(
     bool MagicLinks
 );
 
-public sealed record ListApplicationsResponse(
-    List<ApplicationListItem> Applications,
-    int TotalCount,
-    int Page,
-    int PageSize,
-    int TotalPages
-);
 
 public class ListApplicationsHandler
 {
@@ -54,7 +47,7 @@ public class ListApplicationsHandler
         _logger = logger;
     }
 
-    public async Task<ListApplicationsResponse> HandleAsync(
+    public async Task<PagedResponse<ApplicationListItem>> HandleAsync(
         ListApplicationsRequest request,
         CancellationToken ct)
     {
@@ -106,18 +99,15 @@ public class ListApplicationsHandler
             ))
             .ToListAsync(ct);
 
-        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-
         _logger.LogInformation(
             "Listed {Count} applications (Page {Page} of {TotalPages})",
-            applications.Count, page, totalPages);
+            applications.Count, page, (int)Math.Ceiling(totalCount / (double)pageSize));
 
-        return new ListApplicationsResponse(
-            applications,
-            totalCount,
-            page,
-            pageSize,
-            totalPages
+        return PagedResponse<ApplicationListItem>.Create(
+            items: applications,
+            totalCount: totalCount,
+            pageNumber: page,
+            pageSize: pageSize
         );
     }
 
@@ -157,13 +147,13 @@ public static class ListApplications
 {
     public static void MapEndpoints(WebApplication app, string prefix = "/api/v1")
     {
-        app.MapGet($"{prefix}/applications", async (
+        app.MapGet($"{prefix}", async (
                 [AsParameters] ListApplicationsRequest request,
                 [FromServices] ListApplicationsHandler handler,
                 CancellationToken ct) =>
             {
                 var response = await handler.HandleAsync(request, ct);
-                return Results.Ok(ApiResponse<ListApplicationsResponse>.Ok(response));
+                return Results.Ok(ApiResponse<PagedResponse<ApplicationListItem>>.Ok(response));
             })
             .WithName("ListApplications")
             .WithTags("Applications")

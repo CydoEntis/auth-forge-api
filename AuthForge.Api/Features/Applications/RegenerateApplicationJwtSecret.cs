@@ -86,7 +86,7 @@ public static class RegenerateJwtSecretFeature
                 var response = await handler.HandleAsync(id, ct);
                 return Results.Ok(ApiResponse<RegenerateApplicationJwtSecretResponse>.Ok(response));
             })
-            .WithName("RegenerateJwtSecret")
+            .WithName("Regenerate Application Jwt Secret")
             .WithTags("Applications")
             .RequireAuthorization();
     }
